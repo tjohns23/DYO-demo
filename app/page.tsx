@@ -1,19 +1,61 @@
-import { Button } from "@/components/ui/button"
+'use client';
 
-export default function Page() {
+import { useState } from 'react';
+import { supabase } from '@/lib/supabase';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+
+export default function LoginPage() {
+  const [email, setEmail] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: {
+        emailRedirectTo: process.env.NEXT_PUBLIC_SITE_URL,
+      },
+    });
+
+    if (error) {
+      setMessage(`Error: ${error.message}`);
+    } else {
+      setMessage('Check your email for the magic link! 🚀');
+    }
+    setLoading(false);
+  };
+
   return (
-    <div className="flex min-h-svh p-6">
-      <div className="flex max-w-md min-w-0 flex-col gap-4 text-sm leading-loose">
-        <div>
-          <h1 className="font-medium">Project ready!</h1>
-          <p>You may now add components and start building.</p>
-          <p>We&apos;ve already added the button component for you.</p>
-          <Button className="mt-2">Button</Button>
-        </div>
-        <div className="font-mono text-xs text-muted-foreground">
-          (Press <kbd>d</kbd> to toggle dark mode)
-        </div>
-      </div>
+    <div className="flex h-screen items-center justify-center bg-background">
+      <Card className="w-[350px] border-primary/20">
+        <CardHeader>
+          <CardTitle>Welcome to DYO</CardTitle>
+          <CardDescription>
+            Enter your email to receive a magic link for instant access.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleLogin} className="space-y-4">
+            <Input
+              type="email"
+              placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              disabled={loading}
+            />
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? 'Sending...' : 'Send Magic Link'}
+            </Button>
+            {message && <p className="text-center text-sm text-muted-foreground">{message}</p>}
+          </form>
+        </CardContent>
+      </Card>
     </div>
-  )
+  );
 }
