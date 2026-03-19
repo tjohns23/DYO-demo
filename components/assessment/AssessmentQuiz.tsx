@@ -91,6 +91,7 @@ const AssessmentQuiz = () => {
         rating,
       }));
       const profile = await scoreAssessment(responses);
+      localStorage.setItem('pending_assessment', JSON.stringify(profile));
       setArchetypeProfile(profile);
     }
   };
@@ -99,10 +100,7 @@ const AssessmentQuiz = () => {
 
   if (archetypeProfile) {
     return (
-      <ArchetypeTease
-        archetype={archetypeProfile.name}
-        description={archetypeProfile.description}
-      />
+      <ArchetypeTease profile={archetypeProfile} />
     );
   }
 

@@ -73,4 +73,7 @@ The system is divided into three core service layers:
 
 ## Development Notes
 
-*Add implementation notes, decisions, and progress here*
+Note that the quiz is taken before a user ever creates their profile. 
+They first take the quiz then receive a magic link. Their account must be created
+once they click the link.
+

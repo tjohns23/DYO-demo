@@ -116,7 +116,7 @@ const ARCHETYPE_METADATA: Record<
  * Aggregates raw Likert responses into per-dimension totals.
  * Unknown question IDs are silently ignored.
  */
-export function calculateDimensionalScores(
+function calculateDimensionalScores(
   responses: UserResponse[]
 ): DimensionalScores {
   const totals: DimensionalScores = {
@@ -141,7 +141,7 @@ export function calculateDimensionalScores(
  * Tie-breaking priority: perfectionism > avoidance > overthinking > scope_creeper.
  * This ordering reflects which pattern most commonly surfaces first in the target user.
  */
-export function determineArchetype(scores: DimensionalScores): ArchetypeSlug {
+function determineArchetype(scores: DimensionalScores): ArchetypeSlug {
   const ranked: [ArchetypeSlug, number][] = [
     ['perfectionist', scores.perfectionism],
     ['avoider', scores.avoidance],
@@ -160,73 +160,29 @@ export function determineArchetype(scores: DimensionalScores): ArchetypeSlug {
 // ---------------------------------------------------------------------------
 
 /**
- * Scores a completed assessment and optionally persists results to Supabase.
- *
- * Flow:
- *  1. Aggregate raw responses into DimensionalScores.
- *  2. Determine the primary ArchetypeSlug.
- *  3. Fetch the archetype's UUID from the `archetypes` table.
- *  4. If `userId` is provided, upsert the user's profile row with scores + archetype.
- *  5. Return the full ArchetypeProfile for the frontend "Hero Moment".
- *
- * DB writes are scoped to the authenticated user's own row — RLS-safe by design.
- * Any persistence failure is caught and logged; it will never interrupt the
- * creator's reveal experience.
- *
- * @param responses  Array of { questionId, rating } for all 20 questions.
- * @param userId     Optional Supabase auth user UUID. Pass this once the user
- *                   completes the email gate / magic-link flow.
+ * Scores a completed assessment and returns metadata for the UI "Tease".
+ * * Flow:
+ * 1. Aggregates raw 1-5 responses into DimensionalScores.
+ * 2. Determines the primary ArchetypeSlug (highest dimension wins).
+ * 3. Maps the slug to static ARCHETYPE_METADATA.
+ * 4. Returns the result for the frontend to store in state/sessionStorage.
+ * * Note: This function does NOT persist data to the database. 
+ * Use `linkAssessmentToUser` after the user authenticates to save results.
+ * * @param responses - Array of { questionId, rating } for the 20 assessment questions.
  */
 export async function scoreAssessment(
   responses: UserResponse[],
-  userId?: string
 ): Promise<ArchetypeProfile> {
-  // 1 & 2 — Pure calculation (never fails)
+  // Calculate the raw dimensions
   const scores = calculateDimensionalScores(responses);
+
+  // Determine the archetype slug from the scores
   const slug = determineArchetype(scores);
+
+  // Fetch the metadata for this archetype (name, description, etc.)
   const metadata = ARCHETYPE_METADATA[slug];
 
-  // 3 & 4 — Persist to Supabase when we have an authenticated user
-  if (userId) {
-    try {
-      // Look up the archetype's UUID so `profiles.archetype_id` references it correctly.
-      const { data: archetypeRow, error: archetypeErr } = await supabaseAdmin
-        .from('archetypes')
-        .select('id')
-        .eq('slug', slug)
-        .single();
-
-      if (archetypeErr) {
-        console.error('[scoreAssessment] Could not fetch archetype row:', archetypeErr.message);
-      }
-
-      // Upsert the profile — insert on first assessment, update on re-take.
-      // Scoped to userId so this row can never overwrite another user's data.
-      const { error: profileErr } = await supabaseAdmin
-        .from('profiles')
-        .upsert(
-          {
-            id: userId,
-            archetype_id: archetypeRow?.id ?? null,
-            perfectionism_score: scores.perfectionism,
-            avoidance_score: scores.avoidance,
-            overthinking_score: scores.overthinking,
-            scope_creep_score: scores.scopeCreep,
-            updated_at: new Date().toISOString(),
-          },
-          { onConflict: 'id' }
-        );
-
-      if (profileErr) {
-        console.error('[scoreAssessment] Profile upsert failed:', profileErr.message);
-      }
-    } catch (err) {
-      // Persistence errors must not break the creator's journey.
-      console.error('[scoreAssessment] Unexpected DB error:', err);
-    }
-  }
-
-  // 5 — Return the full profile for the frontend Hero Moment
+  // Return the 'tease' data
   return {
     slug,
     name: metadata.name,
@@ -234,4 +190,38 @@ export async function scoreAssessment(
     description: metadata.description,
     scores,
   };
+}
+
+export async function linkAssessmentToUser(userId: string, email: string, profile: ArchetypeProfile) {
+  try {
+    // A. Resolve the archetype UUID from the slug
+    const { data: archetypeRow, error: archetypeErr } = await supabaseAdmin
+      .from('archetypes')
+      .select('id')
+      .eq('slug', profile.slug)
+      .single();
+
+    if (archetypeErr) throw new Error(`Archetype ${profile.slug} not found in DB.`);
+
+    // B. Upsert to the profiles table
+    const { error: profileErr } = await supabaseAdmin
+      .from('profiles')
+      .upsert({
+        id: userId,
+        email: email,
+        archetype_id: archetypeRow.id,
+        perfectionism_score: profile.scores.perfectionism,
+        avoidance_score: profile.scores.avoidance,
+        overthinking_score: profile.scores.overthinking,
+        scope_creep_score: profile.scores.scopeCreep,
+        updated_at: new Date().toISOString(),
+      });
+
+    if (profileErr) throw profileErr;
+
+    return { success: true };
+  } catch (err) {
+    console.error("Critical: Failed to sync assessment to profile", err);
+    throw err; // Fail-loud!
+  }
 }
