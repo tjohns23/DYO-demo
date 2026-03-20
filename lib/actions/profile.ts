@@ -1,16 +1,23 @@
 'use server';
 
 import { supabaseAdmin } from '@/lib/supabase-admin';
-import { ArchetypeProfile } from './assessment';
+import type { ArchetypeProfile, ArchetypeSlug } from './assessment';
+import { ARCHETYPE_METADATA } from '@/lib/archetype-metadata';
 import { cookies } from 'next/headers';
 
 /**
- * Saves the assessment scores to the user's profile after authentication.
+ * Saves the assessment results to the user's profile after authentication.
  * Called during the magic link callback flow with the authenticated user's info.
+ *
+ * Persists:
+ * - The primary archetype assignment
+ * - Raw quiz responses (as an indexed array)
+ * - All archetype scores (as JSONB)
+ * - Timestamp of completion
  *
  * @param userId  The authenticated user's UUID
  * @param email   The authenticated user's email
- * @param profile The ArchetypeProfile with scores and archetype slug
+ * @param profile The ArchetypeProfile with archetype slug, scores, and responses
  * @returns { success: boolean, error?: string }
  */
 export async function saveAssessmentToProfile(
@@ -19,30 +26,25 @@ export async function saveAssessmentToProfile(
   profile: ArchetypeProfile
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    // Fetch the archetype ID from the slug
-    const { data: archetypeData, error: archetypeError } = await supabaseAdmin
-      .from('archetypes')
-      .select('id')
-      .eq('slug', profile.slug)
-      .single();
-
-    if (archetypeError || !archetypeData) {
-      console.error('Error fetching archetype:', archetypeError);
-      return { success: false, error: 'Archetype not found' };
+    // Convert responses to indexed array (Q1=index 0, Q2=index 1, etc.)
+    const quizAnswers = new Array(20).fill(null);
+    if (profile.responses) {
+      for (const response of profile.responses) {
+        quizAnswers[response.questionId - 1] = response.rating;
+      }
     }
 
-    // Upsert the user profile with assessment scores
+    // Upsert the user profile with archetype slug and assessment data
     const { error: profileError } = await supabaseAdmin
       .from('profiles')
       .upsert(
         {
           id: userId,
           email: email,
-          archetype_id: archetypeData.id,
-          perfectionism_score: profile.scores.perfectionism,
-          avoidance_score: profile.scores.avoidance,
-          overthinking_score: profile.scores.overthinking,
-          scope_creep_score: profile.scores.scopeCreep,
+          archetype_name: profile.slug,
+          quiz_answers: quizAnswers,
+          archetype_scores: profile.scores as unknown as Record<string, number>,
+          assessment_completed_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         },
         { onConflict: 'id' }
@@ -80,18 +82,16 @@ export async function getUserArchetypeProfile(): Promise<ArchetypeProfile | null
       return null;
     }
 
-    // Fetch the user's profile with archetype data
+    // Fetch the user's profile with assessment data
     const { data, error } = await supabaseAdmin
       .from('profiles')
       .select(
         `
         id,
         email,
-        perfectionism_score,
-        avoidance_score,
-        overthinking_score,
-        scope_creep_score,
-        archetypes(slug, name, tagline, description)
+        archetype_name,
+        quiz_answers,
+        archetype_scores
       `
       )
       .eq('id', userId)
@@ -102,27 +102,54 @@ export async function getUserArchetypeProfile(): Promise<ArchetypeProfile | null
       return null;
     }
 
-    if (!data || !data.archetypes) {
+    if (!data || !data.archetype_name) {
       console.log('No profile or archetype data found');
       return null;
     }
 
-    // Map to ArchetypeProfile format
-    type ArchetypeRow = { slug: string; name: string; tagline: string; description: string };
-    const archetype = (
-      Array.isArray(data.archetypes) ? data.archetypes[0] : data.archetypes
-    ) as ArchetypeRow;
+    const archetypeSlug = data.archetype_name as ArchetypeSlug;
+
+    const metadata = ARCHETYPE_METADATA[archetypeSlug];
+
+    if (!metadata) {
+      console.error('No metadata for archetype:', archetypeSlug);
+      return null;
+    }
+
+    // Reconstruct archetype scores if available, otherwise use zeros
+    let scores = {
+      optimizer: 0,
+      strategist: 0,
+      visionary: 0,
+      advocate: 0,
+      politician: 0,
+      empath: 0,
+      builder: 0,
+      stabilizer: 0,
+    };
+
+    if (data.archetype_scores && typeof data.archetype_scores === 'object') {
+      scores = { ...scores, ...data.archetype_scores };
+    }
+
+    // Reconstruct responses if available
+    let responses: ArchetypeProfile['responses'] = undefined;
+    if (Array.isArray(data.quiz_answers)) {
+      responses = data.quiz_answers
+        .map((rating: number | null, index: number) => ({
+          questionId: index + 1,
+          rating: rating || 0,
+        }))
+        .filter((r: { questionId: number; rating: number }) => r.rating > 0);
+    }
+
     return {
-      slug: archetype.slug as ArchetypeProfile['slug'],
-      name: archetype.name,
-      tagline: archetype.tagline,
-      description: archetype.description,
-      scores: {
-        perfectionism: data.perfectionism_score || 0,
-        avoidance: data.avoidance_score || 0,
-        overthinking: data.overthinking_score || 0,
-        scopeCreep: data.scope_creep_score || 0,
-      },
+      slug: archetypeSlug,
+      name: metadata.name,
+      tagline: metadata.tagline,
+      description: metadata.description,
+      scores,
+      responses,
     };
   } catch (err) {
     console.error('Unexpected error fetching user archetype:', err);

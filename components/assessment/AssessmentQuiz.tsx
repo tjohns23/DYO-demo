@@ -21,33 +21,43 @@ type Question = {
 };
 
 const QUESTIONS: Question[] = [
-  // Perfectionism (5 questions)
-  { id: 1,  text: '[Placeholder] I often delay finishing work because it doesn\'t feel good enough yet.',       dimension: 'perfectionism' },
-  { id: 2,  text: '[Placeholder] I spend more time refining than I do creating.',                               dimension: 'perfectionism' },
-  { id: 3,  text: '[Placeholder] I find it hard to call something "done" without one more revision.',           dimension: 'perfectionism' },
-  { id: 4,  text: '[Placeholder] I hold back sharing work because I worry about how it will be received.',     dimension: 'perfectionism' },
-  { id: 5,  text: '[Placeholder] I work best when I have clear, time-bound constraints in front of me.',       dimension: 'perfectionism' },
+  // Perfectionism/Refinement (Optimizer)
+  { id: 1, text: 'I often revise my work multiple times before I consider it ready to share.', dimension: 'perfectionism' },
+  { id: 2, text: 'I find it harder to decide something is "done" than to actually do the work.', dimension: 'perfectionism' },
 
-  // Avoidance (5 questions)
-  { id: 6,  text: '[Placeholder] I tend to do easier tasks before tackling the most important one.',           dimension: 'avoidance' },
-  { id: 7,  text: '[Placeholder] I often feel a vague dread about starting a project I care about.',           dimension: 'avoidance' },
-  { id: 8,  text: '[Placeholder] I reorganize or plan instead of doing the actual work.',                      dimension: 'avoidance' },
-  { id: 9,  text: '[Placeholder] I frequently tell myself I\'ll start once conditions are better.',            dimension: 'avoidance' },
-  { id: 10, text: '[Placeholder] I find it easier to help others make progress than to make my own.',          dimension: 'avoidance' },
+  // Systems Thinking/Analysis (Strategist)
+  { id: 3, text: 'Before I start a project, I need to understand how all the pieces will fit together.', dimension: 'overthinking' },
+  { id: 4, text: 'I struggle to move forward when I don\'t have enough information to make the optimal choice.', dimension: 'overthinking' },
 
-  // Overthinking (5 questions)
-  { id: 11, text: '[Placeholder] I research topics long past the point where I have enough to act.',           dimension: 'overthinking' },
-  { id: 12, text: '[Placeholder] I often think through many possible approaches before choosing one.',         dimension: 'overthinking' },
-  { id: 13, text: '[Placeholder] I second-guess decisions I\'ve already made.',                                dimension: 'overthinking' },
-  { id: 14, text: '[Placeholder] I find it hard to commit to one direction without knowing all the options.',  dimension: 'overthinking' },
-  { id: 15, text: '[Placeholder] I get stuck weighing pros and cons long after a decision should be made.',    dimension: 'overthinking' },
+  // Vision/Possibility (Visionary)
+  { id: 5, text: 'I\'m energized by imagining what could be, even if I haven\'t finished what currently is.', dimension: 'scope_creep' },
+  { id: 6, text: 'I often start new projects before completing previous ones because the new idea feels more exciting.', dimension: 'scope_creep' },
 
-  // Scope Creep (5 questions)
-  { id: 16, text: '[Placeholder] My projects tend to grow bigger than I originally intended.',                 dimension: 'scope_creep' },
-  { id: 17, text: '[Placeholder] I add features or ideas mid-project that weren\'t part of the original plan.',dimension: 'scope_creep' },
-  { id: 18, text: '[Placeholder] I rarely finish a project in its original form.',                             dimension: 'scope_creep' },
-  { id: 19, text: '[Placeholder] I find it hard to draw a line between "version 1" and "someday maybe".',     dimension: 'scope_creep' },
-  { id: 20, text: '[Placeholder] I often restart projects from scratch rather than ship an imperfect version.',dimension: 'scope_creep' },
+  // Purpose/Values Alignment (Advocate)
+  { id: 7, text: 'I can\'t bring myself to work on something if I don\'t understand why it matters.', dimension: 'avoidance' },
+  { id: 8, text: 'When my work feels misaligned with my values, I lose all motivation to continue.', dimension: 'avoidance' },
+
+  // Social/Collaborative Energy (Politician)
+  { id: 9, text: 'I accomplish more when other people can see my progress or provide feedback.', dimension: 'avoidance' },
+  { id: 10, text: 'Working alone for extended periods drains my energy and makes it hard to stay motivated.', dimension: 'avoidance' },
+
+  // Emotional Sensitivity/Safety (Empath)
+  { id: 11, text: 'The thought of sharing unfinished work makes me feel vulnerable and exposed.', dimension: 'perfectionism' },
+  { id: 12, text: 'Harsh criticism affects my ability to work for longer than most people realize.', dimension: 'scope_creep' },
+
+  // Structure/Process Preference (Builder)
+  { id: 13, text: 'I work best when I have clear, step-by-step processes to follow.', dimension: 'overthinking' },
+  { id: 14, text: 'Ambiguous projects frustrate me—I need defined inputs and outputs to execute well.', dimension: 'overthinking' },
+
+  // Stability/Clarity Need (Stabilizer)
+  { id: 15, text: 'I feel anxious starting work when I\'m unsure what "success" looks like.', dimension: 'avoidance' },
+  { id: 16, text: 'I prefer consistent routines and clear expectations over flexibility and autonomy.', dimension: 'avoidance' },
+
+  // Cross-Dimensional Questions (Distinguishing Similar Types)
+  { id: 17, text: 'When I\'m stuck, it\'s usually because I\'m trying to make something perfect rather than because I don\'t know how to start.', dimension: 'perfectionism' },
+  { id: 18, text: 'I generate ideas faster than I can execute them, and that\'s usually my biggest challenge.', dimension: 'scope_creep' },
+  { id: 19, text: 'I need to see the long-term implications of my work before I can commit to doing it.', dimension: 'overthinking' },
+  { id: 20, text: 'I\'m more likely to abandon a project because it lost meaning than because it got difficult.', dimension: 'avoidance' },
 ];
 
 // Likert scale options are fixed — they don't belong in the questions array.

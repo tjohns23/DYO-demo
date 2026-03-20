@@ -6,23 +6,31 @@ import { supabaseAdmin } from '@/lib/supabase-admin';
 // Types
 // ---------------------------------------------------------------------------
 
-export interface DimensionalScores {
-  perfectionism: number;
-  avoidance: number;
-  overthinking: number;
-  scopeCreep: number;
+export interface ArchetypeScores {
+  optimizer:  number;
+  strategist: number;
+  visionary:  number;
+  advocate:   number;
+  politician: number;
+  empath:     number;
+  builder:    number;
+  stabilizer: number;
 }
 
 export interface UserResponse {
   questionId: number;
-  rating: number; // 1–5 Likert value
+  rating:     number; // 1–5 Likert value
 }
 
 export type ArchetypeSlug =
-  | 'perfectionist'
-  | 'avoider'
-  | 'overthinker'
-  | 'scope_creeper';
+  | 'optimizer'
+  | 'strategist'
+  | 'visionary'
+  | 'advocate'
+  | 'politician'
+  | 'empath'
+  | 'builder'
+  | 'stabilizer';
 
 export interface ArchetypeProfile {
   slug: ArchetypeSlug;
@@ -32,44 +40,45 @@ export interface ArchetypeProfile {
   tagline: string;
   /** 2–3 sentence description for the reveal card */
   description: string;
-  /** Raw dimension totals from this assessment */
-  scores: DimensionalScores;
+  /** Raw archetype totals from this assessment */
+  scores: ArchetypeScores;
+  /** Raw quiz responses (optional, persisted after auth) */
+  responses?: UserResponse[];
 }
 
 // ---------------------------------------------------------------------------
-// Question → Dimension mapping
-// Mirrors the QUESTIONS array in AssessmentQuiz.tsx so scoring is source-of-truth
-// here without importing a client component.
+// Question → Archetype mapping
+// Each question increments and/or decrements specific archetypes based on responses.
+// A response of 5 (Strongly Agree) will add 5 points per increment archetype
+// and subtract 5 points per decrement archetype.
 // ---------------------------------------------------------------------------
 
-const QUESTION_DIMENSION_MAP: Record<number, keyof DimensionalScores> = {
-  // Perfectionism (Q1–5)
-  1: 'perfectionism',
-  2: 'perfectionism',
-  3: 'perfectionism',
-  4: 'perfectionism',
-  5: 'perfectionism',
+type QuestionMap = Record<
+  number,
+  { increments: ArchetypeSlug[]; decrements: ArchetypeSlug[] }
+>;
 
-  // Avoidance (Q6–10)
-  6: 'avoidance',
-  7: 'avoidance',
-  8: 'avoidance',
-  9: 'avoidance',
-  10: 'avoidance',
-
-  // Overthinking (Q11–15)
-  11: 'overthinking',
-  12: 'overthinking',
-  13: 'overthinking',
-  14: 'overthinking',
-  15: 'overthinking',
-
-  // Scope Creep (Q16–20)
-  16: 'scopeCreep',
-  17: 'scopeCreep',
-  18: 'scopeCreep',
-  19: 'scopeCreep',
-  20: 'scopeCreep',
+const QUESTION_ARCHETYPE_MAP: QuestionMap = {
+  1:  { increments: ['optimizer'],                decrements: ['builder'] },
+  2:  { increments: ['optimizer', 'strategist'],  decrements: ['stabilizer'] },
+  3:  { increments: ['strategist', 'builder'],    decrements: ['visionary'] },
+  4:  { increments: ['strategist', 'stabilizer'], decrements: ['politician'] },
+  5:  { increments: ['visionary', 'advocate'],    decrements: ['builder'] },
+  6:  { increments: ['visionary'],                decrements: ['optimizer', 'stabilizer'] },
+  7:  { increments: ['advocate', 'empath'],       decrements: ['builder'] },
+  8:  { increments: ['advocate'],                 decrements: ['politician'] },
+  9:  { increments: ['politician'],               decrements: ['strategist'] },
+  10: { increments: ['politician'],               decrements: ['builder'] },
+  11: { increments: ['empath', 'optimizer'],      decrements: ['politician'] },
+  12: { increments: ['empath'],                   decrements: ['visionary'] },
+  13: { increments: ['builder', 'stabilizer'],    decrements: ['visionary'] },
+  14: { increments: ['builder', 'stabilizer'],    decrements: ['advocate'] },
+  15: { increments: ['stabilizer', 'empath'],     decrements: ['visionary'] },
+  16: { increments: ['stabilizer'],               decrements: ['politician'] },
+  17: { increments: ['optimizer'],                decrements: ['stabilizer'] },
+  18: { increments: ['visionary'],                decrements: ['builder'] },
+  19: { increments: ['strategist', 'advocate'],   decrements: ['politician'] },
+  20: { increments: ['advocate'],                 decrements: ['visionary'] },
 };
 
 // ---------------------------------------------------------------------------
@@ -78,58 +87,44 @@ const QUESTION_DIMENSION_MAP: Record<number, keyof DimensionalScores> = {
 // Max score per dimension = 25 (5 questions × 5 points).
 // ---------------------------------------------------------------------------
 
-const ARCHETYPE_METADATA: Record<
-  ArchetypeSlug,
-  Pick<ArchetypeProfile, 'name' | 'tagline' | 'description'>
-> = {
-  perfectionist: {
-    name: 'The Perfectionist',
-    tagline: "You're wired for excellence — and it's keeping you stuck.",
-    description:
-      "You set the bar high and hold yourself to every inch of it. That drive produces beautiful work — eventually. But that same standard has a shadow side: it keeps finished work in draft forever. You don't need lower standards. You need a hard deadline that makes 'good enough to ship' feel like victory.",
-  },
-  avoider: {
-    name: 'The Avoider',
-    tagline: "You're not lazy. You're afraid — and that's fixable.",
-    description:
-      "You know what needs doing. You're talented enough to do it. But something between knowing and starting feels unbridgeable. That gap isn't a character flaw — it's a learned pattern, and patterns can be interrupted. A short, scoped mission is harder to avoid than an open-ended project.",
-  },
-  overthinker: {
-    name: 'The Overthinker',
-    tagline: 'Your brain is working overtime. Time to put it to work.',
-    description:
-      "You've mapped every angle, weighed every option, and considered every outcome — twice. You're not lacking information; you're drowning in it. More research won't break the loop. A timer and a single, locked-in direction will. The best decision is the one you actually execute.",
-  },
-  scope_creeper: {
-    name: 'The Scope Creeper',
-    tagline: 'Every good idea deserves a version 1.0.',
-    description:
-      "Your imagination is your superpower and your kryptonite. Every project expands with possibility — and expanded projects rarely ship. The answer isn't fewer ideas; it's a harder boundary around version one. Ship the core. The rest becomes version two.",
-  },
-};
+// Import from separate file (can't export constants from 'use server' files)
+import { ARCHETYPE_METADATA } from '@/lib/archetype-metadata';
 
 // ---------------------------------------------------------------------------
 // Core scoring functions (pure — no side effects)
 // ---------------------------------------------------------------------------
 
 /**
- * Aggregates raw Likert responses into per-dimension totals.
+ * Aggregates raw Likert responses into per-archetype totals.
+ * Each response increments and/or decrements specific archetype scores.
  * Unknown question IDs are silently ignored.
  */
-function calculateDimensionalScores(
+function calculateArchetypeScores(
   responses: UserResponse[]
-): DimensionalScores {
-  const totals: DimensionalScores = {
-    perfectionism: 0,
-    avoidance: 0,
-    overthinking: 0,
-    scopeCreep: 0,
+): ArchetypeScores {
+  const totals: ArchetypeScores = {
+    optimizer: 0,
+    strategist: 0,
+    visionary: 0,
+    advocate: 0,
+    politician: 0,
+    empath: 0,
+    builder: 0,
+    stabilizer: 0,
   };
 
   for (const { questionId, rating } of responses) {
-    const dimension = QUESTION_DIMENSION_MAP[questionId];
-    if (dimension !== undefined) {
-      totals[dimension] += rating;
+    const mapping = QUESTION_ARCHETYPE_MAP[questionId];
+    if (!mapping) continue; // Skip unknown questions
+
+    // Add points to increment archetypes
+    for (const archetype of mapping.increments) {
+      totals[archetype] += rating;
+    }
+
+    // Subtract points from decrement archetypes
+    for (const archetype of mapping.decrements) {
+      totals[archetype] -= rating;
     }
   }
 
@@ -137,22 +132,32 @@ function calculateDimensionalScores(
 }
 
 /**
- * Identifies the primary archetype from dimensional totals.
- * Tie-breaking priority: perfectionism > avoidance > overthinking > scope_creeper.
- * This ordering reflects which pattern most commonly surfaces first in the target user.
+ * Identifies the primary archetype from archetype totals.
+ * The archetype with the highest score wins; ties default to the first in the array.
  */
-function determineArchetype(scores: DimensionalScores): ArchetypeSlug {
-  const ranked: [ArchetypeSlug, number][] = [
-    ['perfectionist', scores.perfectionism],
-    ['avoider', scores.avoidance],
-    ['overthinker', scores.overthinking],
-    ['scope_creeper', scores.scopeCreep],
+function determineArchetype(scores: ArchetypeScores): ArchetypeSlug {
+  const archetypes: ArchetypeSlug[] = [
+    'optimizer',
+    'strategist',
+    'visionary',
+    'advocate',
+    'politician',
+    'empath',
+    'builder',
+    'stabilizer',
   ];
 
-  // Stable sort: higher score first; index position breaks ties (priority order above).
-  ranked.sort((a, b) => b[1] - a[1]);
+  let maxScore = -Infinity;
+  let winningSlug: ArchetypeSlug = 'optimizer';
 
-  return ranked[0][0];
+  for (const archetype of archetypes) {
+    if (scores[archetype] > maxScore) {
+      maxScore = scores[archetype];
+      winningSlug = archetype;
+    }
+  }
+
+  return winningSlug;
 }
 
 // ---------------------------------------------------------------------------
@@ -161,20 +166,22 @@ function determineArchetype(scores: DimensionalScores): ArchetypeSlug {
 
 /**
  * Scores a completed assessment and returns metadata for the UI "Tease".
- * * Flow:
- * 1. Aggregates raw 1-5 responses into DimensionalScores.
- * 2. Determines the primary ArchetypeSlug (highest dimension wins).
+ * Flow:
+ * 1. Aggregates raw 1-5 responses into ArchetypeScores.
+ * 2. Determines the primary ArchetypeSlug (highest score wins).
  * 3. Maps the slug to static ARCHETYPE_METADATA.
- * 4. Returns the result for the frontend to store in state/sessionStorage.
- * * Note: This function does NOT persist data to the database. 
- * Use `linkAssessmentToUser` after the user authenticates to save results.
- * * @param responses - Array of { questionId, rating } for the 20 assessment questions.
+ * 4. Returns the result for the frontend to store in state/localStorage.
+ *
+ * Note: This function does NOT persist data to the database.
+ * Use `saveAssessmentToProfile` after the user authenticates to save results.
+ *
+ * @param responses - Array of { questionId, rating } for the 20 assessment questions.
  */
 export async function scoreAssessment(
   responses: UserResponse[],
 ): Promise<ArchetypeProfile> {
-  // Calculate the raw dimensions
-  const scores = calculateDimensionalScores(responses);
+  // Calculate the raw archetype scores from responses
+  const scores = calculateArchetypeScores(responses);
 
   // Determine the archetype slug from the scores
   const slug = determineArchetype(scores);
@@ -182,13 +189,14 @@ export async function scoreAssessment(
   // Fetch the metadata for this archetype (name, description, etc.)
   const metadata = ARCHETYPE_METADATA[slug];
 
-  // Return the 'tease' data
+  // Return the 'tease' data with responses for persistence
   return {
     slug,
     name: metadata.name,
     tagline: metadata.tagline,
     description: metadata.description,
     scores,
+    responses,
   };
 }
 
@@ -203,17 +211,13 @@ export async function linkAssessmentToUser(userId: string, email: string, profil
 
     if (archetypeErr) throw new Error(`Archetype ${profile.slug} not found in DB.`);
 
-    // B. Upsert to the profiles table
+    // B. Upsert to the profiles table with the archetype assignment
     const { error: profileErr } = await supabaseAdmin
       .from('profiles')
       .upsert({
         id: userId,
         email: email,
         archetype_id: archetypeRow.id,
-        perfectionism_score: profile.scores.perfectionism,
-        avoidance_score: profile.scores.avoidance,
-        overthinking_score: profile.scores.overthinking,
-        scope_creep_score: profile.scores.scopeCreep,
         updated_at: new Date().toISOString(),
       });
 

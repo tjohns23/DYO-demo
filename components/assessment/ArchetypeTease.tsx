@@ -59,7 +59,7 @@ export default function ArchetypeTease({ profile }: ArchetypeTeaseProps) {
 
         {/* Supporting Description */}
         <p className="text-lg md:text-xl text-(--color-neutral) mb-12 leading-relaxed">
-          {profile.description}
+          {profile.tagline}
         </p>
 
         {/* Email Gate Card */}

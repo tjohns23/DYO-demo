@@ -46,50 +46,42 @@ export type Database = {
       }
       profiles: {
         Row: {
-          archetype_id: string | null
-          avoidance_score: number | null
+          archetype_name: string | null
+          archetype_scores: Json | null
+          archetype_slug: string | null
+          assessment_completed_at: string | null
           beta_approved: boolean | null
           created_at: string | null
           email: string
           id: string
-          overthinking_score: number | null
-          perfectionism_score: number | null
-          scope_creep_score: number | null
+          quiz_answers: number[] | null
           updated_at: string | null
         }
         Insert: {
-          archetype_id?: string | null
-          avoidance_score?: number | null
+          archetype_name?: string | null
+          archetype_scores?: Json | null
+          archetype_slug?: string | null
+          assessment_completed_at?: string | null
           beta_approved?: boolean | null
           created_at?: string | null
           email: string
           id: string
-          overthinking_score?: number | null
-          perfectionism_score?: number | null
-          scope_creep_score?: number | null
+          quiz_answers?: number[] | null
           updated_at?: string | null
         }
         Update: {
-          archetype_id?: string | null
-          avoidance_score?: number | null
+          archetype_name?: string | null
+          archetype_scores?: Json | null
+          archetype_slug?: string | null
+          assessment_completed_at?: string | null
           beta_approved?: boolean | null
           created_at?: string | null
           email?: string
           id?: string
-          overthinking_score?: number | null
-          perfectionism_score?: number | null
-          scope_creep_score?: number | null
+          quiz_answers?: number[] | null
           updated_at?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "profiles_archetype_id_fkey"
-            columns: ["archetype_id"]
-            isOneToOne: false
-            referencedRelation: "archetypes"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       quiz_questions: {
         Row: {

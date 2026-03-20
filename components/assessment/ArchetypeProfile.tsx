@@ -16,28 +16,19 @@ export default function ArchetypeProfile({ profile }: ArchetypeProfileProps) {
     '--color-border': theme.border,
   } as React.CSSProperties;
 
-  const dimensions = [
-    {
-      label: 'Perfectionism',
-      value: profile.scores.perfectionism,
-      max: 25,
-    },
-    {
-      label: 'Avoidance',
-      value: profile.scores.avoidance,
-      max: 25,
-    },
-    {
-      label: 'Overthinking',
-      value: profile.scores.overthinking,
-      max: 25,
-    },
-    {
-      label: 'Scope Creep',
-      value: profile.scores.scopeCreep,
-      max: 25,
-    },
+  // All 8 archetypes with their scores
+  const archetypeScores = [
+    { label: 'Optimizer',  value: profile.scores.optimizer },
+    { label: 'Strategist', value: profile.scores.strategist },
+    { label: 'Visionary',  value: profile.scores.visionary },
+    { label: 'Advocate',   value: profile.scores.advocate },
+    { label: 'Politician', value: profile.scores.politician },
+    { label: 'Empath',     value: profile.scores.empath },
+    { label: 'Builder',    value: profile.scores.builder },
+    { label: 'Stabilizer', value: profile.scores.stabilizer },
   ];
+
+  const maxScore = Math.max(...archetypeScores.map((a) => a.value), 1);
 
   return (
     <div
@@ -61,26 +52,27 @@ export default function ArchetypeProfile({ profile }: ArchetypeProfileProps) {
           </p>
         </div>
 
-        {/* Dimensional Breakdown */}
+        {/* Archetype Score Breakdown */}
         <div className="bg-white border-2 border-(--color-border) rounded-xl p-8 md:p-10 mb-8">
-          <h2 className="text-2xl font-bold text-(--color-primary) mb-8">Your Dimensional Profile</h2>
+          <h2 className="text-2xl font-bold text-(--color-primary) mb-8">Your Archetype Scores</h2>
 
-          <div className="space-y-8">
-            {dimensions.map((dim) => {
-              const percentage = (dim.value / dim.max) * 100;
+          <div className="space-y-6">
+            {archetypeScores.map((archetype) => {
+              const percentage = (archetype.value / maxScore) * 100;
+              const isWinner = archetype.label === profile.name.replace('The ', '');
               return (
-                <div key={dim.label} className="space-y-3">
+                <div key={archetype.label} className="space-y-2">
                   <div className="flex justify-between items-baseline">
-                    <span className="text-lg font-semibold text-(--color-neutral)">
-                      {dim.label}
+                    <span className={`text-lg font-semibold ${isWinner ? 'text-(--color-primary)' : 'text-(--color-neutral)'}`}>
+                      {archetype.label}
                     </span>
                     <span className="text-sm text-(--color-neutral)/70">
-                      {dim.value} / {dim.max}
+                      {archetype.value}
                     </span>
                   </div>
-                  <div className="w-full h-3 bg-(--color-border) rounded-full overflow-hidden">
+                  <div className="w-full h-2 bg-(--color-border) rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-(--color-primary) rounded-full transition-all duration-500"
+                      className={`h-full rounded-full transition-all duration-500 ${isWinner ? 'bg-(--color-primary)' : 'bg-(--color-neutral)/40'}`}
                       style={{ width: `${percentage}%` }}
                     />
                   </div>
