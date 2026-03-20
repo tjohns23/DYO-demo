@@ -26,11 +26,20 @@ export async function saveAssessmentToProfile(
   profile: ArchetypeProfile
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    // Convert responses to indexed array (Q1=index 0, Q2=index 1, etc.)
+    // Convert core responses (Q1-Q20) to indexed array
     const quizAnswers = new Array(20).fill(null);
     if (profile.responses) {
       for (const response of profile.responses) {
         quizAnswers[response.questionId - 1] = response.rating;
+      }
+    }
+
+    // Convert calibration responses (Q21-Q25) to indexed array
+    // Stored as JSON object for flexibility with string/number values
+    const calibrationAnswers: Record<number, string | number> = {};
+    if (profile.calibrationResponses) {
+      for (const response of profile.calibrationResponses) {
+        calibrationAnswers[response.questionId - 21] = response.value;
       }
     }
 
@@ -41,8 +50,9 @@ export async function saveAssessmentToProfile(
         {
           id: userId,
           email: email,
-          archetype_name: profile.slug,
+          archetype_slug: profile.slug,
           quiz_answers: quizAnswers,
+          calibration_answers: calibrationAnswers,
           archetype_scores: profile.scores as unknown as Record<string, number>,
           assessment_completed_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
@@ -89,8 +99,9 @@ export async function getUserArchetypeProfile(): Promise<ArchetypeProfile | null
         `
         id,
         email,
-        archetype_name,
+        archetype_slug,
         quiz_answers,
+        calibration_answers,
         archetype_scores
       `
       )
@@ -102,12 +113,12 @@ export async function getUserArchetypeProfile(): Promise<ArchetypeProfile | null
       return null;
     }
 
-    if (!data || !data.archetype_name) {
+    if (!data || !data.archetype_slug) {
       console.log('No profile or archetype data found');
       return null;
     }
 
-    const archetypeSlug = data.archetype_name as ArchetypeSlug;
+    const archetypeSlug = data.archetype_slug as ArchetypeSlug;
 
     const metadata = ARCHETYPE_METADATA[archetypeSlug];
 

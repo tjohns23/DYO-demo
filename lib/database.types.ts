@@ -46,11 +46,11 @@ export type Database = {
       }
       profiles: {
         Row: {
-          archetype_name: string | null
           archetype_scores: Json | null
           archetype_slug: string | null
           assessment_completed_at: string | null
           beta_approved: boolean | null
+          calibration_answers: Json | null
           created_at: string | null
           email: string
           id: string
@@ -58,11 +58,11 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
-          archetype_name?: string | null
           archetype_scores?: Json | null
           archetype_slug?: string | null
           assessment_completed_at?: string | null
           beta_approved?: boolean | null
+          calibration_answers?: Json | null
           created_at?: string | null
           email: string
           id: string
@@ -70,11 +70,11 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
-          archetype_name?: string | null
           archetype_scores?: Json | null
           archetype_slug?: string | null
           assessment_completed_at?: string | null
           beta_approved?: boolean | null
+          calibration_answers?: Json | null
           created_at?: string | null
           email?: string
           id?: string

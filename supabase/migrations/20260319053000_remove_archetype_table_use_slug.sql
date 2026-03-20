@@ -1,10 +1,11 @@
 -- Migration: Remove Archetype Table Dependency, Store Name Directly
 -- Purpose: Simplify architecture by storing archetype_name as text instead of FK UUID
 
--- Drop the foreign key constraint and archetype_id column
+-- Drop old archetype columns and constraints
 ALTER TABLE IF EXISTS public.profiles
   DROP CONSTRAINT IF EXISTS profiles_archetype_id_fkey,
-  DROP COLUMN IF EXISTS archetype_id;
+  DROP COLUMN IF EXISTS archetype_id,
+  DROP COLUMN IF EXISTS archetype_slug;
 
 -- Add archetype_name column with CHECK constraint (ensures valid archetype)
 ALTER TABLE IF EXISTS public.profiles

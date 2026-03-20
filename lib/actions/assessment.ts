@@ -1,7 +1,5 @@
 'use server';
 
-import { supabaseAdmin } from '@/lib/supabase-admin';
-
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
@@ -32,6 +30,11 @@ export type ArchetypeSlug =
   | 'builder'
   | 'stabilizer';
 
+export interface CalibrationResponse {
+  questionId: number;
+  value: string | number;
+}
+
 export interface ArchetypeProfile {
   slug: ArchetypeSlug;
   /** Short display name shown in the hero headline */
@@ -44,6 +47,8 @@ export interface ArchetypeProfile {
   scores: ArchetypeScores;
   /** Raw quiz responses (optional, persisted after auth) */
   responses?: UserResponse[];
+  /** Calibration responses for mission generation logic */
+  calibrationResponses?: CalibrationResponse[];
 }
 
 // ---------------------------------------------------------------------------
@@ -198,34 +203,4 @@ export async function scoreAssessment(
     scores,
     responses,
   };
-}
-
-export async function linkAssessmentToUser(userId: string, email: string, profile: ArchetypeProfile) {
-  try {
-    // A. Resolve the archetype UUID from the slug
-    const { data: archetypeRow, error: archetypeErr } = await supabaseAdmin
-      .from('archetypes')
-      .select('id')
-      .eq('slug', profile.slug)
-      .single();
-
-    if (archetypeErr) throw new Error(`Archetype ${profile.slug} not found in DB.`);
-
-    // B. Upsert to the profiles table with the archetype assignment
-    const { error: profileErr } = await supabaseAdmin
-      .from('profiles')
-      .upsert({
-        id: userId,
-        email: email,
-        archetype_id: archetypeRow.id,
-        updated_at: new Date().toISOString(),
-      });
-
-    if (profileErr) throw profileErr;
-
-    return { success: true };
-  } catch (err) {
-    console.error("Critical: Failed to sync assessment to profile", err);
-    throw err; // Fail-loud!
-  }
 }
