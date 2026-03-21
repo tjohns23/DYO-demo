@@ -44,6 +44,41 @@ export type Database = {
         }
         Relationships: []
       }
+      assessments: {
+        Row: {
+          archetype_scores: Json
+          calibration_answers: Json
+          completed_at: string
+          id: string
+          quiz_answers: number[]
+          user_id: string
+        }
+        Insert: {
+          archetype_scores: Json
+          calibration_answers?: Json
+          completed_at?: string
+          id?: string
+          quiz_answers: number[]
+          user_id: string
+        }
+        Update: {
+          archetype_scores?: Json
+          calibration_answers?: Json
+          completed_at?: string
+          id?: string
+          quiz_answers?: number[]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assessments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           archetype_scores: Json | null

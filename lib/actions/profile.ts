@@ -26,22 +26,15 @@ export async function saveAssessmentToProfile(
   profile: ArchetypeProfile
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    // Convert core responses (Q1-Q20) to indexed array
-    const quizAnswers = new Array(20).fill(null);
-    if (profile.responses) {
-      for (const response of profile.responses) {
-        quizAnswers[response.questionId - 1] = response.rating;
-      }
-    }
+    // Convert core responses to an ordered array sorted by question ID
+    const quizAnswers = [...(profile.responses ?? [])]
+      .sort((a, b) => a.questionId - b.questionId)
+      .map((r) => r.rating);
 
-    // Convert calibration responses (Q21-Q25) to indexed array
-    // Stored as JSON object for flexibility with string/number values
-    const calibrationAnswers: Record<number, string | number> = {};
-    if (profile.calibrationResponses) {
-      for (const response of profile.calibrationResponses) {
-        calibrationAnswers[response.questionId - 21] = response.value;
-      }
-    }
+    // Convert calibration responses to an ordered array sorted by question ID
+    const calibrationAnswers = [...(profile.calibrationResponses ?? [])]
+      .sort((a, b) => a.questionId - b.questionId)
+      .map((r) => r.value);
 
     // Upsert the user profile with archetype slug and assessment data
     const { error: profileError } = await supabaseAdmin
@@ -64,6 +57,26 @@ export async function saveAssessmentToProfile(
       console.error('Error saving profile:', profileError);
       return { success: false, error: 'Failed to save profile' };
     }
+
+    // Upsert the quiz answers into a separate table for analytics
+    const { error: answersError } = await supabaseAdmin
+      .from('assessments')
+      .insert(
+        {
+          user_id: userId,
+          quiz_answers: quizAnswers,
+          archetype_scores: profile.scores as unknown as Record<string, number>,
+          calibration_answers: calibrationAnswers,
+          completed_at: new Date().toISOString(),
+        },
+      );
+
+    if (answersError) {
+      console.error('Error saving quiz answers:', answersError);
+      return { success: false, error: 'Failed to save quiz answers' };
+    }
+
+    
 
     // Set the user_id cookie so server components can identify the user
     const cookieStore = await cookies();

@@ -228,8 +228,22 @@ const AssessmentQuiz = () => {
         };
 
         localStorage.setItem('pending_assessment', JSON.stringify(enrichedProfile));
-        setArchetypeProfile(profile);
+        setArchetypeProfile(enrichedProfile);
       }
+    }
+  };
+
+  const handleBack = () => {
+    if (phase === 'calibration' && currentStep > 0) {
+      setCurrentStep((prev) => prev - 1);
+    } else if (phase === 'calibration' && currentStep === 0) {
+      setPhase('transition');
+      setCurrentStep(0);
+    } else if (phase === 'transition') {
+      setPhase('core');
+      setCurrentStep(CORE_QUESTIONS.length - 1);
+    } else if (phase === 'core' && currentStep > 0) {
+      setCurrentStep((prev) => prev - 1);
     }
   };
 
@@ -370,7 +384,19 @@ const AssessmentQuiz = () => {
         )}
 
         {/* Navigation */}
-        <div className="w-full flex justify-center md:justify-end">
+        <div className="w-full flex justify-between md:justify-end md:gap-4">
+          {(phase !== 'core' || currentStep > 0) ? (
+            <Button
+              onClick={handleBack}
+              variant="outline"
+              style={{ borderColor: 'var(--color-border)', color: 'var(--color-neutral)' }}
+              className="w-full md:w-30 h-14 rounded-lg text-lg font-semibold transition-colors"
+            >
+              Back
+            </Button>
+          ) : (
+            <div className="hidden md:block md:w-30" />
+          )}
           <Button
             onClick={handleNext}
             disabled={selectedValue === null}

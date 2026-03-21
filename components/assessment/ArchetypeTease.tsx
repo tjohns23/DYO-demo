@@ -54,7 +54,7 @@ export default function ArchetypeTease({ profile }: ArchetypeTeaseProps) {
 
         {/* Hero Headline */}
         <h1 className="text-4xl md:text-5xl font-bold text-(--color-primary) mb-6 leading-tight">
-          Youre a {profile.name}.
+          You&rsquo;re {profile.name}.
         </h1>
 
         {/* Supporting Description */}
