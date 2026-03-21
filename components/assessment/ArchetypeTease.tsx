@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
+import { Navbar } from '@/components/navbar';
 import { sendMagicLink } from '@/lib/actions/auth';
 import { ArchetypeProfile } from '@/lib/actions/assessment';
 
@@ -41,7 +42,9 @@ export default function ArchetypeTease({ profile }: ArchetypeTeaseProps) {
   };
 
   return (
-    <div className="min-h-screen bg-(--color-base) flex flex-col items-center justify-center px-4 py-12 text-center font-sans">
+    <>
+      {/* <Navbar /> */}
+      <div className="min-h-screen bg-(--color-base) flex flex-col items-center justify-center px-4 py-12 text-center font-sans">
       <div className="max-w-[700px] w-full animate-in fade-in slide-in-from-bottom-4 duration-500">
 
         {/* Progress Indicator (Static/Finished) */}
@@ -121,6 +124,7 @@ export default function ArchetypeTease({ profile }: ArchetypeTeaseProps) {
           The finish line keeps moving. DYO helps you cross it.
         </p>
       </div>
-    </div>
+      </div>
+    </>
   );
 }

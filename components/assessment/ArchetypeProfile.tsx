@@ -35,13 +35,44 @@ export default function ArchetypeProfile({ profile }: ArchetypeProfileProps) {
 
   const maxScore = Math.max(...archetypeScores.map((a) => a.value), 1);
 
-  if (showTransition) {
-    return (
-      <div
-        style={cssVars}
-        className="min-h-screen bg-(--color-base) flex flex-col items-center justify-center px-4 py-12 font-inter"
-      >
-        <div className="max-w-xl w-full text-center animate-in fade-in slide-in-from-bottom-4 duration-500">
+  return (
+    <div
+      style={cssVars}
+      className="min-h-screen bg-(--color-base) flex flex-col items-center justify-center px-4 py-12 font-inter"
+    >
+      {/* Profile Screen */}
+      <div className={`fixed inset-0 flex flex-col items-center justify-center px-4 py-12 transition-opacity duration-500 ${showTransition ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+        <div className="max-w-3xl w-full animate-in fade-in slide-in-from-bottom-4 duration-500">
+          {/* Header */}
+          <div className="text-center mb-16">
+            <p className="text-sm font-semibold text-(--color-neutral) uppercase tracking-widest mb-2">
+              Your Archetype
+            </p>
+            <h1 className="text-5xl md:text-6xl font-bold text-(--color-primary) mb-6 leading-tight">
+              {profile.name}
+            </h1>
+            <p className="text-xl md:text-2xl text-(--color-neutral) font-semibold mb-4">
+              {profile.tagline}
+            </p>
+            <p className="text-lg text-(--color-neutral) leading-relaxed">
+              {profile.description}
+            </p>
+          </div>
+
+          <div className="text-center">
+            <button
+              onClick={() => setShowTransition(true)}
+              className="bg-(--color-primary) text-white text-lg font-semibold px-10 py-4 rounded-lg hover:opacity-90 transition-opacity cursor-pointer"
+            >
+              Continue
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Transition Screen */}
+      <div className={`fixed inset-0 flex flex-col items-center justify-center px-4 py-12 transition-opacity duration-500 ${showTransition ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+        <div className={`max-w-xl w-full text-center ${showTransition ? 'animate-in fade-in slide-in-from-bottom-4' : ''} duration-500`}>
           <h1 className="text-4xl md:text-5xl font-bold text-(--color-primary) mb-6 leading-tight">
             Now you know why you stall. Let&apos;s get you unstuck.
           </h1>
@@ -54,40 +85,6 @@ export default function ArchetypeProfile({ profile }: ArchetypeProfileProps) {
           >
             Get Your First Mission
           </Button>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div
-      style={cssVars}
-      className="min-h-screen bg-(--color-base) flex flex-col items-center justify-center px-4 py-12 font-inter"
-    >
-      <div className="max-w-3xl w-full animate-in fade-in slide-in-from-bottom-4 duration-500">
-        {/* Header */}
-        <div className="text-center mb-16">
-          <p className="text-sm font-semibold text-(--color-neutral) uppercase tracking-widest mb-2">
-            Your Archetype
-          </p>
-          <h1 className="text-5xl md:text-6xl font-bold text-(--color-primary) mb-6 leading-tight">
-            {profile.name}
-          </h1>
-          <p className="text-xl md:text-2xl text-(--color-neutral) font-semibold mb-4">
-            {profile.tagline}
-          </p>
-          <p className="text-lg text-(--color-neutral) leading-relaxed">
-            {profile.description}
-          </p>
-        </div>
-
-        <div className="text-center">
-          <button
-            onClick={() => setShowTransition(true)}
-            className="bg-(--color-primary) text-white text-lg font-semibold px-10 py-4 rounded-lg hover:opacity-90 transition-opacity cursor-pointer"
-          >
-            Continue
-          </button>
         </div>
       </div>
     </div>

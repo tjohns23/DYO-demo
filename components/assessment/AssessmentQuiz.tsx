@@ -262,7 +262,7 @@ const AssessmentQuiz = () => {
         '--color-neutral': theme.neutral,
         '--color-border': theme.border,
       } as React.CSSProperties} className="min-h-screen bg-(--color-base) font-inter flex flex-col items-center justify-center px-4">
-        <main className="max-w-[600px] flex flex-col items-center gap-8">
+        <main className="max-w-[600px] flex flex-col items-center gap-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
           <h1 className="text-3xl md:text-4xl font-semibold text-center text-(--color-primary)">
             A few more questions
           </h1>
