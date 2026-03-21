@@ -51,49 +51,17 @@ export interface ArchetypeProfile {
   calibrationResponses?: CalibrationResponse[];
 }
 
-// ---------------------------------------------------------------------------
-// Question → Archetype mapping
-// Each question increments and/or decrements specific archetypes based on responses.
-// A response of 5 (Strongly Agree) will add 5 points per increment archetype
-// and subtract 5 points per decrement archetype.
-// ---------------------------------------------------------------------------
-
-type QuestionMap = Record<
-  number,
-  { increments: ArchetypeSlug[]; decrements: ArchetypeSlug[] }
->;
-
-const QUESTION_ARCHETYPE_MAP: QuestionMap = {
-  1:  { increments: ['optimizer'],                decrements: ['builder'] },
-  2:  { increments: ['optimizer', 'strategist'],  decrements: ['stabilizer'] },
-  3:  { increments: ['strategist', 'builder'],    decrements: ['visionary'] },
-  4:  { increments: ['strategist', 'stabilizer'], decrements: ['politician'] },
-  5:  { increments: ['visionary', 'advocate'],    decrements: ['builder'] },
-  6:  { increments: ['visionary'],                decrements: ['optimizer', 'stabilizer'] },
-  7:  { increments: ['advocate', 'empath'],       decrements: ['builder'] },
-  8:  { increments: ['advocate'],                 decrements: ['politician'] },
-  9:  { increments: ['politician'],               decrements: ['strategist'] },
-  10: { increments: ['politician'],               decrements: ['builder'] },
-  11: { increments: ['empath', 'optimizer'],      decrements: ['politician'] },
-  12: { increments: ['empath'],                   decrements: ['visionary'] },
-  13: { increments: ['builder', 'stabilizer'],    decrements: ['visionary'] },
-  14: { increments: ['builder', 'stabilizer'],    decrements: ['advocate'] },
-  15: { increments: ['stabilizer', 'empath'],     decrements: ['visionary'] },
-  16: { increments: ['stabilizer'],               decrements: ['politician'] },
-  17: { increments: ['optimizer'],                decrements: ['stabilizer'] },
-  18: { increments: ['visionary'],                decrements: ['builder'] },
-  19: { increments: ['strategist', 'advocate'],   decrements: ['politician'] },
-  20: { increments: ['advocate'],                 decrements: ['visionary'] },
-};
+interface ArchetypeRanking {
+  primary: ArchetypeSlug;
+  secondary: ArchetypeSlug | null;
+  tertiary: ArchetypeSlug | null;
+}
 
 // ---------------------------------------------------------------------------
-// Archetype metadata
-// Tone: "Supportive but Firm" — honest about the pattern, warm about the person.
-// Max score per dimension = 25 (5 questions × 5 points).
+// Archetype configuration
 // ---------------------------------------------------------------------------
 
-// Import from separate file (can't export constants from 'use server' files)
-import { ARCHETYPE_METADATA } from '@/lib/archetype-metadata';
+import { QUESTION_ARCHETYPE_MAP, ARCHETYPE_METADATA } from '@/lib/config/archetypes';
 
 // ---------------------------------------------------------------------------
 // Core scoring functions (pure — no side effects)
@@ -120,7 +88,10 @@ function calculateArchetypeScores(
 
   for (const { questionId, rating } of responses) {
     const mapping = QUESTION_ARCHETYPE_MAP[questionId];
-    if (!mapping) continue; // Skip unknown questions
+    if (!mapping) {
+      console.warn(`No archetype mapping for question ID ${questionId}`);
+      continue;
+    }; // Skip unknown questions
 
     // Add points to increment archetypes
     for (const archetype of mapping.increments) {
@@ -137,10 +108,10 @@ function calculateArchetypeScores(
 }
 
 /**
- * Identifies the primary archetype from archetype totals.
+ * Identifies the primary, secondary and tertiary archetypes from archetype totals.
  * The archetype with the highest score wins; ties default to the first in the array.
  */
-function determineArchetype(scores: ArchetypeScores): ArchetypeSlug {
+function determineArchetype(scores: ArchetypeScores): ArchetypeRanking {
   const archetypes: ArchetypeSlug[] = [
     'optimizer',
     'strategist',
@@ -152,17 +123,28 @@ function determineArchetype(scores: ArchetypeScores): ArchetypeSlug {
     'stabilizer',
   ];
 
-  let maxScore = -Infinity;
-  let winningSlug: ArchetypeSlug = 'optimizer';
+  let secondaryArchetype: ArchetypeSlug | null = null;
+  let tertiaryArchetype: ArchetypeSlug | null = null;
 
-  for (const archetype of archetypes) {
-    if (scores[archetype] > maxScore) {
-      maxScore = scores[archetype];
-      winningSlug = archetype;
-    }
-  }
+  // Sort archetypes by score in descending order
+  const sortedArchetypes = archetypes.sort((a, b) => scores[b] - scores[a]);
 
-  return winningSlug;
+  // Primary archetype is the highest scorer
+  const primaryArchetype = sortedArchetypes[0]; 
+  const primaryScore = scores[primaryArchetype];
+
+  // Check for close scores to identify secondary and tertiary archetypes
+  const secondScore = scores[sortedArchetypes[1]];
+  const thirdScore = scores[sortedArchetypes[2]];
+  
+  if (primaryScore - secondScore <= 1) secondaryArchetype = sortedArchetypes[1]; // If second place is within 1 point, it's a secondary archetype
+  if (primaryScore - thirdScore <= 1.5) tertiaryArchetype = sortedArchetypes[2]; // If third place is also close, it's a tertiary archetype
+
+  return {
+    primary: primaryArchetype,
+    secondary: secondaryArchetype,
+    tertiary: tertiaryArchetype
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -170,37 +152,67 @@ function determineArchetype(scores: ArchetypeScores): ArchetypeSlug {
 // ---------------------------------------------------------------------------
 
 /**
- * Scores a completed assessment and returns metadata for the UI "Tease".
+ * Scores a completed assessment and returns the top 3 archetype profiles ranked by score.
  * Flow:
  * 1. Aggregates raw 1-5 responses into ArchetypeScores.
- * 2. Determines the primary ArchetypeSlug (highest score wins).
- * 3. Maps the slug to static ARCHETYPE_METADATA.
- * 4. Returns the result for the frontend to store in state/localStorage.
+ * 2. Determines the top 3 ArchetypeSlugs (by score).
+ * 3. Maps each slug to static ARCHETYPE_METADATA.
+ * 4. Returns an array of ArchetypeProfile objects for display/persistence.
  *
  * Note: This function does NOT persist data to the database.
  * Use `saveAssessmentToProfile` after the user authenticates to save results.
  *
  * @param responses - Array of { questionId, rating } for the 20 assessment questions.
+ * @returns Array of top 3 ArchetypeProfile objects (filtered to exclude null secondary/tertiary if too far behind).
  */
 export async function scoreAssessment(
   responses: UserResponse[],
-): Promise<ArchetypeProfile> {
+): Promise<ArchetypeProfile[]> {
   // Calculate the raw archetype scores from responses
   const scores = calculateArchetypeScores(responses);
 
-  // Determine the archetype slug from the scores
-  const slug = determineArchetype(scores);
+  // Determine the top 3 ranked archetypes
+  const ranking = determineArchetype(scores);
 
-  // Fetch the metadata for this archetype (name, description, etc.)
-  const metadata = ARCHETYPE_METADATA[slug];
+  // Build array of profiles for the top 3
+  const profiles: ArchetypeProfile[] = [];
 
-  // Return the 'tease' data with responses for persistence
-  return {
-    slug,
-    name: metadata.name,
-    tagline: metadata.tagline,
-    description: metadata.description,
+  // Add primary archetype (always included)
+  const primaryMetadata = ARCHETYPE_METADATA[ranking.primary];
+  profiles.push({
+    slug: ranking.primary,
+    name: primaryMetadata.name,
+    tagline: primaryMetadata.tagline,
+    description: primaryMetadata.description,
     scores,
     responses,
-  };
+  });
+
+  // Add secondary if it exists (not null)
+  if (ranking.secondary) {
+    const secondaryMetadata = ARCHETYPE_METADATA[ranking.secondary];
+    profiles.push({
+      slug: ranking.secondary,
+      name: secondaryMetadata.name,
+      tagline: secondaryMetadata.tagline,
+      description: secondaryMetadata.description,
+      scores,
+      responses,
+    });
+  }
+
+  // Add tertiary if it exists (not null)
+  if (ranking.tertiary) {
+    const tertiaryMetadata = ARCHETYPE_METADATA[ranking.tertiary];
+    profiles.push({
+      slug: ranking.tertiary,
+      name: tertiaryMetadata.name,
+      tagline: tertiaryMetadata.tagline,
+      description: tertiaryMetadata.description,
+      scores,
+      responses,
+    });
+  }
+
+  return profiles;
 }

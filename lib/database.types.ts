@@ -90,6 +90,8 @@ export type Database = {
           email: string
           id: string
           quiz_answers: number[] | null
+          secondary_archetype: string | null
+          tertiary_archetype: string | null
           updated_at: string | null
         }
         Insert: {
@@ -102,6 +104,8 @@ export type Database = {
           email: string
           id: string
           quiz_answers?: number[] | null
+          secondary_archetype?: string | null
+          tertiary_archetype?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -114,6 +118,8 @@ export type Database = {
           email?: string
           id?: string
           quiz_answers?: number[] | null
+          secondary_archetype?: string | null
+          tertiary_archetype?: string | null
           updated_at?: string | null
         }
         Relationships: []

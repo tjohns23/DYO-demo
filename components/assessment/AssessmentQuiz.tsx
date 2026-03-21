@@ -6,157 +6,15 @@ import { Progress } from '@/components/ui/progress';
 import { default_palette as theme } from '@/lib/theme';
 import ArchetypeTease from '@/components/assessment/ArchetypeTease';
 import { scoreAssessment, type ArchetypeProfile } from '@/lib/actions/assessment';
-
-
-
-/**************************************************
- * Core Assessment - Used for archetype scoring    *
- **************************************************/
-type coreQuestion = {
-  id: number;
-  text: string;
-};
-
-// Likert scale options are fixed — they don't belong in the questions array.
-type CoreOption = { label: string; value: number };
-
-const CORE_OPTIONS: CoreOption[] = [
-  { label: 'Strongly Disagree', value: 1 },
-  { label: 'Disagree',          value: 2 },
-  { label: 'Neutral',           value: 3 },
-  { label: 'Agree',             value: 4 },
-  { label: 'Strongly Agree',    value: 5 },
-];
-
-const CORE_QUESTIONS: coreQuestion[] = [
-  // Perfectionism/Refinement (Optimizer)
-  { id: 1, text: 'I often revise my work multiple times before I consider it ready to share.' },
-  { id: 2, text: 'I find it harder to decide something is "done" than to actually do the work.' },
-
-  // Systems Thinking/Analysis (Strategist)
-  { id: 3, text: 'Before I start a project, I need to understand how all the pieces will fit together.' },
-  { id: 4, text: 'I struggle to move forward when I don\'t have enough information to make the optimal choice.' },
-
-  // Vision/Possibility (Visionary)
-  { id: 5, text: 'I\'m energized by imagining what could be, even if I haven\'t finished what currently is.' },
-  { id: 6, text: 'I often start new projects before completing previous ones because the new idea feels more exciting.' },
-
-  // Purpose/Values Alignment (Advocate)
-  { id: 7, text: 'I can\'t bring myself to work on something if I don\'t understand why it matters.' },
-  { id: 8, text: 'When my work feels misaligned with my values, I lose all motivation to continue.' },
-
-  // Social/Collaborative Energy (Politician).
-  { id: 9, text: 'I accomplish more when other people can see my progress or provide feedback.' },
-  { id: 10, text: 'Working alone for extended periods drains my energy and makes it hard to stay motivated.' },
-
-  // Emotional Sensitivity/Safety (Empath)
-  { id: 11, text: 'The thought of sharing unfinished work makes me feel vulnerable and exposed.' },
-  { id: 12, text: 'Harsh criticism affects my ability to work for longer than most people realize.' },
-
-  // Structure/Process Preference (Builder)
-  { id: 13, text: 'I work best when I have clear, step-by-step processes to follow.' },
-  { id: 14, text: 'Ambiguous projects frustrate me—I need defined inputs and outputs to execute well.' },
-
-  // Stability/Clarity Need (Stabilizer)
-  { id: 15, text: 'I feel anxious starting work when I\'m unsure what "success" looks like.' },
-  { id: 16, text: 'I prefer consistent routines and clear expectations over flexibility and autonomy.' },
-
-  // Cross-Dimensional Questions (Distinguishing Similar Types)
-  { id: 17, text: 'When I\'m stuck, it\'s usually because I\'m trying to make something perfect rather than because I don\'t know how to start.' },
-  { id: 18, text: 'I generate ideas faster than I can execute them, and that\'s usually my biggest challenge.' },
-  { id: 19, text: 'I need to see the long-term implications of my work before I can commit to doing it.' },
-  { id: 20, text: 'I\'m more likely to abandon a project because it lost meaning than because it got difficult.' },
-];
-
-
-/*****************************************************
- * Calibration Questions - Used for adjusting scores *
- *****************************************************/
-
-type CalibrationQuestion = {
-  id: number;
-  text: string;
-  type: 'likert' | 'multiple-choice';
-};
-
-const CALIBRATION_QUESTIONS: CalibrationQuestion[] = [
-  // Neurodivergence - ADHD
-  {
-    id: 21,
-    text: 'I have been diagnosed with or strongly identify with having ADHD.',
-    type: 'multiple-choice',
-  },
-
-  // Neurodivergence - Autism
-  {
-    id: 22,
-    text: 'I have been diagnosed with or strongly identify with being autistic or on the autism spectrum.',
-    type: 'multiple-choice',
-  },
-
-  // Mental Health - Anxiety
-  {
-    id: 23,
-    text: 'My anxiety level significantly affects my ability to start or complete work.',
-    type: 'likert',
-  },
-
-  // Learning Style
-  {
-    id: 24,
-    text: 'I learn and process information best through:',
-    type: 'multiple-choice',
-  },
-
-  // Primary Obstacle
-  {
-    id: 25,
-    text: 'Right now, my biggest obstacle to finishing work is:',
-    type: 'multiple-choice',
-  },
-];
-
-// Calibration question options (mapped by question ID)
-type CalibrationOption = { label: string; value: string | number };
-type CalibrationOptions = Record<number, CalibrationOption[]>;
-
-const CALIBRATION_OPTIONS: CalibrationOptions = {
-  21: [ // ADHD
-    { label: 'Not at all / doesn\'t apply to me', value: 'adhd_none' },
-    { label: 'Undiagnosed but I suspect I might have it', value: 'adhd_suspected' },
-    { label: 'Self-diagnosed based on research and symptoms', value: 'adhd_self_diagnosed' },
-    { label: 'Professionally diagnosed, not currently treated', value: 'adhd_diagnosed_untreated' },
-    { label: 'Professionally diagnosed and actively treated/managed', value: 'adhd_diagnosed_treated' },
-  ],
-  22: [ // Autism
-    { label: 'Not at all / doesn\'t apply to me', value: 'autism_none' },
-    { label: 'Undiagnosed but I suspect I might be', value: 'autism_suspected' },
-    { label: 'Self-diagnosed based on research and symptoms', value: 'autism_self_diagnosed' },
-    { label: 'Professionally diagnosed', value: 'autism_diagnosed' },
-    { label: 'Professionally diagnosed, significantly impacts how I work', value: 'autism_diagnosed_impact' },
-  ],
-  23: [ // Anxiety - Likert scale
-    { label: 'Rarely or never', value: 1 },
-    { label: 'Occasionally (a few times a month)', value: 2 },
-    { label: 'Sometimes (a few times a week)', value: 3 },
-    { label: 'Frequently (most days)', value: 4 },
-    { label: 'Almost always (daily impact)', value: 5 },
-  ],
-  24: [ // Learning Style
-    { label: 'Reading and written instructions', value: 'learning_visual_text' },
-    { label: 'Visual diagrams and demonstrations', value: 'learning_visual_diagrams' },
-    { label: 'Hands-on experimentation and doing', value: 'learning_kinesthetic' },
-    { label: 'Verbal discussion and talking it through', value: 'learning_auditory' },
-    { label: 'A combination of multiple approaches', value: 'learning_multimodal' },
-  ],
-  25: [ // Primary Obstacle
-    { label: 'Not knowing where to start', value: 'obstacle_start' },
-    { label: 'Getting distracted or losing focus', value: 'obstacle_focus' },
-    { label: 'Feeling like it\'s not good enough', value: 'obstacle_perfectionism' },
-    { label: 'Lack of time or energy', value: 'obstacle_capacity' },
-    { label: 'Not caring enough about what I\'m working on', value: 'obstacle_motivation' },
-  ],
-};
+import {
+  CORE_QUESTIONS,
+  CORE_OPTIONS,
+  CALIBRATION_QUESTIONS,
+  CALIBRATION_OPTIONS,
+  CalibrationOption,
+  CalibrationQuestion,
+  CoreOption,
+} from '@/lib/config/archetypes';
 
 // --- Component ---
 
@@ -218,11 +76,14 @@ const AssessmentQuiz = () => {
           }));
 
         // Score using only core responses
-        const profile = await scoreAssessment(coreResponses);
+        const profiles = await scoreAssessment(coreResponses);
+        
+        // Extract primary archetype profile
+        const primaryProfile = profiles[0];
         
         // Store both core and calibration responses in profile
         const enrichedProfile = {
-          ...profile,
+          ...primaryProfile,
           responses: coreResponses,
           calibrationResponses: calibrationResponses,
         };

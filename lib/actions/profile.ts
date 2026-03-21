@@ -2,7 +2,7 @@
 
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import type { ArchetypeProfile, ArchetypeSlug } from './assessment';
-import { ARCHETYPE_METADATA } from '@/lib/archetype-metadata';
+import { ARCHETYPE_METADATA } from '@/lib/config/archetypes';
 import { cookies } from 'next/headers';
 
 /**
