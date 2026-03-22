@@ -269,23 +269,28 @@ function determineArchetype(scores: ArchetypeScores): ArchetypeRanking {
 // Server Action
 // ---------------------------------------------------------------------------
 
+export interface AssessmentResult {
+  profiles: ArchetypeProfile[];
+  consistencyCheck: ConsistencyCheck;
+}
+
 /**
  * Scores a completed assessment and returns the top 3 archetype profiles ranked by score.
  * Flow:
  * 1. Aggregates raw 1-5 responses into ArchetypeScores.
  * 2. Determines the top 3 ArchetypeSlugs (by score).
  * 3. Maps each slug to static ARCHETYPE_METADATA.
- * 4. Returns an array of ArchetypeProfile objects for display/persistence.
+ * 4. Returns profiles and the consistency check for the caller to act on.
  *
  * Note: This function does NOT persist data to the database.
  * Use `saveAssessmentToProfile` after the user authenticates to save results.
  *
  * @param responses - Array of { questionId, rating } for the 20 assessment questions.
- * @returns Array of top 3 ArchetypeProfile objects (filtered to exclude null secondary/tertiary if too far behind).
+ * @returns Profiles (top 3) and the raw ConsistencyCheck result.
  */
 export async function scoreAssessment(
   responses: UserResponse[],
-): Promise<ArchetypeProfile[]> {
+): Promise<AssessmentResult> {
   // Calculate dimensional scores (used as input to archetype scoring)
   const dimensions = calculateDimensions(responses);
 
@@ -339,5 +344,5 @@ export async function scoreAssessment(
     });
   }
 
-  return profiles;
+  return { profiles, consistencyCheck };
 }

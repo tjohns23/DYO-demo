@@ -27,7 +27,7 @@ const AssessmentQuiz = () => {
   // This persists answers as the user moves forward/back.
   const [answers, setAnswers] = useState<Record<number, number | string>>({});
   const [archetypeProfile, setArchetypeProfile] = useState<ArchetypeProfileType | null>(null);
-  const [phase, setPhase] = useState<'core' | 'transition' | 'calibration'>('core');
+  const [phase, setPhase] = useState<'core' | 'transition' | 'calibration' | 'retake_prompt' | 'done'>('core');
 
   const handleSelect = (value: number | string) => {
     // handleSelect needs to update answers - will use question.id when called
@@ -76,14 +76,14 @@ const AssessmentQuiz = () => {
           }));
 
         // Score using only core responses
-        const profiles = await scoreAssessment(coreResponses);
-        
+        const { profiles, consistencyCheck } = await scoreAssessment(coreResponses);
+
         // Extract primary, secondary, and tertiary archetype profiles
         const primaryProfile = profiles[0];
         const secondaryProfile = profiles[1];
         const tertiaryProfile = profiles[2];
         // Store both core and calibration responses in profile
-        
+
         const enrichedProfile = {
           ...primaryProfile,
           responses: coreResponses,
@@ -103,7 +103,13 @@ const AssessmentQuiz = () => {
         expiryDate.setTime(expiryDate.getTime() + 60 * 60 * 1000); // 1 hour
         document.cookie = `pending_assessment=${encodeURIComponent(JSON.stringify(enrichedProfile))}; path=/; expires=${expiryDate.toUTCString()}`;
 
-        setArchetypeProfile(enrichedProfile);
+        // Offer a retake if responses were unreliable and the user hasn't already retaken
+        if (!consistencyCheck.reliable && !localStorage.getItem('quiz_retake_used')) {
+          setArchetypeProfile(enrichedProfile); // store so we can show it if they decline
+          setPhase('retake_prompt');
+        } else {
+          setArchetypeProfile(enrichedProfile);
+        }
       }
     }
   };
@@ -122,10 +128,58 @@ const AssessmentQuiz = () => {
     }
   };
 
-  if (archetypeProfile) {
+  if (archetypeProfile && phase !== 'retake_prompt') {
     return (
       <ArchetypeProfile profile={archetypeProfile} />
     );
+  }
+
+  // Retake prompt screen — shown when consistency check flags unreliable responses
+  if (phase === 'retake_prompt') {
+    return (
+      <div style={{
+        '--color-primary': theme.primary,
+        '--color-base': theme.base,
+        '--color-neutral': theme.neutral,
+        '--color-border': theme.border,
+      } as React.CSSProperties} className="min-h-screen bg-(--color-base) font-inter flex flex-col items-center justify-center px-4">
+        <main className="max-w-[520px] flex flex-col items-center gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <h1 className="text-3xl md:text-4xl font-semibold text-center text-(--color-primary)">
+            Some answers seemed inconsistent
+          </h1>
+          <p className="text-lg text-center text-(--color-neutral) leading-relaxed">
+            We noticed a few contradictions in your responses, which may affect the accuracy of your result. You can retake the quiz once for a cleaner read — or keep your current result.
+          </p>
+          <div className="w-full flex flex-col gap-3">
+            <Button
+              onClick={() => {
+                localStorage.setItem('quiz_retake_used', 'true');
+                setPhase('core');
+                setCurrentStep(0);
+                setAnswers({});
+                setArchetypeProfile(null);
+              }}
+              style={{ backgroundColor: 'var(--color-primary)' }}
+              className="w-full h-14 text-white rounded-lg text-lg font-semibold transition-colors shadow-sm"
+            >
+              Retake the quiz
+            </Button>
+            <Button
+              onClick={() => setPhase('done')}
+              variant="outline"
+              style={{ borderColor: 'var(--color-border)', color: 'var(--color-neutral)' }}
+              className="w-full h-14 rounded-lg text-lg font-semibold transition-colors"
+            >
+              Keep my results
+            </Button>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  if (phase === 'done') {
+    return <ArchetypeProfile profile={archetypeProfile!} />;
   }
 
   // Transition screen - check before calculating questions
