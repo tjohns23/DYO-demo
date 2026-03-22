@@ -14,42 +14,13 @@ export type Database = {
   }
   public: {
     Tables: {
-      archetypes: {
-        Row: {
-          description: string | null
-          id: string
-          name: string
-          slug: string
-          strategy_hint: string | null
-          tagline: string
-          title: string
-        }
-        Insert: {
-          description?: string | null
-          id: string
-          name: string
-          slug: string
-          strategy_hint?: string | null
-          tagline: string
-          title: string
-        }
-        Update: {
-          description?: string | null
-          id?: string
-          name?: string
-          slug?: string
-          strategy_hint?: string | null
-          tagline?: string
-          title?: string
-        }
-        Relationships: []
-      }
       assessments: {
         Row: {
           archetype_scores: Json
           archetype_slug: string | null
           calibration_answers: Json
           completed_at: string
+          dimension_scores: Json
           id: string
           quiz_answers: number[]
           secondary_archetype_slug: string | null
@@ -61,6 +32,7 @@ export type Database = {
           archetype_slug?: string | null
           calibration_answers?: Json
           completed_at?: string
+          dimension_scores: Json
           id?: string
           quiz_answers: number[]
           secondary_archetype_slug?: string | null
@@ -72,6 +44,7 @@ export type Database = {
           archetype_slug?: string | null
           calibration_answers?: Json
           completed_at?: string
+          dimension_scores?: Json
           id?: string
           quiz_answers?: number[]
           secondary_archetype_slug?: string | null
@@ -96,6 +69,7 @@ export type Database = {
           beta_approved: boolean | null
           calibration_answers: Json | null
           created_at: string | null
+          dimension_scores: Json
           email: string
           id: string
           quiz_answers: number[] | null
@@ -110,6 +84,7 @@ export type Database = {
           beta_approved?: boolean | null
           calibration_answers?: Json | null
           created_at?: string | null
+          dimension_scores: Json
           email: string
           id: string
           quiz_answers?: number[] | null
@@ -124,6 +99,7 @@ export type Database = {
           beta_approved?: boolean | null
           calibration_answers?: Json | null
           created_at?: string | null
+          dimension_scores?: Json
           email?: string
           id?: string
           quiz_answers?: number[] | null
@@ -132,56 +108,6 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
-      }
-      quiz_questions: {
-        Row: {
-          category: string | null
-          id: string
-          question_text: string
-        }
-        Insert: {
-          category?: string | null
-          id?: string
-          question_text: string
-        }
-        Update: {
-          category?: string | null
-          id?: string
-          question_text?: string
-        }
-        Relationships: []
-      }
-      quiz_responses: {
-        Row: {
-          answer_score: number
-          created_at: string | null
-          id: string
-          question_id: string | null
-          user_id: string
-        }
-        Insert: {
-          answer_score: number
-          created_at?: string | null
-          id?: string
-          question_id?: string | null
-          user_id?: string
-        }
-        Update: {
-          answer_score?: number
-          created_at?: string | null
-          id?: string
-          question_id?: string | null
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "quiz_responses_question_id_fkey"
-            columns: ["question_id"]
-            isOneToOne: false
-            referencedRelation: "quiz_questions"
-            referencedColumns: ["id"]
-          },
-        ]
       }
     }
     Views: {

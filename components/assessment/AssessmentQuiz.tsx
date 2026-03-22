@@ -88,6 +88,7 @@ const AssessmentQuiz = () => {
           ...primaryProfile,
           responses: coreResponses,
           calibrationResponses: calibrationResponses,
+          dimensions: primaryProfile.dimensions,
           secondary: secondaryProfile
             ? { slug: secondaryProfile.slug, name: secondaryProfile.name, tagline: secondaryProfile.tagline }
             : undefined,

@@ -60,8 +60,8 @@ export default function ArchetypeProfile({ profile }: ArchetypeProfileProps) {
       className="min-h-screen bg-(--color-base) flex flex-col items-center justify-center px-4 py-12 font-inter"
     >
       {/* Profile Screen */}
-      <div className={`fixed inset-0 flex flex-col items-center justify-center px-4 py-12 transition-opacity duration-500 ${showTransition ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
-        <div className="max-w-3xl w-full animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <div className={`fixed inset-0 overflow-y-auto px-4 py-12 transition-opacity duration-500 ${showTransition ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+        <div className="max-w-3xl w-full mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
           {/* Header */}
           <div className="text-center mb-16">
             <p className="text-sm font-semibold text-(--color-neutral) uppercase tracking-widest mb-2">
@@ -81,13 +81,13 @@ export default function ArchetypeProfile({ profile }: ArchetypeProfileProps) {
           {profile.secondary && (
             <div className="border-t border-(--color-border) pt-8 mb-16 text-center">
               <p className="text-sm font-semibold text-(--color-neutral) uppercase tracking-widest mb-3">
-                You&apos;re also a
+                You&apos;re also
               </p>
               <h2 className="text-3xl font-bold text-(--color-primary) mb-4">
                 {profile.secondary.name}
               </h2>
               <p className="text-lg text-(--color-neutral) leading-relaxed">
-                You don&apos;t fit neatly into one box—and that&apos;s actually your strength. Your {profile.name} side drives your core execution pattern, but your {profile.secondary.name} side shows up too.
+                You don&apos;t fit neatly into one box—and that&apos;s actually your strength. Your {profile.slug} side drives your core execution pattern, but your {profile.secondary.slug} side shows up too.
               </p>
             </div>
           )}
