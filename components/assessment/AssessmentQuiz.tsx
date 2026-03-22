@@ -4,8 +4,8 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { default_palette as theme } from '@/lib/theme';
-import ArchetypeTease from '@/components/assessment/ArchetypeTease';
-import { scoreAssessment, type ArchetypeProfile } from '@/lib/actions/assessment';
+import ArchetypeProfile from '@/components/assessment/ArchetypeProfile';
+import { scoreAssessment, type ArchetypeProfile as ArchetypeProfileType } from '@/lib/actions/assessment';
 import {
   CORE_QUESTIONS,
   CORE_OPTIONS,
@@ -26,7 +26,7 @@ const AssessmentQuiz = () => {
   // Answers stores every response: { questionId: rating or value }
   // This persists answers as the user moves forward/back.
   const [answers, setAnswers] = useState<Record<number, number | string>>({});
-  const [archetypeProfile, setArchetypeProfile] = useState<ArchetypeProfile | null>(null);
+  const [archetypeProfile, setArchetypeProfile] = useState<ArchetypeProfileType | null>(null);
   const [phase, setPhase] = useState<'core' | 'transition' | 'calibration'>('core');
 
   const handleSelect = (value: number | string) => {
@@ -78,17 +78,30 @@ const AssessmentQuiz = () => {
         // Score using only core responses
         const profiles = await scoreAssessment(coreResponses);
         
-        // Extract primary archetype profile
+        // Extract primary, secondary, and tertiary archetype profiles
         const primaryProfile = profiles[0];
-        
+        const secondaryProfile = profiles[1];
+        const tertiaryProfile = profiles[2];
         // Store both core and calibration responses in profile
+        
         const enrichedProfile = {
           ...primaryProfile,
           responses: coreResponses,
           calibrationResponses: calibrationResponses,
+          secondary: secondaryProfile
+            ? { slug: secondaryProfile.slug, name: secondaryProfile.name, tagline: secondaryProfile.tagline }
+            : undefined,
+          tertiary: tertiaryProfile
+            ? { slug: tertiaryProfile.slug, name: tertiaryProfile.name, tagline: tertiaryProfile.tagline }
+            : undefined,
         };
 
         localStorage.setItem('pending_assessment', JSON.stringify(enrichedProfile));
+
+        const expiryDate = new Date();
+        expiryDate.setTime(expiryDate.getTime() + 60 * 60 * 1000); // 1 hour
+        document.cookie = `pending_assessment=${encodeURIComponent(JSON.stringify(enrichedProfile))}; path=/; expires=${expiryDate.toUTCString()}`;
+
         setArchetypeProfile(enrichedProfile);
       }
     }
@@ -110,7 +123,7 @@ const AssessmentQuiz = () => {
 
   if (archetypeProfile) {
     return (
-      <ArchetypeTease profile={archetypeProfile} />
+      <ArchetypeProfile profile={archetypeProfile} />
     );
   }
 

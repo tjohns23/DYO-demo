@@ -44,6 +44,8 @@ export async function saveAssessmentToProfile(
           id: userId,
           email: email,
           archetype_slug: profile.slug,
+          secondary_archetype_slug: profile.secondary?.slug ?? null,
+          tertiary_archetype_slug: profile.tertiary?.slug ?? null,
           quiz_answers: quizAnswers,
           calibration_answers: calibrationAnswers,
           archetype_scores: profile.scores as unknown as Record<string, number>,
@@ -67,6 +69,9 @@ export async function saveAssessmentToProfile(
           quiz_answers: quizAnswers,
           archetype_scores: profile.scores as unknown as Record<string, number>,
           calibration_answers: calibrationAnswers,
+          archetype_slug: profile.slug,
+          secondary_archetype_slug: profile.secondary?.slug ?? null,
+          tertiary_archetype_slug: profile.tertiary?.slug ?? null,
           completed_at: new Date().toISOString(),
         },
       );

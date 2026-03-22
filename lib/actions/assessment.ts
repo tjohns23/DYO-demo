@@ -49,6 +49,10 @@ export interface ArchetypeProfile {
   responses?: UserResponse[];
   /** Calibration responses for mission generation logic */
   calibrationResponses?: CalibrationResponse[];
+  /** Secondary archetype (if present) */
+  secondary?: { slug: ArchetypeSlug; name: string; tagline: string };
+  /** Tertiary archetype (if present, stored for analytics only) */
+  tertiary?: { slug: ArchetypeSlug; name: string; tagline: string };
 }
 
 interface ArchetypeRanking {

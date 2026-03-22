@@ -47,26 +47,35 @@ export type Database = {
       assessments: {
         Row: {
           archetype_scores: Json
+          archetype_slug: string | null
           calibration_answers: Json
           completed_at: string
           id: string
           quiz_answers: number[]
+          secondary_archetype_slug: string | null
+          tertiary_archetype_slug: string | null
           user_id: string
         }
         Insert: {
           archetype_scores: Json
+          archetype_slug?: string | null
           calibration_answers?: Json
           completed_at?: string
           id?: string
           quiz_answers: number[]
+          secondary_archetype_slug?: string | null
+          tertiary_archetype_slug?: string | null
           user_id: string
         }
         Update: {
           archetype_scores?: Json
+          archetype_slug?: string | null
           calibration_answers?: Json
           completed_at?: string
           id?: string
           quiz_answers?: number[]
+          secondary_archetype_slug?: string | null
+          tertiary_archetype_slug?: string | null
           user_id?: string
         }
         Relationships: [
@@ -90,8 +99,8 @@ export type Database = {
           email: string
           id: string
           quiz_answers: number[] | null
-          secondary_archetype: string | null
-          tertiary_archetype: string | null
+          secondary_archetype_slug: string | null
+          tertiary_archetype_slug: string | null
           updated_at: string | null
         }
         Insert: {
@@ -104,8 +113,8 @@ export type Database = {
           email: string
           id: string
           quiz_answers?: number[] | null
-          secondary_archetype?: string | null
-          tertiary_archetype?: string | null
+          secondary_archetype_slug?: string | null
+          tertiary_archetype_slug?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -118,8 +127,8 @@ export type Database = {
           email?: string
           id?: string
           quiz_answers?: number[] | null
-          secondary_archetype?: string | null
-          tertiary_archetype?: string | null
+          secondary_archetype_slug?: string | null
+          tertiary_archetype_slug?: string | null
           updated_at?: string | null
         }
         Relationships: []

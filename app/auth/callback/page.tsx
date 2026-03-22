@@ -89,7 +89,7 @@ export default function AuthCallbackPage() {
         // Clear the cookie
         document.cookie = 'pending_assessment=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
         
-        router.push('/archetype');
+        router.push('/');
       } catch (err) {
         console.error('Error processing assessment:', err);
         router.push(`/?error=${encodeURIComponent('An error occurred while processing your assessment. Please try again.')}`);
