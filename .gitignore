@@ -38,5 +38,8 @@ pnpm-debug.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# mission library documentation
+lib/mission/mission-library/*.md
+
 # claude
 claude.md

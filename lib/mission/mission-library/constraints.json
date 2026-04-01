@@ -1,0 +1,378 @@
+{
+  "IDEATE": {
+    "future_trend_adaptation": {
+      "constraintName": "Future Trend Adaptation",
+      "sourceIDYTC": "Fast Forward!",
+      "category": "perspective_shift",
+      "defaultTimebox": 15,
+      "relevantPatterns": [
+        "analysis_paralysis",
+        "scope_creep"
+      ]
+    },
+    "rapid_monetization": {
+      "constraintName": "Rapid Monetization",
+      "sourceIDYTC": "Rethinking Revenue Streams",
+      "category": "scarcity_resource",
+      "defaultTimebox": 30,
+      "relevantPatterns": [
+        "momentum_loss",
+        "perfectionism_loop"
+      ]
+    },
+    "competitor_collaboration": {
+      "constraintName": "Competitor Collaboration",
+      "sourceIDYTC": "Over Saturated?",
+      "category": "perspective_shift",
+      "defaultTimebox": 45,
+      "relevantPatterns": [
+        "analysis_paralysis",
+        "scope_creep"
+      ]
+    },
+    "ecosystem_mapping": {
+      "constraintName": "Ecosystem Mapping",
+      "sourceIDYTC": "Creative Ecosystem",
+      "category": "time_based",
+      "defaultTimebox": 30,
+      "relevantPatterns": [
+        "analysis_paralysis"
+      ]
+    },
+    "rediscover_purpose": {
+      "constraintName": "Rediscover Purpose",
+      "sourceIDYTC": "What Was the Reason?",
+      "category": "perspective_shift",
+      "defaultTimebox": 20,
+      "relevantPatterns": [
+        "momentum_loss",
+        "stagnation"
+      ]
+    },
+    "six_word_pitch": {
+      "constraintName": "Six Word Pitch",
+      "sourceIDYTC": "Say Less",
+      "category": "clarity_simplification",
+      "defaultTimebox": 10,
+      "relevantPatterns": [
+        "overthinking",
+        "scope_creep"
+      ]
+    },
+    "old_school_marketing": {
+      "constraintName": "Old School Marketing",
+      "sourceIDYTC": "Time-Travel Marketing",
+      "category": "perspective_shift",
+      "defaultTimebox": 30,
+      "relevantPatterns": [
+        "analysis_paralysis"
+      ]
+    },
+    "five_minute_brainstorm": {
+      "constraintName": "Five Minute Brainstorm",
+      "sourceIDYTC": "5-Minute Brainstorm",
+      "category": "time_based",
+      "defaultTimebox": 5,
+      "relevantPatterns": [
+        "analysis_paralysis",
+        "overthinking"
+      ]
+    },
+    "resource_limitation": {
+      "constraintName": "Resource Limitation",
+      "sourceIDYTC": "Limited Resources",
+      "category": "scarcity_resource",
+      "defaultTimebox": 20,
+      "relevantPatterns": [
+        "scope_creep"
+      ]
+    },
+    "dream_collaboration": {
+      "constraintName": "Dream Collaboration",
+      "sourceIDYTC": "Manifest Destiny",
+      "category": "accountability_exposure",
+      "defaultTimebox": 15,
+      "relevantPatterns": [
+        "analysis_paralysis"
+      ]
+    },
+    "fear_confrontation": {
+      "constraintName": "Fear Confrontation",
+      "sourceIDYTC": "[DARE] The 'No Fear' Day",
+      "category": "accountability_exposure",
+      "defaultTimebox": 480,
+      "relevantPatterns": [
+        "momentum_loss",
+        "perfectionism_loop"
+      ]
+    },
+    "tech_disconnect": {
+      "constraintName": "Tech Disconnect",
+      "sourceIDYTC": "[DARE] Tech Disconnect",
+      "category": "focus_elimination",
+      "defaultTimebox": 60,
+      "relevantPatterns": [
+        "momentum_loss"
+      ]
+    },
+    "unfinished_revival": {
+      "constraintName": "Unfinished Revival",
+      "sourceIDYTC": "[DARE] What Happened To...?",
+      "category": "focus_elimination",
+      "defaultTimebox": 30,
+      "relevantPatterns": [
+        "momentum_loss",
+        "stagnation"
+      ]
+    },
+    "object_dialogue": {
+      "constraintName": "Object Dialogue",
+      "sourceIDYTC": "[DARE] Imaginary Friends",
+      "category": "perspective_shift",
+      "defaultTimebox": 15,
+      "relevantPatterns": [
+        "analysis_paralysis",
+        "overthinking"
+      ]
+    },
+    "present_challenge_reframe": {
+      "constraintName": "Present Challenge Reframe",
+      "sourceIDYTC": "Honor Your Now",
+      "category": "perspective_shift",
+      "defaultTimebox": 10,
+      "relevantPatterns": [
+        "momentum_loss",
+        "perfectionism_loop"
+      ]
+    }
+  },
+  "CREATE": {
+    "simplify_explanation": {
+      "constraintName": "Simplify Explanation",
+      "sourceIDYTC": "Like I'm Five",
+      "category": "clarity_simplification",
+      "defaultTimebox": 20,
+      "relevantPatterns": [
+        "analysis_paralysis",
+        "overthinking"
+      ]
+    },
+    "worst_idea_first": {
+      "constraintName": "Worst Idea First",
+      "sourceIDYTC": "What's the Worst That Can Happen?",
+      "category": "perspective_shift",
+      "defaultTimebox": 15,
+      "relevantPatterns": [
+        "perfectionism_loop"
+      ]
+    },
+    "one_feature_focus": {
+      "constraintName": "One Feature Focus",
+      "sourceIDYTC": "MVP Mindset",
+      "category": "focus_elimination",
+      "defaultTimebox": 60,
+      "relevantPatterns": [
+        "scope_creep"
+      ]
+    },
+    "analog_version": {
+      "constraintName": "Analog Version",
+      "sourceIDYTC": "Go Analog",
+      "category": "perspective_shift",
+      "defaultTimebox": 30,
+      "relevantPatterns": [
+        "overthinking",
+        "scope_creep"
+      ]
+    },
+    "existing_parts_only": {
+      "constraintName": "Existing Parts Only",
+      "sourceIDYTC": "Frankenstein It",
+      "category": "scarcity_resource",
+      "defaultTimebox": 45,
+      "relevantPatterns": [
+        "perfectionism_loop",
+        "scope_creep"
+      ]
+    },
+    "format_switch": {
+      "constraintName": "Format Switch",
+      "sourceIDYTC": "Format Flip",
+      "category": "perspective_shift",
+      "defaultTimebox": 30,
+      "relevantPatterns": [
+        "momentum_loss"
+      ]
+    },
+    "speed_prototype": {
+      "constraintName": "Speed Prototype",
+      "sourceIDYTC": "Rapid Prototype",
+      "category": "time_based",
+      "defaultTimebox": 60,
+      "relevantPatterns": [
+        "analysis_paralysis",
+        "perfectionism_loop"
+      ]
+    },
+    "public_declaration": {
+      "constraintName": "Public Declaration",
+      "sourceIDYTC": "Announce It Before You Build It",
+      "category": "accountability_exposure",
+      "defaultTimebox": 5,
+      "relevantPatterns": [
+        "momentum_loss",
+        "perfectionism_loop"
+      ]
+    },
+    "daily_creation": {
+      "constraintName": "Daily Creation",
+      "sourceIDYTC": "Create Every Day",
+      "category": "time_based",
+      "defaultTimebox": 60,
+      "relevantPatterns": [
+        "momentum_loss",
+        "stagnation"
+      ]
+    },
+    "constraint_stacking": {
+      "constraintName": "Constraint Stacking",
+      "sourceIDYTC": "Triple Constraint Challenge",
+      "category": "scarcity_resource",
+      "defaultTimebox": 45,
+      "relevantPatterns": [
+        "overthinking",
+        "scope_creep"
+      ]
+    },
+    "reverse_engineering": {
+      "constraintName": "Reverse Engineering",
+      "sourceIDYTC": "Work Backwards",
+      "category": "perspective_shift",
+      "defaultTimebox": 20,
+      "relevantPatterns": [
+        "analysis_paralysis",
+        "overthinking"
+      ]
+    },
+    "sensory_constraint": {
+      "constraintName": "Sensory Constraint",
+      "sourceIDYTC": "One Sense Only",
+      "category": "focus_elimination",
+      "defaultTimebox": 30,
+      "relevantPatterns": [
+        "overthinking",
+        "scope_creep"
+      ]
+    }
+  },
+  "EXECUTE": {
+    "blitzkrieg_sprint": {
+      "constraintName": "Blitzkrieg Sprint",
+      "sourceIDYTC": "Blitzkrieg",
+      "category": "time_based",
+      "defaultTimebox": 60,
+      "relevantPatterns": [
+        "momentum_loss",
+        "perfectionism_loop"
+      ]
+    },
+    "ship_without_polish": {
+      "constraintName": "Ship Without Polish",
+      "sourceIDYTC": "No Plan, No Problem",
+      "category": "action_before_planning",
+      "defaultTimebox": 30,
+      "relevantPatterns": [
+        "over_polishing",
+        "perfectionism_loop"
+      ]
+    },
+    "ninety_second_pitch": {
+      "constraintName": "Ninety Second Pitch",
+      "sourceIDYTC": "90 seconds or less",
+      "category": "clarity_simplification",
+      "defaultTimebox": 10,
+      "relevantPatterns": [
+        "analysis_paralysis",
+        "perfectionism_loop"
+      ]
+    },
+    "stranger_feedback": {
+      "constraintName": "Stranger Feedback",
+      "sourceIDYTC": "[DARE] Man On The Street",
+      "category": "accountability_exposure",
+      "defaultTimebox": 45,
+      "relevantPatterns": [
+        "overthinking",
+        "perfectionism_loop"
+      ]
+    },
+    "radical_rebrand": {
+      "constraintName": "Radical Rebrand",
+      "sourceIDYTC": "[DARE] The Rapid Rebrand",
+      "category": "perspective_shift",
+      "defaultTimebox": 10,
+      "relevantPatterns": [
+        "analysis_paralysis",
+        "overthinking"
+      ]
+    },
+    "location_shift": {
+      "constraintName": "Location Shift",
+      "sourceIDYTC": "[DARE] You Need to Leave",
+      "category": "focus_elimination",
+      "defaultTimebox": 60,
+      "relevantPatterns": [
+        "momentum_loss"
+      ]
+    },
+    "public_sabotage": {
+      "constraintName": "Public Sabotage",
+      "sourceIDYTC": "[DARE] Shark Sabotage",
+      "category": "accountability_exposure",
+      "defaultTimebox": 30,
+      "relevantPatterns": [
+        "perfectionism_loop",
+        "ship_anxiety"
+      ]
+    },
+    "resource_scavenging": {
+      "constraintName": "Resource Scavenging",
+      "sourceIDYTC": "[RACs] Break Out",
+      "category": "scarcity_resource",
+      "defaultTimebox": 45,
+      "relevantPatterns": [
+        "perfectionism_loop",
+        "scope_creep"
+      ]
+    },
+    "focus_breaks": {
+      "constraintName": "Focus Breaks",
+      "sourceIDYTC": "[RACs] Brain Break",
+      "category": "focus_elimination",
+      "defaultTimebox": 60,
+      "relevantPatterns": [
+        "momentum_loss"
+      ]
+    },
+    "twenty_one_day_commitment": {
+      "constraintName": "Twenty One Day Commitment",
+      "sourceIDYTC": "21-Day Project Power-Up",
+      "category": "time_based",
+      "defaultTimebox": 1440,
+      "relevantPatterns": [
+        "momentum_loss",
+        "stagnation"
+      ]
+    },
+    "elimination_commitment": {
+      "constraintName": "Elimination Commitment",
+      "sourceIDYTC": "The Power of 'No'",
+      "category": "focus_elimination",
+      "defaultTimebox": 15,
+      "relevantPatterns": [
+        "perfectionism_loop",
+        "scope_creep"
+      ]
+    }
+  }
+}

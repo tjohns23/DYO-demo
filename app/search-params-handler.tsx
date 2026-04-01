@@ -1,7 +1,7 @@
 'use client';
 
 import { useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 
 interface SearchParamsHandlerProps {
   children: React.ReactNode;
@@ -11,17 +11,13 @@ export default function SearchParamsHandler({ children }: SearchParamsHandlerPro
   const searchParams = useSearchParams();
   const errorParam = searchParams.get('error');
   const error = errorParam ? decodeURIComponent(errorParam) : null;
-  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
     if (errorParam) {
       // Clear the error from URL after reading it
       window.history.replaceState({}, '', '/');
     }
   }, [errorParam]);
-
-  if (!mounted) return null;
 
   return (
     <>

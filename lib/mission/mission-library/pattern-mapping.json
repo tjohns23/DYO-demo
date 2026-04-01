@@ -1,0 +1,114 @@
+{
+  "IDEATE": {
+    "analysis_paralysis": [
+      "future_trend_adaptation",
+      "competitor_collaboration",
+      "ecosystem_mapping",
+      "old_school_marketing",
+      "five_minute_brainstorm",
+      "dream_collaboration",
+      "object_dialogue"
+    ],
+    "scope_creep": [
+      "future_trend_adaptation",
+      "competitor_collaboration",
+      "six_word_pitch",
+      "resource_limitation"
+    ],
+    "momentum_loss": [
+      "rapid_monetization",
+      "rediscover_purpose",
+      "fear_confrontation",
+      "tech_disconnect",
+      "unfinished_revival",
+      "present_challenge_reframe"
+    ],
+    "perfectionism_loop": [
+      "rapid_monetization",
+      "fear_confrontation",
+      "present_challenge_reframe"
+    ],
+    "stagnation": [
+      "rediscover_purpose",
+      "unfinished_revival"
+    ],
+    "overthinking": [
+      "six_word_pitch",
+      "five_minute_brainstorm",
+      "object_dialogue"
+    ]
+  },
+  "CREATE": {
+    "overthinking": [
+      "simplify_explanation",
+      "analog_version",
+      "constraint_stacking",
+      "reverse_engineering",
+      "sensory_constraint"
+    ],
+    "analysis_paralysis": [
+      "simplify_explanation",
+      "speed_prototype",
+      "reverse_engineering"
+    ],
+    "perfectionism_loop": [
+      "worst_idea_first",
+      "existing_parts_only",
+      "speed_prototype",
+      "public_declaration"
+    ],
+    "scope_creep": [
+      "one_feature_focus",
+      "analog_version",
+      "existing_parts_only",
+      "constraint_stacking",
+      "sensory_constraint"
+    ],
+    "momentum_loss": [
+      "format_switch",
+      "public_declaration",
+      "daily_creation"
+    ],
+    "stagnation": [
+      "daily_creation"
+    ]
+  },
+  "EXECUTE": {
+    "momentum_loss": [
+      "blitzkrieg_sprint",
+      "location_shift",
+      "focus_breaks",
+      "twenty_one_day_commitment"
+    ],
+    "perfectionism_loop": [
+      "blitzkrieg_sprint",
+      "ship_without_polish",
+      "ninety_second_pitch",
+      "stranger_feedback",
+      "public_sabotage",
+      "resource_scavenging",
+      "elimination_commitment"
+    ],
+    "over_polishing": [
+      "ship_without_polish"
+    ],
+    "analysis_paralysis": [
+      "ninety_second_pitch",
+      "radical_rebrand"
+    ],
+    "overthinking": [
+      "stranger_feedback",
+      "radical_rebrand"
+    ],
+    "ship_anxiety": [
+      "public_sabotage"
+    ],
+    "scope_creep": [
+      "resource_scavenging",
+      "elimination_commitment"
+    ],
+    "stagnation": [
+      "twenty_one_day_commitment"
+    ]
+  }
+}

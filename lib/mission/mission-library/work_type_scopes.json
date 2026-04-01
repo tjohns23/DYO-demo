@@ -1,0 +1,990 @@
+{
+  "future_trend_adaptation": {
+    "writing": {
+      "scope": "Write 500-word article explaining ONE emerging trend + how ONE new writing skill helps you cover it",
+      "completion": "Article published explaining trend and skill connection"
+    },
+    "coding": {
+      "scope": "Complete ONE tutorial/course module for ONE emerging framework or language",
+      "completion": "Working code example from tutorial deployed and functional"
+    },
+    "design": {
+      "scope": "Create 3 mockups using ONE new design tool or technique relevant to emerging trend",
+      "completion": "3 mockups exported showing new tool/technique application"
+    },
+    "content": {
+      "scope": "Produce ONE piece of content (video/audio/visual) using ONE new production skill",
+      "completion": "Content published demonstrating new skill"
+    },
+    "strategy": {
+      "scope": "Document ONE strategic decision using ONE new analysis framework",
+      "completion": "Written strategy document applying new framework"
+    },
+    "pitch": {
+      "scope": "Deliver 2-minute pitch explaining how ONE new skill positions you for emerging trend",
+      "completion": "Pitch delivered and recorded"
+    }
+  },
+  "rapid_monetization": {
+    "writing": {
+      "scope": "Offer paid writing service (editing, ghostwriting, content) and close ONE paying client",
+      "completion": "Payment received for writing work"
+    },
+    "coding": {
+      "scope": "Sell ONE code snippet, template, or technical solution",
+      "completion": "Money received for code product/service"
+    },
+    "design": {
+      "scope": "Complete ONE paid design task (logo, mockup, asset)",
+      "completion": "Client pays for completed design work"
+    },
+    "content": {
+      "scope": "Monetize ONE piece of content (sponsored post, paid tutorial, consulting session)",
+      "completion": "Revenue generated from content offering"
+    },
+    "strategy": {
+      "scope": "Sell ONE hour of strategic consulting or advisory",
+      "completion": "Payment received for strategy session"
+    },
+    "pitch": {
+      "scope": "Pitch services to 5 potential clients, close 1",
+      "completion": "One client signs contract and pays deposit"
+    }
+  },
+  "competitor_collaboration": {
+    "writing": {
+      "scope": "Co-write ONE article/post with a competitor, publish on both platforms",
+      "completion": "Joint article published with both author credits"
+    },
+    "coding": {
+      "scope": "Contribute to competitor's open-source project OR collaborate on ONE shared code library",
+      "completion": "Code merged/published showing collaboration"
+    },
+    "design": {
+      "scope": "Create joint design asset with competitor (template, resource, guide)",
+      "completion": "Collaborative design published with dual credit"
+    },
+    "content": {
+      "scope": "Create ONE collaborative content piece with competitor (interview, joint video, podcast)",
+      "completion": "Collaborative content published on both channels"
+    },
+    "strategy": {
+      "scope": "Document ONE strategic opportunity created through competitor partnership",
+      "completion": "Written partnership strategy shared with both parties"
+    },
+    "pitch": {
+      "scope": "Deliver joint pitch with competitor to shared audience/client",
+      "completion": "Collaborative pitch delivered together"
+    }
+  },
+  "ecosystem_mapping": {
+    "writing": {
+      "scope": "Write ecosystem map for your writing niche + email ONE potential collaborator",
+      "completion": "Email sent to collaborator with specific collaboration proposal"
+    },
+    "coding": {
+      "scope": "Map technical ecosystem for your project + open ONE GitHub issue/PR on related project",
+      "completion": "GitHub contribution made to ecosystem project"
+    },
+    "design": {
+      "scope": "Map design community ecosystem + message ONE designer with portfolio feedback/collaboration idea",
+      "completion": "Direct message sent initiating design collaboration"
+    },
+    "content": {
+      "scope": "Map content creator ecosystem + comment on 3 creators' work + DM ONE collaboration idea",
+      "completion": "Collaboration proposal DM sent to content creator"
+    },
+    "strategy": {
+      "scope": "Document ecosystem map for strategic initiative + schedule ONE call with ecosystem player",
+      "completion": "Meeting scheduled with identified collaborator"
+    },
+    "pitch": {
+      "scope": "Map investor/partner ecosystem + send ONE warm intro request",
+      "completion": "Introduction request sent through mutual connection"
+    }
+  },
+  "rediscover_purpose": {
+    "writing": {
+      "scope": "Write 300 words about why you started writing + write ONE piece in that original style",
+      "completion": "Original-style piece published/shared"
+    },
+    "coding": {
+      "scope": "Build ONE small project using the tech that first excited you about coding",
+      "completion": "Nostalgic project built and working"
+    },
+    "design": {
+      "scope": "Create 3 designs in the style that first made you love design",
+      "completion": "3 original-inspiration designs exported"
+    },
+    "content": {
+      "scope": "Create ONE piece of content about the topic that originally excited you",
+      "completion": "Content published returning to original passion topic"
+    },
+    "strategy": {
+      "scope": "Document the original problem you wanted to solve + outline ONE action toward it",
+      "completion": "Original mission documented and one action taken"
+    },
+    "pitch": {
+      "scope": "Pitch your original vision (not current polished version) to ONE person",
+      "completion": "Original-vision pitch delivered"
+    }
+  },
+  "six_word_pitch": {
+    "writing": {
+      "scope": "Write six-word pitch for your writing + use it in ONE bio/profile",
+      "completion": "Six-word pitch published in visible bio"
+    },
+    "coding": {
+      "scope": "Create six-word description of your code project + add to README",
+      "completion": "Six-word pitch in project README"
+    },
+    "design": {
+      "scope": "Design six-word brand statement + incorporate into ONE portfolio piece",
+      "completion": "Six-word statement visible in design work"
+    },
+    "content": {
+      "scope": "Create six-word channel description + update ALL platform bios with it",
+      "completion": "Six-word description live on all platforms"
+    },
+    "strategy": {
+      "scope": "Distill strategy into six words + present to stakeholders",
+      "completion": "Six-word strategy shared with team/stakeholders"
+    },
+    "pitch": {
+      "scope": "Deliver six-word pitch to 5 people, refine based on reactions",
+      "completion": "Six-word pitch tested with 5 people"
+    }
+  },
+  "old_school_marketing": {
+    "writing": {
+      "scope": "Write ONE letter (not email) to potential reader/client and mail it physically",
+      "completion": "Physical letter mailed"
+    },
+    "coding": {
+      "scope": "Create printed flyer/card about your code project and distribute to 10 people locally",
+      "completion": "10 physical cards distributed in person"
+    },
+    "design": {
+      "scope": "Create physical portfolio piece (printed, bound, tangible) and show to 3 people in person",
+      "completion": "Physical portfolio shown to 3 people face-to-face"
+    },
+    "content": {
+      "scope": "Promote content through ONE non-digital channel (local newspaper, flyer, word-of-mouth campaign)",
+      "completion": "Non-digital promotion executed"
+    },
+    "strategy": {
+      "scope": "Present strategy face-to-face using only printed materials (no slides, no digital)",
+      "completion": "Strategy presented with printed materials only"
+    },
+    "pitch": {
+      "scope": "Pitch to 3 people in person with zero digital aids (no laptop, no phone)",
+      "completion": "3 analog pitches delivered face-to-face"
+    }
+  },
+  "five_minute_brainstorm": {
+    "writing": {
+      "scope": "Generate 5 article ideas in 5 minutes following rules + write intro paragraph for ONE",
+      "completion": "5 ideas listed + one intro paragraph written"
+    },
+    "coding": {
+      "scope": "Generate 5 feature ideas in 5 minutes following rules + pseudocode ONE",
+      "completion": "5 features listed + one pseudocoded"
+    },
+    "design": {
+      "scope": "Sketch 5 design concepts in 5 minutes following rules + refine ONE for 10 minutes",
+      "completion": "5 sketches + one 10-minute refined version"
+    },
+    "content": {
+      "scope": "Brainstorm 5 content ideas in 5 minutes following rules + outline ONE",
+      "completion": "5 ideas + one outlined"
+    },
+    "strategy": {
+      "scope": "Generate 5 strategic approaches in 5 minutes following rules + document ONE",
+      "completion": "5 approaches listed + one documented"
+    },
+    "pitch": {
+      "scope": "Create 5 pitch angles in 5 minutes following rules + practice ONE aloud",
+      "completion": "5 angles + one delivered to mirror/camera"
+    }
+  },
+  "resource_limitation": {
+    "writing": {
+      "scope": "Write 1000-word article in 1 hour with zero research budget (memory only)",
+      "completion": "1000-word article written within constraints"
+    },
+    "coding": {
+      "scope": "Build working feature in 2 hours using only free tools, no AI assist",
+      "completion": "Feature functional meeting constraints"
+    },
+    "design": {
+      "scope": "Create 5 design assets in 3 hours using only free tools",
+      "completion": "5 assets exported meeting constraints"
+    },
+    "content": {
+      "scope": "Produce ONE content piece in 1 day using only phone camera/mic, $0 budget",
+      "completion": "Content published meeting constraints"
+    },
+    "strategy": {
+      "scope": "Document complete strategy in 2 hours using only pen and paper",
+      "completion": "Handwritten strategy documented"
+    },
+    "pitch": {
+      "scope": "Create pitch deck in 30 minutes using only Google Slides (no premium tools)",
+      "completion": "Deck created and presented meeting constraints"
+    }
+  },
+  "dream_collaboration": {
+    "writing": {
+      "scope": "List 3 writers you admire + draft ONE cold pitch email offering specific value",
+      "completion": "Email drafted (ready to send)"
+    },
+    "coding": {
+      "scope": "List 3 developers you admire + open ONE issue/PR on their project offering contribution",
+      "completion": "GitHub contribution initiated"
+    },
+    "design": {
+      "scope": "List 3 designers you admire + create ONE piece in their style + tag them",
+      "completion": "Inspired work created and designer tagged"
+    },
+    "content": {
+      "scope": "List 3 creators you admire + create ONE response/remix of their content",
+      "completion": "Response content published and original creator notified"
+    },
+    "strategy": {
+      "scope": "List 3 strategists you admire + write ONE analysis of their approach",
+      "completion": "Analysis written and shared publicly"
+    },
+    "pitch": {
+      "scope": "List 3 people you'd love to pitch + record ONE practice pitch addressing their known interests",
+      "completion": "Practice pitch recorded showing research"
+    }
+  },
+  "fear_confrontation": {
+    "writing": {
+      "scope": "Publish ONE piece you've been afraid to share (controversial opinion, personal story, unpolished draft)",
+      "completion": "Fear-inducing piece published publicly"
+    },
+    "coding": {
+      "scope": "Deploy ONE feature you're afraid will break + monitor for 8 hours",
+      "completion": "Scary feature deployed and monitored full day"
+    },
+    "design": {
+      "scope": "Share ONE experimental design you're afraid clients will reject + ask for feedback",
+      "completion": "Risky design shared with 5+ people"
+    },
+    "content": {
+      "scope": "Publish ONE piece of content you're afraid will flop (new format, bold take, personal reveal)",
+      "completion": "Scary content published"
+    },
+    "strategy": {
+      "scope": "Present ONE strategic recommendation you're afraid stakeholders will reject",
+      "completion": "Risky recommendation presented to decision-makers"
+    },
+    "pitch": {
+      "scope": "Pitch to ONE person/organization you're afraid will say no",
+      "completion": "Scary pitch delivered (regardless of outcome)"
+    }
+  },
+  "tech_disconnect": {
+    "writing": {
+      "scope": "Write 500 words with zero phone access (no research, no references, memory only)",
+      "completion": "500 words written phone-free"
+    },
+    "coding": {
+      "scope": "Code for 90 minutes without phone (no Stack Overflow, no ChatGPT, documentation only)",
+      "completion": "90 minutes coding completed phone-free"
+    },
+    "design": {
+      "scope": "Create 3 designs without phone (no Pinterest, no Dribbble, no reference hunting)",
+      "completion": "3 designs created phone-free"
+    },
+    "content": {
+      "scope": "Plan and outline 5 content pieces without phone (no trend research, no competitor checking)",
+      "completion": "5 pieces outlined phone-free"
+    },
+    "strategy": {
+      "scope": "Develop complete strategy without phone (no data checking, no competitive research)",
+      "completion": "Strategy documented phone-free"
+    },
+    "pitch": {
+      "scope": "Develop and practice pitch without phone (no script access, no reference checking)",
+      "completion": "Pitch practiced 3 times phone-free"
+    }
+  },
+  "unfinished_revival": {
+    "writing": {
+      "scope": "Find ONE abandoned article/post + complete and publish OR write 200-word reflection on why it died",
+      "completion": "Either piece published OR reflection written"
+    },
+    "coding": {
+      "scope": "Locate ONE abandoned code project + fix ONE bug OR add ONE small feature",
+      "completion": "Code updated and committed"
+    },
+    "design": {
+      "scope": "Revive ONE shelved design project + complete ONE element OR create variation",
+      "completion": "Design element finished"
+    },
+    "content": {
+      "scope": "Find ONE unfinished content piece + publish OR create shortened version",
+      "completion": "Content published in some form"
+    },
+    "strategy": {
+      "scope": "Revisit ONE abandoned strategic initiative + take ONE concrete action toward it",
+      "completion": "Action taken and documented"
+    },
+    "pitch": {
+      "scope": "Revive ONE pitch you never delivered + pitch to ONE new person this week",
+      "completion": "Old pitch delivered to new audience"
+    }
+  },
+  "object_dialogue": {
+    "writing": {
+      "scope": "Write 45-second dialogue between 2 objects about your writing block + extract ONE insight + write 200 words using it",
+      "completion": "Dialogue written + insight applied to writing"
+    },
+    "coding": {
+      "scope": "Create 45-second dialogue between 2 objects about your coding challenge + apply ONE insight to code",
+      "completion": "Dialogue written + code updated based on insight"
+    },
+    "design": {
+      "scope": "Write 45-second dialogue between 2 objects about design problem + create design based on ONE insight",
+      "completion": "Dialogue written + design created from insight"
+    },
+    "content": {
+      "scope": "Create 45-second dialogue between 2 objects about content challenge + produce content based on insight",
+      "completion": "Dialogue created + content piece produced"
+    },
+    "strategy": {
+      "scope": "Develop 45-second dialogue between 2 objects about strategic problem + document ONE strategic shift",
+      "completion": "Dialogue written + strategy adjusted"
+    },
+    "pitch": {
+      "scope": "Write 45-second dialogue between 2 objects about pitch obstacle + modify pitch based on insight",
+      "completion": "Dialogue created + pitch revised"
+    }
+  },
+  "present_challenge_reframe": {
+    "writing": {
+      "scope": "Write 300 words about current writing limitations + produce ONE piece leveraging ONE current strength",
+      "completion": "Limitation reflection + strength-based piece written"
+    },
+    "coding": {
+      "scope": "Document current technical constraints + build ONE feature using ONLY existing tech stack",
+      "completion": "Constraints listed + feature built within limits"
+    },
+    "design": {
+      "scope": "List current design limitations + create 3 designs using ONLY available tools/skills",
+      "completion": "Limitations documented + 3 designs created"
+    },
+    "content": {
+      "scope": "Document current content constraints + produce ONE piece using ONLY current equipment/skills",
+      "completion": "Constraints listed + content produced"
+    },
+    "strategy": {
+      "scope": "Write current strategic limitations + propose ONE strategy using ONLY current resources",
+      "completion": "Limitations documented + current-state strategy written"
+    },
+    "pitch": {
+      "scope": "Accept current pitch limitations + deliver pitch emphasizing ONE existing strength",
+      "completion": "Limitation-aware pitch delivered"
+    }
+  },
+  "simplify_explanation": {
+    "writing": {
+      "scope": "Rewrite ONE complex article/concept in 200 words a child could understand",
+      "completion": "Simplified version written"
+    },
+    "coding": {
+      "scope": "Write documentation explaining ONE complex function in terms a non-programmer could understand",
+      "completion": "Simple documentation written"
+    },
+    "design": {
+      "scope": "Create ONE visual that explains complex design concept without jargon",
+      "completion": "Educational visual created"
+    },
+    "content": {
+      "scope": "Create ONE piece explaining complex topic to complete beginners",
+      "completion": "Beginner-friendly content published"
+    },
+    "strategy": {
+      "scope": "Explain ONE complex strategy using only simple words + present to non-experts",
+      "completion": "Simplified strategy presented"
+    },
+    "pitch": {
+      "scope": "Pitch complex idea using zero technical terms/jargon",
+      "completion": "Jargon-free pitch delivered to non-expert"
+    }
+  },
+  "worst_idea_first": {
+    "writing": {
+      "scope": "Generate 5 terrible article ideas + extract ONE useful insight + write 300 words using it",
+      "completion": "Bad ideas listed + insight-based writing completed"
+    },
+    "coding": {
+      "scope": "Brainstorm 5 horrible feature ideas + extract ONE useful element + implement it",
+      "completion": "Terrible ideas documented + useful element coded"
+    },
+    "design": {
+      "scope": "Create 5 intentionally bad designs + identify ONE salvageable element + use it properly",
+      "completion": "Bad designs created + good element extracted and used"
+    },
+    "content": {
+      "scope": "Develop 5 worst content ideas + find ONE redeemable angle + create content from it",
+      "completion": "Terrible ideas listed + salvaged content produced"
+    },
+    "strategy": {
+      "scope": "Document 5 terrible strategies + extract ONE contrarian insight + apply it",
+      "completion": "Bad strategies written + useful insight implemented"
+    },
+    "pitch": {
+      "scope": "Develop 5 awful pitch angles + identify ONE useful hook + use it",
+      "completion": "Bad pitches listed + good hook identified and used"
+    }
+  },
+  "one_feature_focus": {
+    "writing": {
+      "scope": "Write article with ONLY introduction + ONE main point (no conclusion, no secondary points)",
+      "completion": "Minimal article published with single point"
+    },
+    "coding": {
+      "scope": "Build ONLY core functionality (no error handling, no edge cases, just primary use case)",
+      "completion": "Core feature working for primary use case"
+    },
+    "design": {
+      "scope": "Design ONLY hero section OR ONLY main layout element (not both, not supporting elements)",
+      "completion": "Single design element completed"
+    },
+    "content": {
+      "scope": "Create content covering ONLY ONE core message (no B-roll, no extras, no polish)",
+      "completion": "Single-message content published"
+    },
+    "strategy": {
+      "scope": "Document ONLY core strategic recommendation (no alternatives, no contingencies)",
+      "completion": "Single strategy documented"
+    },
+    "pitch": {
+      "scope": "Pitch ONLY one key benefit (not three benefits, not complete value prop, just one)",
+      "completion": "Single-benefit pitch delivered"
+    }
+  },
+  "analog_version": {
+    "writing": {
+      "scope": "Handwrite 500-word draft with pen and paper before typing anything",
+      "completion": "Handwritten draft completed"
+    },
+    "coding": {
+      "scope": "Sketch complete UI/logic flow on paper before writing any code",
+      "completion": "Paper prototype completed"
+    },
+    "design": {
+      "scope": "Create complete design using pen/pencil/paper only (no digital tools)",
+      "completion": "Analog design completed"
+    },
+    "content": {
+      "scope": "Plan and outline content using only paper/whiteboard (no digital tools)",
+      "completion": "Analog content plan completed"
+    },
+    "strategy": {
+      "scope": "Map entire strategy on paper/whiteboard using only analog tools",
+      "completion": "Handwritten strategy map completed"
+    },
+    "pitch": {
+      "scope": "Create pitch deck using only paper/markers (no slides, no digital)",
+      "completion": "Analog pitch materials created"
+    }
+  },
+  "existing_parts_only": {
+    "writing": {
+      "scope": "Write complete article using ONLY tools you already have (no new apps, no new subscriptions)",
+      "completion": "Article written with existing tools only"
+    },
+    "coding": {
+      "scope": "Build feature using ONLY languages/frameworks already in your project (no new dependencies)",
+      "completion": "Feature built with existing tech stack"
+    },
+    "design": {
+      "scope": "Create 5 designs using ONLY software you already own (no new tools, no trials)",
+      "completion": "5 designs created with existing tools"
+    },
+    "content": {
+      "scope": "Produce content using ONLY equipment you currently own (no new gear, no rentals)",
+      "completion": "Content created with existing equipment"
+    },
+    "strategy": {
+      "scope": "Develop strategy using ONLY existing data/resources (no new research, no new tools)",
+      "completion": "Strategy documented using existing resources"
+    },
+    "pitch": {
+      "scope": "Create pitch using ONLY existing materials (no new templates, no new software)",
+      "completion": "Pitch created with existing tools"
+    }
+  },
+  "format_switch": {
+    "writing": {
+      "scope": "Transform article into thread/poem/dialogue (complete format change)",
+      "completion": "Same idea published in radically different format"
+    },
+    "coding": {
+      "scope": "Transform web app concept into CLI tool OR API-only version (format shift)",
+      "completion": "Same functionality in different format working"
+    },
+    "design": {
+      "scope": "Transform web design into print layout OR infographic into animation (format transformation)",
+      "completion": "Design concept executed in different medium"
+    },
+    "content": {
+      "scope": "Transform video concept into podcast OR blog into video (format change)",
+      "completion": "Same content published in different format"
+    },
+    "strategy": {
+      "scope": "Transform written strategy into visual diagram OR presentation into one-pager",
+      "completion": "Strategy communicated in different format"
+    },
+    "pitch": {
+      "scope": "Transform slide pitch into demo OR verbal pitch into written proposal (format shift)",
+      "completion": "Same pitch delivered in different format"
+    }
+  },
+  "speed_prototype": {
+    "writing": {
+      "scope": "Write complete article draft in 60 minutes (no editing, no research breaks)",
+      "completion": "Full draft written within 60 minutes"
+    },
+    "coding": {
+      "scope": "Build working prototype in 60 minutes (functional, not polished)",
+      "completion": "Prototype working within 60 minutes"
+    },
+    "design": {
+      "scope": "Create 5 design variations in 60 minutes (rough, not refined)",
+      "completion": "5 variations created within 60 minutes"
+    },
+    "content": {
+      "scope": "Shoot and edit content piece in 60 minutes (raw, unpolished)",
+      "completion": "Content piece completed within 60 minutes"
+    },
+    "strategy": {
+      "scope": "Document complete strategic plan in 60 minutes (rough outline)",
+      "completion": "Strategy outlined within 60 minutes"
+    },
+    "pitch": {
+      "scope": "Create pitch deck in 60 minutes (rough slides, core points only)",
+      "completion": "Deck created and practiced within 60 minutes"
+    }
+  },
+  "public_declaration": {
+    "writing": {
+      "scope": "Post publicly that you're writing [specific article] + publish by announced deadline",
+      "completion": "Public commitment made + article published on time"
+    },
+    "coding": {
+      "scope": "Tweet/post about feature you're building + deploy by announced date",
+      "completion": "Public announcement made + feature shipped on time"
+    },
+    "design": {
+      "scope": "Announce design project publicly + share by committed deadline",
+      "completion": "Public commitment made + design shared on time"
+    },
+    "content": {
+      "scope": "Announce content series publicly + publish first piece by committed date",
+      "completion": "Public announcement made + content delivered on time"
+    },
+    "strategy": {
+      "scope": "Announce strategic initiative publicly + present results by committed deadline",
+      "completion": "Public commitment made + results presented on time"
+    },
+    "pitch": {
+      "scope": "Announce you're pitching [specific opportunity] + report outcome publicly",
+      "completion": "Public announcement made + outcome shared"
+    }
+  },
+  "daily_creation": {
+    "writing": {
+      "scope": "Write and publish something (100+ words) every day for 7 days",
+      "completion": "7 pieces published in 7 days"
+    },
+    "coding": {
+      "scope": "Commit working code every day for 7 days (even if small)",
+      "completion": "7 consecutive days of commits"
+    },
+    "design": {
+      "scope": "Create and export one design asset every day for 7 days",
+      "completion": "7 designs created in 7 days"
+    },
+    "content": {
+      "scope": "Publish one piece of content every day for 7 days (any format)",
+      "completion": "7 pieces published in 7 days"
+    },
+    "strategy": {
+      "scope": "Document one strategic insight every day for 7 days",
+      "completion": "7 insights documented in 7 days"
+    },
+    "pitch": {
+      "scope": "Practice pitch daily for 7 days + record final version",
+      "completion": "7 days of practice + final recording"
+    }
+  },
+  "constraint_stacking": {
+    "writing": {
+      "scope": "Write 500 words in 30 minutes using only 100 most common words + no backspace",
+      "completion": "Article written meeting all 3 constraints"
+    },
+    "coding": {
+      "scope": "Build feature in 2 hours using no AI assist + no new dependencies + mobile-first only",
+      "completion": "Feature working meeting all 3 constraints"
+    },
+    "design": {
+      "scope": "Create design in 1 hour using only black/white/one color + no text + free tools only",
+      "completion": "Design completed meeting all 3 constraints"
+    },
+    "content": {
+      "scope": "Create content in 1 day using only phone + under 1 minute length + no editing",
+      "completion": "Content published meeting all 3 constraints"
+    },
+    "strategy": {
+      "scope": "Write strategy in 30 minutes on paper only + max 1 page + no access to existing data",
+      "completion": "Strategy documented meeting all 3 constraints"
+    },
+    "pitch": {
+      "scope": "Create pitch in 20 minutes with no slides + max 2 minutes + no rehearsal",
+      "completion": "Pitch delivered meeting all 3 constraints"
+    }
+  },
+  "reverse_engineering": {
+    "writing": {
+      "scope": "Write article conclusion first, then work backwards to intro",
+      "completion": "Article written in reverse order"
+    },
+    "coding": {
+      "scope": "Write tests for desired outcome first, then build code to pass tests",
+      "completion": "Tests written first, code passes all tests"
+    },
+    "design": {
+      "scope": "Start with final polished mockup, then deconstruct to wireframe, then sketch",
+      "completion": "Design process reversed and documented"
+    },
+    "content": {
+      "scope": "Create final content thumbnail/title first, then build content to match",
+      "completion": "Content created to match predetermined packaging"
+    },
+    "strategy": {
+      "scope": "Define desired outcome first, then work backwards to immediate next step",
+      "completion": "Reverse strategy map documented"
+    },
+    "pitch": {
+      "scope": "Start with ask/close, then work backwards to opening hook",
+      "completion": "Pitch structured backwards from close to open"
+    }
+  },
+  "sensory_constraint": {
+    "writing": {
+      "scope": "Write article about experience using ONLY sound descriptions (no visual details)",
+      "completion": "Sound-only article written"
+    },
+    "coding": {
+      "scope": "Build accessible feature using ONLY keyboard navigation (no mouse)",
+      "completion": "Keyboard-only feature working"
+    },
+    "design": {
+      "scope": "Create design for visually impaired users (optimize for screen readers only)",
+      "completion": "Screen-reader-optimized design created"
+    },
+    "content": {
+      "scope": "Create audio-only content OR text-only content (no visual/audio mixing)",
+      "completion": "Single-sense content published"
+    },
+    "strategy": {
+      "scope": "Present strategy using ONLY verbal explanation (no slides, no visuals)",
+      "completion": "Audio-only strategy presentation delivered"
+    },
+    "pitch": {
+      "scope": "Pitch using ONLY voice (no slides, no handouts, no visuals)",
+      "completion": "Audio-only pitch delivered"
+    }
+  },
+  "blitzkrieg_sprint": {
+    "writing": {
+      "scope": "Write 1000 words in 60 minutes (no breaks, no distractions, no editing during)",
+      "completion": "1000 words written in uninterrupted 60 minutes"
+    },
+    "coding": {
+      "scope": "Code continuously for 60 minutes (no Stack Overflow, no breaks, no context switching)",
+      "completion": "60 minutes of focused coding completed"
+    },
+    "design": {
+      "scope": "Create 10 design variations in 60 minutes (no breaks, no reference browsing)",
+      "completion": "10 variations created in 60 minutes straight"
+    },
+    "content": {
+      "scope": "Produce complete content piece in 60 minutes (shoot + edit, no breaks)",
+      "completion": "Content completed in 60 minutes uninterrupted"
+    },
+    "strategy": {
+      "scope": "Write complete strategy in 60 minutes (no research, no breaks, no distractions)",
+      "completion": "Strategy documented in 60 minutes straight"
+    },
+    "pitch": {
+      "scope": "Create pitch and practice 5 times in 60 minutes (no breaks, timed)",
+      "completion": "Pitch created and practiced 5× in 60 minutes"
+    }
+  },
+  "ship_without_polish": {
+    "writing": {
+      "scope": "Publish first draft without editing (introduce + one point + immediate publish)",
+      "completion": "Unedited draft published"
+    },
+    "coding": {
+      "scope": "Deploy code with basic functionality only (no edge cases, no error handling, works for main use)",
+      "completion": "Minimal code deployed and functional"
+    },
+    "design": {
+      "scope": "Share rough mockup without refinement (first iteration shared immediately)",
+      "completion": "Rough design shared publicly"
+    },
+    "content": {
+      "scope": "Publish raw content without editing (one take, no cuts, immediate upload)",
+      "completion": "Unedited content published"
+    },
+    "strategy": {
+      "scope": "Present strategy without complete analysis (current thinking shared as-is)",
+      "completion": "Rough strategy presented to stakeholders"
+    },
+    "pitch": {
+      "scope": "Deliver pitch without rehearsal (no practice, just deliver)",
+      "completion": "Unrehearsed pitch delivered"
+    }
+  },
+  "ninety_second_pitch": {
+    "writing": {
+      "scope": "Pitch writing project in 90 seconds + get feedback + refine once",
+      "completion": "90-second pitch delivered and refined"
+    },
+    "coding": {
+      "scope": "Explain code project in 90 seconds to non-technical person",
+      "completion": "90-second technical→non-technical explanation delivered"
+    },
+    "design": {
+      "scope": "Present design concept in 90 seconds + justify one design choice",
+      "completion": "90-second design pitch delivered"
+    },
+    "content": {
+      "scope": "Pitch content series in 90 seconds to potential collaborator/sponsor",
+      "completion": "90-second content pitch delivered"
+    },
+    "strategy": {
+      "scope": "Present strategic recommendation in 90 seconds to decision-maker",
+      "completion": "90-second strategy pitch delivered"
+    },
+    "pitch": {
+      "scope": "Deliver complete value proposition in 90 seconds + ask for meeting",
+      "completion": "90-second pitch delivered with clear ask"
+    }
+  },
+  "stranger_feedback": {
+    "writing": {
+      "scope": "Show unfinished article to 5 strangers (coffee shop, park, online) + get reactions",
+      "completion": "5 stranger reactions collected"
+    },
+    "coding": {
+      "scope": "Demo working prototype to 5 non-technical strangers + gather feedback",
+      "completion": "5 stranger demos completed"
+    },
+    "design": {
+      "scope": "Show design mockup to 5 random people + ask what they think it does",
+      "completion": "5 stranger interpretations collected"
+    },
+    "content": {
+      "scope": "Show content to 5 strangers + ask if they'd watch/read/share",
+      "completion": "5 stranger reactions gathered"
+    },
+    "strategy": {
+      "scope": "Explain strategy to 5 people outside your field + note their questions",
+      "completion": "5 outsider perspectives documented"
+    },
+    "pitch": {
+      "scope": "Pitch to 5 strangers + record their objections/questions",
+      "completion": "5 stranger pitches delivered"
+    }
+  },
+  "radical_rebrand": {
+    "writing": {
+      "scope": "Rebrand writing as [random industry] in 10 minutes + write 200-word description",
+      "completion": "Rebrand completed in 10 minutes"
+    },
+    "coding": {
+      "scope": "Rebrand code project as [random industry] product in 10 minutes + write new README",
+      "completion": "Rebrand completed in 10 minutes"
+    },
+    "design": {
+      "scope": "Redesign brand for [random industry] in 10 minutes + create 3 assets",
+      "completion": "Rebrand designs created in 10 minutes"
+    },
+    "content": {
+      "scope": "Rebrand content channel as [random industry] in 10 minutes + outline 3 pieces",
+      "completion": "Rebrand completed in 10 minutes"
+    },
+    "strategy": {
+      "scope": "Reframe strategy for [random industry] in 10 minutes + document pivot",
+      "completion": "Strategy rebrand completed in 10 minutes"
+    },
+    "pitch": {
+      "scope": "Repitch project as [random industry] solution in 10 minutes + deliver once",
+      "completion": "Rebranded pitch delivered"
+    }
+  },
+  "location_shift": {
+    "writing": {
+      "scope": "Leave current space + write 500 words in new location within 1 hour",
+      "completion": "500 words written in different location"
+    },
+    "coding": {
+      "scope": "Leave current workspace + code for 1 hour in new environment",
+      "completion": "1 hour of coding completed in new location"
+    },
+    "design": {
+      "scope": "Exit current space + create 3 designs in new location within 1 hour",
+      "completion": "3 designs created in different environment"
+    },
+    "content": {
+      "scope": "Leave current location + produce content piece in new space",
+      "completion": "Content created in different location"
+    },
+    "strategy": {
+      "scope": "Exit workspace + document strategy in new environment for 1 hour",
+      "completion": "Strategy work completed in new location"
+    },
+    "pitch": {
+      "scope": "Leave current space + practice pitch in new environment (park, cafe, etc.)",
+      "completion": "Pitch practiced in different location"
+    }
+  },
+  "public_sabotage": {
+    "writing": {
+      "scope": "Present article concept while group throws random challenges (\"include cat metaphor,\" \"switch to haiku\")",
+      "completion": "Sabotaged pitch delivered adaptively"
+    },
+    "coding": {
+      "scope": "Demo code while audience throws technical curveballs mid-demo",
+      "completion": "Sabotaged demo navigated successfully"
+    },
+    "design": {
+      "scope": "Present design while judges add random requirements mid-pitch",
+      "completion": "Sabotaged design pitch delivered"
+    },
+    "content": {
+      "scope": "Pitch content while audience throws random constraints mid-presentation",
+      "completion": "Sabotaged content pitch completed"
+    },
+    "strategy": {
+      "scope": "Present strategy while stakeholders add random conditions mid-pitch",
+      "completion": "Sabotaged strategy pitch navigated"
+    },
+    "pitch": {
+      "scope": "Deliver pitch while judges interrupt with random challenges",
+      "completion": "Sabotaged pitch completed with adaptation"
+    }
+  },
+  "resource_scavenging": {
+    "writing": {
+      "scope": "Write article using ONLY items in current room (no computer? use paper, no pen? improvise)",
+      "completion": "Article written with room-only resources"
+    },
+    "coding": {
+      "scope": "Prototype solution using ONLY current room items (paper prototypes, physical mockups)",
+      "completion": "Prototype created with room resources"
+    },
+    "design": {
+      "scope": "Create design using ONLY materials in current room (paper, markers, objects)",
+      "completion": "Physical design created with room items"
+    },
+    "content": {
+      "scope": "Produce content using ONLY equipment in current room (phone? use it; nothing? record audio on laptop)",
+      "completion": "Content produced with room resources"
+    },
+    "strategy": {
+      "scope": "Document strategy using ONLY items in current room (paper, whiteboard, objects as visual aids)",
+      "completion": "Strategy documented with room tools"
+    },
+    "pitch": {
+      "scope": "Create pitch materials using ONLY items in current room (no slides? use paper; no paper? verbal only)",
+      "completion": "Pitch materials created with room resources"
+    }
+  },
+  "focus_breaks": {
+    "writing": {
+      "scope": "Write for 25 minutes + take 5-minute hands-on break (sketch, build something) + repeat 3×",
+      "completion": "3 cycles of focused writing + creative breaks"
+    },
+    "coding": {
+      "scope": "Code for 30 minutes + take 5-minute hands-on break (doodle, fidget) + repeat 3×",
+      "completion": "3 cycles of focused coding + creative breaks"
+    },
+    "design": {
+      "scope": "Design for 25 minutes + take 5-minute hands-on break (not screen-based) + repeat 3×",
+      "completion": "3 cycles of focused design + creative breaks"
+    },
+    "content": {
+      "scope": "Produce content for 30 minutes + take 5-minute hands-on break + repeat 3×",
+      "completion": "3 cycles of content work + creative breaks"
+    },
+    "strategy": {
+      "scope": "Strategic work for 25 minutes + 5-minute hands-on break + repeat 3×",
+      "completion": "3 cycles of strategy work + creative breaks"
+    },
+    "pitch": {
+      "scope": "Pitch practice for 20 minutes + 5-minute hands-on break + repeat 3×",
+      "completion": "3 cycles of pitch practice + creative breaks"
+    }
+  },
+  "twenty_one_day_commitment": {
+    "writing": {
+      "scope": "Write minimum 100 words every single day for 21 consecutive days",
+      "completion": "21 consecutive days of writing"
+    },
+    "coding": {
+      "scope": "Commit code (even one line) every single day for 21 consecutive days",
+      "completion": "21 consecutive days of commits"
+    },
+    "design": {
+      "scope": "Create one design element every single day for 21 consecutive days",
+      "completion": "21 consecutive days of design creation"
+    },
+    "content": {
+      "scope": "Produce or publish one piece of content every day for 21 consecutive days",
+      "completion": "21 consecutive days of content"
+    },
+    "strategy": {
+      "scope": "Document one strategic insight every single day for 21 consecutive days",
+      "completion": "21 consecutive days of strategy documentation"
+    },
+    "pitch": {
+      "scope": "Practice pitch or make one pitch-related improvement every day for 21 consecutive days",
+      "completion": "21 consecutive days of pitch work"
+    }
+  },
+  "elimination_commitment": {
+    "writing": {
+      "scope": "Identify one writing-related commitment to eliminate + stop doing it for one week",
+      "completion": "One commitment eliminated for 7 days"
+    },
+    "coding": {
+      "scope": "Remove one non-essential feature/process from development + document why",
+      "completion": "One feature/process eliminated"
+    },
+    "design": {
+      "scope": "Eliminate one design task/client/project + redirect time to core work",
+      "completion": "One commitment eliminated for 7 days"
+    },
+    "content": {
+      "scope": "Stop producing one type of content that drains energy + document impact",
+      "completion": "One content type eliminated for 7 days"
+    },
+    "strategy": {
+      "scope": "Eliminate one meeting/process/analysis + reallocate time to high-value strategy",
+      "completion": "One strategic commitment eliminated"
+    },
+    "pitch": {
+      "scope": "Stop pitching one low-value opportunity + focus energy on better prospect",
+      "completion": "One pitch target eliminated"
+    }
+  }
+}
