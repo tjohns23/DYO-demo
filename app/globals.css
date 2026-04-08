@@ -5,70 +5,118 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* DYO UI SPEC V1.0 - CORE BRAND TOKENS */
-  --background: oklch(0.981 0.005 60.55); /* Warm Cream #FAF7F2 */
-  --foreground: oklch(0.485 0.01 64.91);  /* Warm Gray #6B6560 */
+  /* DYO UI SPEC V1.0 - LIGHT MODE (Flat Design) */
+  --background: #FFFAF0;                  /* Warm Off-white */
+  --foreground: #353839;                  /* Very Dark Gray */
   
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.485 0.01 64.91);
+  --card: #FFFFFF;
+  --card-foreground: #353839;
   
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.485 0.01 64.91);
+  --popover: #FFFFFF;
+  --popover-foreground: #353839;
   
-  --primary: oklch(0.355 0.082 5.09);     /* Burgundy #6B2C3E */
-  --primary-foreground: oklch(0.985 0 0); /* Near-white for high contrast */
+  --primary: #7B1E2E;                     /* Dark Burgundy */
+  --primary-foreground: #FFFAF0;          /* Contrast on primary */
   
-  --secondary: oklch(0.584 0.169 344.2);  /* Deep Pink #D4598F */
-  --secondary-foreground: oklch(0.985 0 0);
+  --secondary: #A43D4E;                   /* Mauve */
+  --secondary-foreground: #FFFAF0;
   
-  --muted: oklch(0.923 0.005 64.67);      /* Light Gray #E8E5E0 */
-  --muted-foreground: oklch(0.485 0.01 64.91);
+  --muted: #E8E5E0;                       /* Soft Border */
+  --muted-foreground: #8B7B7B;            /* Medium Gray */
   
-  --accent: oklch(0.584 0.169 344.2);     /* Highlights/Patterns */
-  --accent-foreground: oklch(1 0 0);
+  --accent: #A43D4E;                      /* Mauve accent */
+  --accent-foreground: #FFFAF0;
   
-  --destructive: oklch(0.445 0.17 28.5);  /* Error Red #B91C1C */
-  --destructive-foreground: oklch(0.985 0 0);
+  --destructive: #C94C5C;                 /* Error Red */
+  --destructive-foreground: #FFFAF0;
   
-  --border: oklch(0.923 0.005 64.67);     /* Light Gray #E8E5E0 */
-  --input: oklch(0.923 0.005 64.67);
-  --ring: oklch(0.355 0.082 5.09);        /* Burgundy */
+  --border: #E0D5CC;                      /* Light border */
+  --input: #F5F0E8;
+  --ring: #7B1E2E;                        /* Dark Burgundy ring */
   
-  /* DYO Chart Palette based on Brand + State colors */
-  --chart-1: oklch(0.355 0.082 5.09);     /* Burgundy */
-  --chart-2: oklch(0.584 0.169 344.2);    /* Pink */
-  --chart-3: oklch(0.485 0.08 152.4);     /* Success Green */
-  --chart-4: oklch(0.612 0.165 67.9);      /* Warning Orange */
-  --chart-5: oklch(0.485 0.01 64.91);     /* Gray */
+  /* DYO Chart Palette */
+  --chart-1: #7B1E2E;                     /* Dark Burgundy */
+  --chart-2: #A43D4E;                     /* Mauve */
+  --chart-3: #4A7C59;                     /* Success Green */
+  --chart-4: #D97706;                     /* Warning Orange */
+  --chart-5: #8B7B7B;                     /* Gray */
   
   --radius: 0.625rem;
   
   /* Semantic Tokens for direct use in code */
-  --dyo-success: oklch(0.485 0.08 152.4); /* #4A7C59 */
-  --dyo-warning: oklch(0.612 0.165 67.9);  /* #D97706 */
+  --dyo-success: #4A7C59;
+  --dyo-warning: #D97706;
+  
+  /* Light Mode Glass Variables (Flat Design) */
+  --glass-surface: #FFFFFF;
+  --glass-surface-light: #F5F0E8;
+  --glass-border: #E0D5CC;
+  --glass-border-light: #D4CCBE;
+  --glass-text-primary: #353839;
+  --glass-text-muted: #8B7B7B;
+  --glass-text-dimmer: #A89A96;
+  --glass-text-secondary: #9A8A8A;
+  --glass-success: #4A7C59;
+  --glass-success-border: rgba(74,124,89,0.3);
+  --glass-error: #C94C5C;
+  --glass-error-border: rgba(201,76,92,0.3);
+  --glass-error-light: #A43D4E;
+  --glass-error-light-border: rgba(164,61,78,0.3);
+  --glass-accent: #A43D4E;
+  --glass-accent-dim: rgba(164,61,78,0.12);
+  --glass-accent-faint: rgba(164,61,78,0.12);
+  --glass-accent-border-faint: rgba(164,61,78,0.2);
+  --glass-accent-border: rgba(164,61,78,0.3);
+  --glass-grid: rgba(0,0,0,0.04);
+  --glass-hover-bg: rgba(0,0,0,0.05);
+  --glass-shadow-inset: none;
 }
 
 .dark {
-  /* Maintains standard dark mode contrast while keeping Burgundy primary */
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.355 0.082 5.09);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.584 0.169 344.2);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.584 0.169 344.2);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.445 0.17 28.5);
-  --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.355 0.082 5.09);
+  /* DARK MODE - Glassmorphic Design */
+  --background: #0e0507;
+  --foreground: #f0dde3;
+  --card: #15070e;
+  --card-foreground: #f0dde3;
+  --popover: #15070e;
+  --popover-foreground: #f0dde3;
+  --primary: #e03060;
+  --primary-foreground: #f0dde3;
+  --secondary: #d4598f;
+  --secondary-foreground: #f0dde3;
+  --muted: #4a2535;
+  --muted-foreground: #7a5060;
+  --accent: #e03060;
+  --accent-foreground: #f0dde3;
+  --destructive: #e05030;
+  --destructive-foreground: #f0dde3;
+  --border: rgba(180,40,70,0.18);
+  --input: rgba(255,255,255,0.02);
+  --ring: #e03060;
+  
+  /* DYO Glass-Specific Variables */
+  --glass-surface: rgba(255,255,255,0.03);
+  --glass-surface-light: rgba(255,255,255,0.08);
+  --glass-border: rgba(180,40,70,0.18);
+  --glass-border-light: rgba(180,40,70,0.3);
+  --glass-text-primary: #f0dde3;
+  --glass-text-muted: #7a5060;
+  --glass-text-dimmer: #4a2535;
+  --glass-text-secondary: #c0a0a8;
+  --glass-success: #3de08a;
+  --glass-success-border: rgba(61,224,138,0.3);
+  --glass-error: #e05030;
+  --glass-error-border: rgba(224,80,48,0.5);
+  --glass-error-light: #e03060;
+  --glass-error-light-border: rgba(224,48,96,0.3);
+  --glass-accent: #e03060;
+  --glass-accent-dim: rgba(224,48,96,0.12);
+  --glass-accent-faint: rgba(224,48,96,0.12);
+  --glass-accent-border-faint: rgba(224,48,96,0.2);
+  --glass-accent-border: rgba(224,48,96,0.3);
+  --glass-grid: rgba(255,255,255,0.04);
+  --glass-hover-bg: rgba(255,255,255,0.06);
+  --glass-shadow-inset: inset 0_1px_0_rgba(255,255,255,0.04), 0_4px_24px_rgba(0,0,0,0.3), inset 0_0_40px_rgba(160,30,60,0.08);
 }
 
 @theme inline {

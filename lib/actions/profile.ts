@@ -26,6 +26,15 @@ export async function saveAssessmentToProfile(
   profile: ArchetypeProfile
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    // DEBUG: Log what we're about to save
+    console.log('saveAssessmentToProfile called with:', {
+      userId,
+      email,
+      slug: profile.slug,
+      hasDimensions: !!profile.dimensions,
+      dimensions: profile.dimensions,
+    });
+
     // Convert core responses to an ordered array sorted by question ID
     const quizAnswers = [...(profile.responses ?? [])]
       .sort((a, b) => a.questionId - b.questionId)
@@ -35,6 +44,12 @@ export async function saveAssessmentToProfile(
     const calibrationAnswers = [...(profile.calibrationResponses ?? [])]
       .sort((a, b) => a.questionId - b.questionId)
       .map((r) => r.value);
+
+    // CRITICAL: Ensure dimensions exist before saving
+    if (!profile.dimensions) {
+      console.warn('WARNING: profile.dimensions is undefined! Cannot save dimension scores.');
+      return { success: false, error: 'Dimensions data is missing from assessment' };
+    }
 
     // Upsert the user profile with archetype slug and assessment data
     const { error: profileError } = await supabaseAdmin
@@ -60,6 +75,8 @@ export async function saveAssessmentToProfile(
       console.error('Error saving profile:', profileError);
       return { success: false, error: 'Failed to save profile' };
     }
+
+    console.log('Profile saved successfully with dimensions:', profile.dimensions);
 
     // Upsert the quiz answers into a separate table for analytics
     const { error: answersError } = await supabaseAdmin
@@ -184,6 +201,51 @@ export async function getUserArchetypeProfile(): Promise<ArchetypeProfile | null
     };
   } catch (err) {
     console.error('Unexpected error fetching user archetype:', err);
+    return null;
+  }
+}
+
+/**
+ * Fetches just the archetype name and slug for the current user.
+ * Lightweight helper for UI components that need archetype display info.
+ *
+ * @returns Object with { slug, name } or null if no user/profile
+ */
+export async function getUserArchetypeInfo(): Promise<{
+  slug: ArchetypeSlug;
+  name: string;
+} | null> {
+  try {
+    const cookieStore = await cookies();
+    const userId = cookieStore.get('user_id')?.value;
+
+    if (!userId) {
+      return null;
+    }
+
+    const { data, error } = await supabaseAdmin
+      .from('profiles')
+      .select('archetype_slug')
+      .eq('id', userId)
+      .single();
+
+    if (error || !data || !data.archetype_slug) {
+      return null;
+    }
+
+    const slug = data.archetype_slug as ArchetypeSlug;
+    const metadata = ARCHETYPE_METADATA[slug];
+
+    if (!metadata) {
+      return null;
+    }
+
+    return {
+      slug,
+      name: metadata.name,
+    };
+  } catch (err) {
+    console.error('Error fetching archetype info:', err);
     return null;
   }
 }

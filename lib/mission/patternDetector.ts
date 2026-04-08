@@ -32,7 +32,10 @@ const PATTERN_LIBRARY: Pattern[] = [
       "keep rewriting", "keep editing", "keep revising", "keep tweaking",
       "never finished", "almost done", "just need to polish",
       "not good enough", "needs more work", "one more pass",
-      "keep improving", "making it better", "refining"
+      "keep improving", "making it better", "refining",
+      "rewritten", "rewrote", "re-written", "revised it", "edited it",
+      "times", "again and again", "over and over", "multiple times",
+      "can't stop", "cannot stop", "keep going back"
     ],
     associatedArchetypes: ["optimizer", "visionary", "advocate"],
     description: "You're stuck in endless refinement. Each pass feels productive, but somewhere along the way, 'making it better' became a way to avoid calling it done. This is common for your archetype.[cite: 1]"
@@ -70,7 +73,7 @@ const PATTERN_LIBRARY: Pattern[] = [
     name: "Analysis Paralysis",
     category: "Strategist",
     keywords: [
-      "can't decide", "too many options", "weighing pros and cons",
+      "can't decide", "cannot decide", "too many options", "weighing pros", "weighing cons",
       "considering all the", "analyzing", "comparing",
       "trying to figure out", "thinking through", "evaluating",
       "don't know which", "uncertain about", "unclear which path"
@@ -295,6 +298,19 @@ const PATTERN_LIBRARY: Pattern[] = [
     ],
     associatedArchetypes: ["stabilizer", "empath", "builder"],
     description: "The first step feels impossible because you don't know if it's the 'right' first step. You're waiting for certainty that will never come. Starting requires tolerance for not-knowing.[cite: 1]"
+  },
+
+  // GENERIC FALLBACK PATTERN
+  {
+    id: "generic_stall",
+    name: "Work in Progress",
+    category: "General",
+    keywords: [
+      "working on", "work on", "design", "project", "task", "stuck",
+      "trying to", "need to", "want to", "should", "could", "can"
+    ],
+    associatedArchetypes: ["optimizer", "strategist", "visionary", "advocate", "politician", "empath", "builder", "stabilizer"],
+    description: "You're working on something and feeling stuck. The specific pattern isn't immediately clear, but the impulse to reach out means you're ready to break through. Let's find the constraint that unlocks your progress."
   }
 ];
 
@@ -308,7 +324,12 @@ export function detectPattern(
   workDescription: string,
   userArchetype: ArchetypeSlug
 ): DetectionResult {
-  const text = workDescription.toLowerCase();
+  // Normalize text: lowercase and remove common punctuation to allow multi-word keywords to match
+  const normalizedText = workDescription
+    .toLowerCase()
+    .replace(/[""'"'()[\]{}<>]/g, '') // Remove quotes, brackets, braces
+    .replace(/[,!?;:]/g, ' '); // Replace punctuation with spaces
+  
   const detectedPatterns: Array<{
     pattern: Pattern;
     score: number;
@@ -321,7 +342,7 @@ export function detectPattern(
 
     // Count keyword matches
     for (const keyword of pattern.keywords) {
-      if (text.includes(keyword)) {
+      if (normalizedText.includes(keyword)) {
         matchCount++;
       }
     }
@@ -343,7 +364,7 @@ export function detectPattern(
     }
   }
 
-  // Return highest-scoring pattern, or null if no matches
+  // Return highest-scoring pattern, or fall back to generic_stall
   if (detectedPatterns.length > 0) {
     detectedPatterns.sort((a, b) => b.score - a.score);
     return {
@@ -353,9 +374,11 @@ export function detectPattern(
     };
   }
 
+  // No keyword matches — use generic_stall as a guaranteed fallback
+  const genericFallback = PATTERN_LIBRARY.find(p => p.id === 'generic_stall')!;
   return {
-    pattern: null,
-    score: 0,
+    pattern: genericFallback,
+    score: 1,
     matchCount: 0,
   };
 }

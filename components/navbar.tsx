@@ -1,18 +1,10 @@
 'use client'
 
-import { default_palette as theme } from '@/lib/theme';
-
 export const Navbar = () => {
   return (
-    <nav 
-      style={{ borderBottomColor: theme.primary }}
-      className="w-full border-b border-solid"
-    >
+    <nav className="w-full border-b border-solid border-[var(--glass-border)]">
       <div className="max-w-7xl mx-auto px-4 py-4">
-        <span 
-          style={{ color: theme.primary }}
-          className="text-2xl font-semibold"
-        >
+        <span className="text-2xl font-semibold text-[var(--glass-accent)]">
           DYO
         </span>
       </div>

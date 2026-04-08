@@ -14,6 +14,63 @@ export type Database = {
   }
   public: {
     Tables: {
+      artifacts: {
+        Row: {
+          file_name: string
+          file_size: number
+          file_type: string
+          file_url: string
+          id: string
+          mission_id: string
+          uploaded_at: string
+          user_id: string
+          verification_notes: string | null
+          verification_status: string
+          verified_at: string | null
+        }
+        Insert: {
+          file_name: string
+          file_size: number
+          file_type: string
+          file_url: string
+          id?: string
+          mission_id: string
+          uploaded_at?: string
+          user_id: string
+          verification_notes?: string | null
+          verification_status?: string
+          verified_at?: string | null
+        }
+        Update: {
+          file_name?: string
+          file_size?: number
+          file_type?: string
+          file_url?: string
+          id?: string
+          mission_id?: string
+          uploaded_at?: string
+          user_id?: string
+          verification_notes?: string | null
+          verification_status?: string
+          verified_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "artifacts_mission_id_fkey"
+            columns: ["mission_id"]
+            isOneToOne: false
+            referencedRelation: "missions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "artifacts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       assessments: {
         Row: {
           archetype_scores: Json
@@ -61,6 +118,86 @@ export type Database = {
           },
         ]
       }
+      missions: {
+        Row: {
+          accepted_at: string | null
+          archetype: string
+          completed_at: string | null
+          completion: string
+          constraint_id: string
+          constraint_rule: string
+          created_at: string
+          expired_at: string | null
+          framing: string
+          generated_by: string
+          id: string
+          mode: string
+          pattern: string
+          scope: string
+          status: string
+          thought_parking: string | null
+          time_to_completion: number | null
+          timebox: number
+          user_id: string
+          work_description: string
+          work_type: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          archetype: string
+          completed_at?: string | null
+          completion: string
+          constraint_id: string
+          constraint_rule: string
+          created_at?: string
+          expired_at?: string | null
+          framing: string
+          generated_by: string
+          id?: string
+          mode: string
+          pattern: string
+          scope: string
+          status?: string
+          thought_parking?: string | null
+          time_to_completion?: number | null
+          timebox: number
+          user_id: string
+          work_description: string
+          work_type: string
+        }
+        Update: {
+          accepted_at?: string | null
+          archetype?: string
+          completed_at?: string | null
+          completion?: string
+          constraint_id?: string
+          constraint_rule?: string
+          created_at?: string
+          expired_at?: string | null
+          framing?: string
+          generated_by?: string
+          id?: string
+          mode?: string
+          pattern?: string
+          scope?: string
+          status?: string
+          thought_parking?: string | null
+          time_to_completion?: number | null
+          timebox?: number
+          user_id?: string
+          work_description?: string
+          work_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "missions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           archetype_scores: Json | null
@@ -72,8 +209,10 @@ export type Database = {
           dimension_scores: Json
           email: string
           id: string
+          last_mission_id: string | null
           quiz_answers: number[] | null
           secondary_archetype_slug: string | null
+          statistics: Json | null
           tertiary_archetype_slug: string | null
           updated_at: string | null
         }
@@ -87,8 +226,10 @@ export type Database = {
           dimension_scores: Json
           email: string
           id: string
+          last_mission_id?: string | null
           quiz_answers?: number[] | null
           secondary_archetype_slug?: string | null
+          statistics?: Json | null
           tertiary_archetype_slug?: string | null
           updated_at?: string | null
         }
@@ -102,12 +243,22 @@ export type Database = {
           dimension_scores?: Json
           email?: string
           id?: string
+          last_mission_id?: string | null
           quiz_answers?: number[] | null
           secondary_archetype_slug?: string | null
+          statistics?: Json | null
           tertiary_archetype_slug?: string | null
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_last_mission_id_fkey"
+            columns: ["last_mission_id"]
+            isOneToOne: false
+            referencedRelation: "missions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

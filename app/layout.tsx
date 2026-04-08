@@ -35,7 +35,7 @@ export default function RootLayout({
       <body style={getPaletteStyles()}>
         <ThemeProvider
           attribute="class"
-          defaultTheme="light" 
+          defaultTheme="dark" 
           enableSystem={false} // DYO prioritizes a grounded, intentional look
           disableTransitionOnChange
         >

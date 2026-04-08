@@ -21,31 +21,22 @@ export type WorkType =
 export function detectWorkType(workDescription: string): WorkType {
   const text = workDescription.toLowerCase();
 
-  // WRITING - strongest signals first
+  // DESIGN - visual work (check before coding to avoid conflicts with "develop")
   if (
     text.match(
-      /\b(blog|article|post|email|copy|script|writing|essay|draft|paragraph|intro|content)\b/
-    )
-  ) {
-    return "writing";
-  }
-
-  // CODING - technical terms
-  if (
-    text.match(
-      /\b(code|coding|feature|bug|debug|develop|programming|app|function|API|database|deploy)\b/
-    )
-  ) {
-    return "coding";
-  }
-
-  // DESIGN - visual work
-  if (
-    text.match(
-      /\b(design|logo|UI|UX|visual|brand|mockup|layout|graphic|wireframe|prototype)\b/
+      /\b(design|designing|logo|ui|ux|visual|brand|mockup|mockups|layout|graphic|wireframe|wireframing|prototype|prototyping)\b/
     )
   ) {
     return "design";
+  }
+
+  // STRATEGY - planning/analysis (check before coding to avoid conflicts)
+  if (
+    text.match(
+      /\b(plan|planning|strategy|roadmap|analysis|analyze|analyzing|analyzed|research|researching|researched|decide|decision|choosing|choose|evaluate|evaluating|evaluated)\b/
+    )
+  ) {
+    return "strategy";
   }
 
   // CONTENT - media creation
@@ -57,22 +48,31 @@ export function detectWorkType(workDescription: string): WorkType {
     return "content";
   }
 
-  // STRATEGY - planning/analysis
-  if (
-    text.match(
-      /\b(plan|planning|strategy|roadmap|analysis|analyze|research|decide|decision|choosing|evaluate)\b/
-    )
-  ) {
-    return "strategy";
-  }
-
   // PITCH - presentation work
   if (
     text.match(
-      /\b(pitch|presentation|deck|present|fundrais|investor|sales|demo|convince)\b/
+      /\b(pitch|presentation|deck|present|presenting|fundrais|fundraising|investor|investors|sales|demo|convince|convincing)\b/
     )
   ) {
     return "pitch";
+  }
+
+  // WRITING - specific writing keywords (after design/strategy to avoid conflicts)
+  if (
+    text.match(
+      /\b(blog|article|post|email|copy|script|essay|draft|drafting|paragraph|intro)\b/
+    )
+  ) {
+    return "writing";
+  }
+
+  // CODING - technical terms (check last to avoid false positives)
+  if (
+    text.match(
+      /\b(code|coding|coded|api|feature|bug|debug|debugging|debugged|program|programming|app|function|database|deploy|deploying|deployed)\b/
+    )
+  ) {
+    return "coding";
   }
 
   // GENERAL - fallback if no clear match

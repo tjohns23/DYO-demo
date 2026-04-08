@@ -11,6 +11,7 @@
  * 8. Assemble final mission
  */
 
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import type { ArchetypeSlug } from '@/lib/actions/assessment';
 import { detectMode, type Mode } from './modeDetector';
 import { detectWorkType, type WorkType } from './workTypeDetector';
@@ -34,11 +35,9 @@ export interface UserProfile {
   userId: string;
   primaryArchetype: ArchetypeSlug;
   workDescription: string;
-  // These can be auto-detected or passed in:
-  detectedWorkType?: WorkType;
-  detectedPattern?: Pattern;
-  detectedMode?: Mode;
+  // Mode and WorkType will be auto-detected from workDescription
 }
+
 
 /**
  * Constraint object from constraints.json with mode-aware data
@@ -60,6 +59,18 @@ export interface LibraryExamples {
   scope: string;
   completion: string;
   constraintRule: string;
+  // Whether each field came from an exact library match or a fallback
+  framingExact: boolean;
+  scopeExact: boolean;
+}
+
+/**
+ * Example set for Gemini context showing different archetypes/work types
+ */
+export interface ExampleSet {
+  workType: WorkType;
+  scope: string;
+  completion: string;
 }
 
 /**
@@ -67,6 +78,9 @@ export interface LibraryExamples {
  */
 export interface GeneratedContent {
   framing: string;
+  scope: string;
+  completion: string;
+  timebox: number;
 }
 
 /**
@@ -86,7 +100,7 @@ export interface Mission {
   // Content (mix of AI + library)
   framing: string;
   scope: string;
-  constraint: string;
+  constraintRule: string;
   completion: string;
   
   // Parameters
@@ -115,17 +129,7 @@ export interface ValidationResult {
  * Generates a unique mission ID
  */
 function generateMissionId(): string {
-  return `mission_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-}
-
-/**
- * Format pattern name for display (e.g., "perfectionism_loop" → "Perfectionism Loop")
- */
-function formatPatternName(patternId: string): string {
-  return patternId
-    .split('_')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
+  return crypto.randomUUID();
 }
 
 // ============================================================================
@@ -136,7 +140,6 @@ function formatPatternName(patternId: string): string {
  * Selects a random constraint matching the pattern and mode
  */
 export function selectConstraint(
-  _userProfile: UserProfile,
   mode: Mode,
   pattern: Pattern
 ): Constraint {
@@ -147,10 +150,11 @@ export function selectConstraint(
     relevantPatterns: string[];
   }>>;
 
-  const modeConstraints = constraints[mode];
-  
+  // Fall back through modes if the detected mode has no constraints at all
+  const modeConstraints = constraints[mode] ?? constraints['CREATE'] ?? Object.values(constraints)[0];
+
   if (!modeConstraints) {
-    throw new Error(`No constraints found for mode: ${mode}`);
+    throw new Error('No constraints found in library');
   }
 
   // Filter constraints that include this pattern
@@ -159,15 +163,24 @@ export function selectConstraint(
     return constraint.relevantPatterns.includes(pattern.id);
   });
 
-  if (matchingConstraintIds.length === 0) {
-    throw new Error(
-      `No matching constraints for mode ${mode} and pattern ${pattern.id}`
-    );
+  // Fall back to any random constraint in the mode if none match the specific pattern
+  const candidateIds = matchingConstraintIds.length > 0
+    ? matchingConstraintIds
+    : Object.keys(modeConstraints);
+
+  if (candidateIds.length === 0) {
+    throw new Error('No constraints found in library');
   }
 
-  // Pick randomly from matches
+  if (matchingConstraintIds.length === 0) {
+    console.warn(`[Mission] No constraints match pattern ${pattern.id} in mode ${mode}, using random fallback`);
+  }
+
+  // Pick randomly from candidates
   const selectedId =
-    matchingConstraintIds[Math.floor(Math.random() * matchingConstraintIds.length)];
+    candidateIds[Math.floor(Math.random() * candidateIds.length)];
+
+  console.log(`[Mission] Selected constraint: ${selectedId} from ${candidateIds.length} candidates (pattern-matched: ${matchingConstraintIds.length > 0})`);
   
   const constraintData = modeConstraints[selectedId];
 
@@ -186,52 +199,103 @@ export function selectConstraint(
 // ============================================================================
 
 /**
+ * Gets representative examples from library for given constraint
+ * Returns 2-3 different work types to show pattern variety for Gemini
+ */
+export function getRepresentativeExamples(constraintId: string): ExampleSet[] {
+  const workTypeScopesTyped = workTypeScopesData as Record<string, Record<string, {
+    scope: string;
+    completion: string;
+  }>>;
+
+  const workTypeScopesForConstraint = workTypeScopesTyped[constraintId];
+
+  if (!workTypeScopesForConstraint) {
+    console.warn(`[Mission] No examples found for constraint: ${constraintId}`);
+    return [];
+  }
+
+  const availableWorkTypes = Object.keys(workTypeScopesForConstraint) as WorkType[];
+
+  // Return diverse examples (max 3, covering different work types)
+  const selectedTypes = availableWorkTypes.slice(0, 3);
+
+  return selectedTypes.map(workType => ({
+    workType,
+    scope: workTypeScopesForConstraint[workType].scope,
+    completion: workTypeScopesForConstraint[workType].completion,
+  }));
+}
+
+/**
  * Retrieves library examples from JSON files
+ * Falls back gracefully for missing work types by using first available
  */
 export function getLibraryExamples(
   constraintId: string,
   archetype: ArchetypeSlug,
   workType: WorkType
 ): LibraryExamples {
+  console.log(`[Mission] getLibraryExamples called with:`, {
+    constraintId,
+    archetype,
+    workType,
+  });
+  
   // Get framing from archetype-framings.json
   const archetypeFramings = archetypeFramingsData as Record<string, Record<string, string>>;
   const archetypeFramingsByConstraint = archetypeFramings[constraintId];
   
   if (!archetypeFramingsByConstraint) {
-    throw new Error(`No framings found for constraint: ${constraintId}`);
+    console.warn(`[Mission] No framings found for constraint: ${constraintId}, using default`);
   }
 
-  const framing =
-    archetypeFramingsByConstraint[archetype] ||
-    'Your work pattern has been identified. This mission will help you break through.';
+  const framingExact = !!archetypeFramingsByConstraint?.[archetype];
+  const framing = framingExact
+    ? archetypeFramingsByConstraint![archetype]
+    : 'Your work pattern has been identified. This mission will help you break through.';
 
   // Get scope and completion from work_type_scopes.json
   const workTypeScopesTyped = workTypeScopesData as Record<string, Record<string, {
     scope: string;
     completion: string;
   }>>;
-  
+
   const workTypeScopesForConstraint = workTypeScopesTyped[constraintId];
-  
+
   if (!workTypeScopesForConstraint) {
-    throw new Error(`No work type scopes found for constraint: ${constraintId}`);
+    console.warn(`[Mission] No work type scopes found for constraint: ${constraintId}`);
+    return {
+      framing,
+      scope: `Complete the mission by focusing on your ${workType} work`,
+      completion: 'Mission completed following the constraint guidelines',
+      constraintRule: constraintId.replace(/_/g, ' '),
+      framingExact,
+      scopeExact: false,
+    };
   }
 
-  const scopeData = workTypeScopesForConstraint[workType];
-  
-  if (!scopeData) {
-    throw new Error(
-      `No scope found for constraint ${constraintId} and work type ${workType}`
-    );
+  // "general" has no library entries — treat it as no match so Gemini generates from scratch
+  const exactScopeData = workType !== 'general' ? workTypeScopesForConstraint[workType] : undefined;
+
+  if (!exactScopeData) {
+    return {
+      framing,
+      scope: `Complete the mission by focusing on your ${workType} work`,
+      completion: 'Mission completed following the constraint guidelines',
+      constraintRule: constraintId.replace(/_/g, ' '),
+      framingExact,
+      scopeExact: false,
+    };
   }
 
   // Get constraint rule from constraints.json (for display)
   const constraints = constraintsData as Record<string, Record<string, {
     constraintName: string;
   }>>;
-  
+
   let constraintRule = '';
-  
+
   // Search through all modes to find the constraint
   for (const mode of Object.keys(constraints)) {
     if (constraints[mode] && constraints[mode][constraintId]) {
@@ -242,9 +306,11 @@ export function getLibraryExamples(
 
   return {
     framing,
-    scope: scopeData.scope,
-    completion: scopeData.completion,
+    scope: exactScopeData.scope,
+    completion: exactScopeData.completion,
     constraintRule,
+    framingExact,
+    scopeExact: !!exactScopeData,
   };
 }
 
@@ -253,36 +319,143 @@ export function getLibraryExamples(
 // ============================================================================
 
 /**
- * Generates personalized framing with Gemini
- * (In production, this would call the actual Gemini API)
+ * Generates mission content with Gemini using library examples as context
  */
 export async function generateMissionWithGemini(
   constraint: Constraint,
   userProfile: UserProfile,
-  examples: LibraryExamples,
-  pattern: Pattern
+  libraryExamples: LibraryExamples,
+  pattern: Pattern,
+  workType: WorkType
 ): Promise<GeneratedContent> {
-  // TODO: Use userProfile and pattern to build the Gemini prompt
-  void userProfile;
-  void pattern;
+  const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
 
-  // Example prompt (for reference):
-  // `You are a supportive but firm mission-generation AI for a productivity app called DYO.
-  // Generate a personalized 2-3 sentence framing that explains why the "${constraint.constraintName}" 
-  // constraint works specifically for this user's archetype and situation.
-  // User: ${userProfile.primaryArchetype}, Pattern: ${pattern.name}
-  // ...`
+  if (!apiKey) {
+    console.warn('[Mission] GOOGLE_GENERATIVE_AI_API_KEY not set, using library fallback');
+    return createGenericFallback(constraint, libraryExamples, workType);
+  }
 
   try {
-    // TODO: Replace with actual Gemini API call
-    // For now, return the library framing as a placeholder
+    console.log('[Mission] Calling Gemini to generate mission content...');
+
+    const modelName = process.env.GEMINI_MODEL || 'gemini-2.0-flash';
+    console.log(`[Mission] Using model: ${modelName}`);
+
+    const client = new GoogleGenerativeAI(apiKey);
+    const model = client.getGenerativeModel({ model: modelName });
+
+    // Get representative examples to show Gemini the style
+    const examples = getRepresentativeExamples(constraint.constraintId);
+    
+    const examplesText = examples
+      .map(
+        (ex, i) =>
+          `Example ${i + 1} (${ex.workType}):
+     Scope: ${ex.scope}
+     Completion: ${ex.completion}`
+      )
+      .join('\n\n');
+
+    const framingNote = libraryExamples.framingExact
+      ? `Archetype framing: "${libraryExamples.framing}" (exact match for ${userProfile.primaryArchetype})`
+      : `No exact archetype framing found for ${userProfile.primaryArchetype} + this constraint. Generate framing from scratch based on the pattern and archetype description.`;
+
+    const scopeNote = libraryExamples.scopeExact
+      ? `Scope/completion example for ${workType}: Scope: "${libraryExamples.scope}" / Completion: "${libraryExamples.completion}" (exact match)`
+      : examples.length > 0
+        ? `No exact scope example for "${workType}" work type. Closest available examples shown above — adapt the style for ${workType}.`
+        : `No scope examples found for this constraint. Generate scope and completion criteria from scratch based on the constraint description.`;
+
+    const prompt = `You are a mission-generation AI for DYO, a productivity app for perfectionists.
+
+USER CONTEXT:
+- Archetype: ${userProfile.primaryArchetype}
+- Work Description: "${userProfile.workDescription}"
+- Detected Pattern: ${pattern.name}
+- Work Type: ${workType}
+
+CONSTRAINT: ${constraint.constraintName}
+- Category: ${constraint.category}
+- Default Timebox: ${constraint.defaultTimebox} minutes
+
+LIBRARY MATCH QUALITY:
+- ${framingNote}
+- ${scopeNote}
+
+REFERENCE LIBRARY EXAMPLES (style and format guide):
+${examplesText || '(No examples available — generate based on constraint and user context above.)'}
+
+TASK: Generate a personalized mission following the constraint pattern above.
+
+Return a JSON object with exactly these fields:
+{
+  "scope": "Specific, actionable scope for this user's ${workType} work (1-2 sentences)",
+  "completion": "Clear completion criteria (1 sentence, what 'done' looks like)",
+  "framing": "2-3 sentence framing explaining why this mission works for their ${userProfile.primaryArchetype} archetype and ${pattern.name} pattern",
+  "timebox": number between 5 and 120 (minutes, can be different from default)
+}
+
+Important:
+- Make the scope specific to "${workType}" work
+- Ground the framing in their "${pattern.name}" pattern
+- Timebox should be realistic for one focused session
+- Return ONLY valid JSON, no markdown or extra text`;
+
+    const response = await model.generateContent(prompt);
+    const text = response.response.text();
+
+    console.log('[Mission] Gemini raw response:', text.substring(0, 200));
+
+    // Parse JSON from response
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      console.warn('[Mission] Could not extract JSON from Gemini response');
+      return createGenericFallback(constraint, libraryExamples, workType);
+    }
+
+    const result = JSON.parse(jsonMatch[0]) as {
+      scope?: string;
+      completion?: string;
+      framing?: string;
+      timebox?: number;
+    };
+
+    // Validate response has all required fields
+    if (!result.scope || !result.completion || !result.framing || !result.timebox) {
+      console.warn('[Mission] Gemini response missing required fields:', result);
+      return createGenericFallback(constraint, libraryExamples, workType);
+    }
+
+    console.log('[Mission] Successfully generated mission with Gemini');
+
     return {
-      framing: examples.framing,
+      scope: result.scope,
+      completion: result.completion,
+      framing: result.framing,
+      timebox: result.timebox,
     };
   } catch (error) {
-    console.error('Gemini generation failed:', error);
-    throw error;
+    console.error('[Mission] Gemini generation failed:', error);
+    return createGenericFallback(constraint, libraryExamples, workType);
   }
+}
+
+/**
+ * Creates a generic fallback mission when Gemini is unavailable
+ */
+function createGenericFallback(
+  constraint: Constraint,
+  libraryExamples: LibraryExamples,
+  workType: WorkType
+): GeneratedContent {
+  console.log('[Mission] Using generic fallback for mission generation');
+
+  return {
+    scope: libraryExamples.scope || `Complete your ${workType} work using the ${constraint.constraintName} constraint`,
+    completion: libraryExamples.completion || 'Mission completed when the constraint is satisfied',
+    framing: libraryExamples.framing || `This mission applies the ${constraint.constraintName} constraint to help you move forward.`,
+    timebox: constraint.defaultTimebox,
+  };
 }
 
 // ============================================================================
@@ -294,13 +467,9 @@ export async function generateMissionWithGemini(
  */
 export function validateGeneration(
   generated: GeneratedContent,
-  constraint: Constraint,
-  userProfile: UserProfile
+  constraint: Constraint
 ): ValidationResult {
   const issues: string[] = [];
-
-  // TODO: Consider adding archetype-specific validation rules
-  void userProfile;
 
   // Check framing length (min 20 chars, max 500 chars)
   if (generated.framing.length < 20) {
@@ -310,21 +479,30 @@ export function validateGeneration(
     issues.push('Framing too long (max 500 characters)');
   }
 
-  // Check that framing doesn't literally repeat constraint name
-  if (
-    generated.framing
-      .toLowerCase()
-      .includes(constraint.constraintName.toLowerCase())
-  ) {
-    issues.push('Framing contains literal constraint name');
+  // Check scope length
+  if (generated.scope.length < 20) {
+    issues.push('Scope too short (min 20 characters)');
+  }
+  if (generated.scope.length > 500) {
+    issues.push('Scope too long (max 500 characters)');
   }
 
-  // Check that framing contains at least some specificity
-  if (
-    generated.framing.split(' ').length < 10 &&
-    generated.framing.length < 100
-  ) {
-    issues.push('Framing lacks sufficient detail');
+  // Check completion length
+  if (generated.completion.length < 10) {
+    issues.push('Completion criteria too short');
+  }
+  if (generated.completion.length > 300) {
+    issues.push('Completion criteria too long');
+  }
+
+  // Check timebox is reasonable
+  if (generated.timebox < 5 || generated.timebox > 120) {
+    issues.push('Timebox out of range (5-120 minutes)');
+  }
+
+  // Check that framing doesn't literally repeat constraint name
+  if (generated.framing.toLowerCase().includes(constraint.constraintName.toLowerCase())) {
+    issues.push('Framing contains literal constraint name');
   }
 
   return {
@@ -343,9 +521,9 @@ export function validateGeneration(
 export function assembleMission(
   generated: GeneratedContent,
   constraint: Constraint,
-  libraryExamples: LibraryExamples,
   userProfile: UserProfile,
   workType: WorkType,
+  pattern: Pattern,
   generatedBy: 'gemini' | 'library' = 'library'
 ): Mission {
   return {
@@ -355,14 +533,14 @@ export function assembleMission(
     status: 'pending',
     
     mode: constraint.mode,
-    pattern: formatPatternName(`pattern_${constraint.mode.toLowerCase()}`),
+    pattern: pattern.name,
     
     framing: generated.framing,
-    scope: libraryExamples.scope,
-    constraint: libraryExamples.constraintRule,
-    completion: libraryExamples.completion,
+    scope: generated.scope,
+    constraintRule: constraint.constraintName,
+    completion: generated.completion,
     
-    timebox: constraint.defaultTimebox,
+    timebox: generated.timebox,
     
     generatedBy,
     constraintId: constraint.constraintId,
@@ -383,31 +561,25 @@ export async function generateMission(
   userProfile: UserProfile
 ): Promise<Mission> {
   try {
-    // STEP 1: Detect work type (if not provided)
-    const workType = userProfile.detectedWorkType || detectWorkType(userProfile.workDescription);
+    // STEP 1: Detect work type from description
+    const workType = detectWorkType(userProfile.workDescription);
+    console.log(`[Mission] Detected workType: ${workType}`);
 
-    // STEP 2: Detect mode (if not provided)
-    const mode = userProfile.detectedMode || detectMode(userProfile.workDescription);
+    // STEP 2: Detect mode from description
+    const mode = detectMode(userProfile.workDescription);
+    console.log(`[Mission] Detected mode: ${mode}`);
 
-    // STEP 3: Detect pattern (if not provided)
-    let pattern: Pattern;
-    if (userProfile.detectedPattern) {
-      pattern = userProfile.detectedPattern;
-    } else {
-      const detectionResult = detectPattern(userProfile.workDescription, userProfile.primaryArchetype);
-      if (!detectionResult.pattern) {
-        throw new Error('Could not detect work pattern');
-      }
-      pattern = detectionResult.pattern;
-    }
-
-    console.log(`[Mission] Detected: mode=${mode}, workType=${workType}, pattern=${pattern.name}`);
+    // STEP 3: Detect pattern from description (always)
+    const detectionResult = detectPattern(userProfile.workDescription, userProfile.primaryArchetype);
+    const pattern = detectionResult.pattern!;
+    console.log(`[Mission] Detected pattern: ${pattern.name} (id: ${pattern.id})`);
 
     // STEP 4: Select matching constraint
-    const constraint = selectConstraint(userProfile, mode, pattern);
+    const constraint = selectConstraint(mode, pattern);
     console.log(`[Mission] Selected constraint: ${constraint.constraintId}`);
 
-    // STEP 5: Get library examples
+    // STEP 5: Get library examples (for context, always succeeds now)
+    console.log(`[Mission] Retrieving library examples for Gemini context...`);
     const libraryExamples = getLibraryExamples(
       constraint.constraintId,
       userProfile.primaryArchetype,
@@ -415,30 +587,31 @@ export async function generateMission(
     );
     console.log('[Mission] Retrieved library examples');
 
-    // STEP 6: Generate with Gemini
+    // STEP 6: Generate full mission content with Gemini
+    console.log('[Mission] Calling Gemini to generate mission content...');
     const generated = await generateMissionWithGemini(
       constraint,
       userProfile,
       libraryExamples,
-      pattern
+      pattern,
+      workType
     );
-    console.log('[Mission] Generated framing with Gemini');
+    console.log('[Mission] Generated mission content with Gemini');
 
     // STEP 7: Validate output
-    const validation = validateGeneration(generated, constraint, userProfile);
+    const validation = validateGeneration(generated, constraint);
 
     if (!validation.valid) {
       console.warn(
-        `[Mission] Validation failed: ${validation.issues.join(', ')}. Falling back to library framing.`
+        `[Mission] Validation failed: ${validation.issues.join(', ')}. Using fallback content.`
       );
-
-      // Fallback: Use library framing
+      const fallback = createGenericFallback(constraint, libraryExamples, workType);
       return assembleMission(
-        { framing: libraryExamples.framing },
+        fallback,
         constraint,
-        libraryExamples,
         userProfile,
         workType,
+        pattern,
         'library'
       );
     }
@@ -447,9 +620,9 @@ export async function generateMission(
     const mission = assembleMission(
       generated,
       constraint,
-      libraryExamples,
       userProfile,
       workType,
+      pattern,
       'gemini'
     );
 
@@ -457,36 +630,13 @@ export async function generateMission(
     return mission;
   } catch (error) {
     console.error('[Mission] Generation failed:', error);
+    console.error('[Mission] Error details:', {
+      message: error instanceof Error ? error.message : String(error),
+      type: error instanceof Error ? error.constructor.name : typeof error,
+    });
 
-    // Ultimate fallback: Use library-only mission
-    try {
-      const workType = detectWorkType(userProfile.workDescription);
-      const mode = detectMode(userProfile.workDescription);
-      const detectionResult = detectPattern(userProfile.workDescription, userProfile.primaryArchetype);
-      
-      if (!detectionResult.pattern) {
-        throw new Error('Could not generate fallback mission - pattern detection failed');
-      }
-
-      const pattern = detectionResult.pattern;
-      const constraint = selectConstraint(userProfile, mode, pattern);
-      const libraryExamples = getLibraryExamples(
-        constraint.constraintId,
-        userProfile.primaryArchetype,
-        workType
-      );
-
-      return assembleMission(
-        { framing: libraryExamples.framing },
-        constraint,
-        libraryExamples,
-        userProfile,
-        workType,
-        'library'
-      );
-    } catch (fallbackError) {
-      console.error('[Mission] Fallback generation also failed:', fallbackError);
-      throw new Error('Mission generation failed completely');
-    }
+    // Re-throw — selectConstraint and detectPattern no longer throw on coverage gaps,
+    // so if we're here something genuinely unexpected happened.
+    throw new Error('Mission generation failed completely');
   }
 }
