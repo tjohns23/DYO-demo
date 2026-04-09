@@ -5,6 +5,8 @@ import NavHeader from '@/components/NavHeader';
 import { getMissionStatsAction, getMissionHistoryAction, getActiveMissionAction } from '@/lib/actions/mission';
 import ActiveMissionBanner from '@/components/dashboard/ActiveMissionBanner';
 import MissionCharts from '@/components/dashboard/MissionCharts';
+import { createClient } from '@/lib/supabase-server';
+import { supabaseAdmin } from '@/lib/supabase-admin';
 
 export default async function DashboardPage() {
   const [profile, archetypeInfo, statsResult, historyResult, activeMissionResult] = await Promise.all([
@@ -17,6 +19,20 @@ export default async function DashboardPage() {
 
   if (!profile) {
     redirect('/');
+  }
+
+  // Gate on beta approval — redirect unapproved users to waitlist
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (user) {
+    const { data: profileData } = await supabaseAdmin
+      .from('profiles')
+      .select('beta_approved')
+      .eq('id', user.id)
+      .single();
+    if (!profileData?.beta_approved) {
+      redirect('/waitlist');
+    }
   }
 
   const stats = statsResult.stats;

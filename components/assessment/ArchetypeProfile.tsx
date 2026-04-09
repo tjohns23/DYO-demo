@@ -6,7 +6,7 @@ import { default_palette as theme } from '@/lib/theme';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
-import { sendMagicLink } from '@/lib/actions/auth';
+import { supabase } from '@/lib/supabase';
 
 interface ArchetypeProfileProps {
   profile: ArchetypeProfileType;
@@ -23,12 +23,15 @@ export default function ArchetypeProfile({ profile }: ArchetypeProfileProps) {
   const handleSendMagicLink = async () => {
     setError(null);
     setIsLoading(true);
-    const result = await sendMagicLink(email, `${window.location.origin}/auth/callback`);
-    if (result.success) {
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
+    });
+    if (!error) {
       setSuccess(true);
       setEmail('');
     } else {
-      setError(result.error || 'Failed to send magic link.');
+      setError(error.message || 'Failed to send magic link.');
     }
     setIsLoading(false);
   };

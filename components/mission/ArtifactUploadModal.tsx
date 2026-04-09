@@ -33,7 +33,7 @@ const ALLOWED_TYPES = [
   'application/x-zip-compressed',
 ];
 
-const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
+const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB
 
 export default function ArtifactUploadModal({ missionId, onUploadSuccess, onCancel }: ArtifactUploadModalProps) {
   const [isDragging, setIsDragging] = useState(false);
@@ -55,7 +55,7 @@ export default function ArtifactUploadModal({ missionId, onUploadSuccess, onCanc
     if (file.size > MAX_FILE_SIZE) {
       return {
         valid: false,
-        error: `File too large. Maximum size: 50MB`,
+        error: `File too large. Maximum size: 100MB`,
       };
     }
 
@@ -163,7 +163,7 @@ export default function ArtifactUploadModal({ missionId, onUploadSuccess, onCanc
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                 </svg>
                 <p className="text-sm text-[var(--glass-text-primary)] font-medium">Drag file here or click</p>
-                <p className="text-xs text-[#8a7080] mt-1">Images, PDF, code, text (max 50MB)</p>
+                <p className="text-xs text-[#8a7080] mt-1">Images, PDF, code, text (max 100MB)</p>
               </div>
             </div>
 

@@ -2,11 +2,12 @@
 
 import React, { useState } from 'react';
 import type { GeneratedMission } from './MissionContainer';
+import type { Mission } from '@/lib/mission/missionEngine';
 import { generateMissionAction } from '@/lib/actions/mission';
 import NavHeader from '@/components/NavHeader';
 
 interface MissionStep1Props {
-  onMissionGenerated: (mission: GeneratedMission) => void;
+  onMissionGenerated: (mission: GeneratedMission, fullMission: Mission, workDescription: string) => void;
   archetypeName?: string;
 }
 
@@ -49,7 +50,7 @@ export default function MissionStep1({ onMissionGenerated, archetypeName = 'Your
         constraint: result.mission.constraintRule,
       };
 
-      onMissionGenerated(generatedMission);
+      onMissionGenerated(generatedMission, result.mission, description);
     } catch (err) {
       setError('An unexpected error occurred. Please try again.');
       console.error('Mission generation error:', err);

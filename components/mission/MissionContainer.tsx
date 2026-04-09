@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import type { ArchetypeSlug } from '@/lib/actions/assessment';
 import { acceptMissionAction } from '@/lib/actions/mission';
+import type { Mission } from '@/lib/mission/missionEngine';
 
 import MissionStep1 from './MissionStep1';
 import MissionStep2 from './MissionStep2';
@@ -28,24 +29,28 @@ interface MissionContainerProps {
   initialMission?: GeneratedMission | null;
 }
 
-export default function MissionContainer({ archetypeName = 'Your Archetype', archetypeSlug, initialMission }: MissionContainerProps) {
+export default function MissionContainer({ archetypeName = 'Your Archetype', initialMission }: MissionContainerProps) {
   const [step, setStep] = useState<MissionFlow>(initialMission ? 'active' : 'input');
   const [mission, setMission] = useState<GeneratedMission | null>(initialMission ?? null);
+  const [fullMission, setFullMission] = useState<Mission | null>(null);
+  const [workDescription, setWorkDescription] = useState<string>('');
 
   const handleGoToStep = (nextStep: MissionFlow) => {
     setStep(nextStep);
     window.scrollTo(0, 0);
   };
 
-  const handleMissionGenerated = (newMission: GeneratedMission) => {
+  const handleMissionGenerated = (newMission: GeneratedMission, full: Mission, description: string) => {
     setMission(newMission);
+    setFullMission(full);
+    setWorkDescription(description);
     handleGoToStep('brief');
   };
 
   const handleAcceptMission = async () => {
-    if (!mission) return;
+    if (!mission || !fullMission) return;
     const acceptedAt = new Date().toISOString();
-    await acceptMissionAction(mission.missionId, acceptedAt);
+    await acceptMissionAction(mission.missionId, fullMission, acceptedAt, workDescription);
     setMission({ ...mission, acceptedAt });
     handleGoToStep('active');
   };

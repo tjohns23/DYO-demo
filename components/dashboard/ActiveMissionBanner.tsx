@@ -41,7 +41,7 @@ export default function ActiveMissionBanner({ missionId, scope, acceptedAt, time
 
   return (
     <Link href="/mission" className="block">
-      <div className="flex items-center justify-between bg-[rgba(224,48,96,0.05)] border border-[rgba(224,48,96,0.3)] rounded-2xl px-6 py-4 shadow-[inset_0_0_40px_rgba(224,48,96,0.06),0_0_20px_rgba(224,48,96,0.08)] hover:border-[rgba(224,48,96,0.5)] transition-colors">
+      <div className="flex items-center justify-between bg-[rgba(139,47,66,0.08)] border-2 border-[var(--glass-accent)] rounded-2xl px-6 py-4 shadow-[inset_0_0_40px_rgba(139,47,66,0.06),0_0_20px_rgba(139,47,66,0.08)] hover:border-[var(--glass-accent)] transition-colors">
         <div className="flex items-center gap-3">
           {!isExpired && (
             <div className="w-2 h-2 rounded-full bg-[var(--glass-accent)] shadow-[0_0_8px_var(--glass-accent)] animate-pulse shrink-0" />
@@ -57,7 +57,7 @@ export default function ActiveMissionBanner({ missionId, scope, acceptedAt, time
         </div>
         <div
           className="font-mono text-3xl font-medium tracking-tight"
-          style={{ color: isExpired ? 'var(--glass-text-muted)' : 'var(--glass-accent)', textShadow: isExpired ? 'none' : '0 0 20px rgba(224,48,96,0.4)' }}
+          style={{ color: isExpired ? 'var(--glass-text-muted)' : 'var(--glass-accent)', textShadow: isExpired ? 'none' : '0 0 20px rgba(139,47,66,0.3)' }}
         >
           {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
         </div>

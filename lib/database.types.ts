@@ -209,6 +209,8 @@ export type Database = {
           dimension_scores: Json
           email: string
           id: string
+          is_exec: boolean
+          is_pro: boolean
           last_mission_id: string | null
           quiz_answers: number[] | null
           secondary_archetype_slug: string | null
@@ -226,6 +228,8 @@ export type Database = {
           dimension_scores: Json
           email: string
           id: string
+          is_exec?: boolean
+          is_pro?: boolean
           last_mission_id?: string | null
           quiz_answers?: number[] | null
           secondary_archetype_slug?: string | null
@@ -243,6 +247,8 @@ export type Database = {
           dimension_scores?: Json
           email?: string
           id?: string
+          is_exec?: boolean
+          is_pro?: boolean
           last_mission_id?: string | null
           quiz_answers?: number[] | null
           secondary_archetype_slug?: string | null

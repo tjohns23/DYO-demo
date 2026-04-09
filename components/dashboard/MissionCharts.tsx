@@ -66,11 +66,13 @@ export default function MissionCharts({ completed, expired, weeklyBreakdown }: M
     ...sharedOptions,
     scales: {
       x: {
+        stacked: true,
         grid: { color: gridColor },
         ticks: { color: tickColor, font: { family: 'monospace', size: 10 as number } },
         border: { color: borderColor },
       },
       y: {
+        stacked: true,
         grid: { color: gridColor },
         ticks: { color: tickColor, font: { family: 'monospace', size: 10 as number }, stepSize: 1 },
         border: { color: borderColor },

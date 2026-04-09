@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import type { GeneratedMission } from './MissionContainer';
 import { completeMissionAction, expireMissionAction, saveThoughtParkingAction } from '@/lib/actions/mission';
 import NavHeader from '@/components/NavHeader';
@@ -12,6 +13,7 @@ interface MissionStep3Props {
 }
 
 export default function MissionStep3({ mission, archetypeName }: MissionStep3Props) {
+  const router = useRouter();
   const total = mission.timebox * 60;
   const [totalSeconds, setTotalSeconds] = useState(() => {
     if (mission.acceptedAt) {
@@ -72,6 +74,8 @@ export default function MissionStep3({ mission, archetypeName }: MissionStep3Pro
       console.error('[MissionStep3] Failed to complete mission:', result.error);
       finalizedRef.current = false;
       alert(`Failed to mark mission as complete: ${result.error}`);
+    } else {
+      router.push('/dashboard');
     }
   };
 

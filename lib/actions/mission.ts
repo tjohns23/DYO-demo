@@ -78,34 +78,8 @@ export async function generateMissionAction(
       workType: mission.workType,
     });
 
-    // Persist mission to database as 'pending'
-    const { error: insertError } = await supabaseAdmin
-      .from('missions')
-      .insert({
-        id: mission.missionId,
-        user_id: mission.userId,
-        status: 'pending',
-        mode: mission.mode,
-        pattern: mission.pattern,
-        framing: mission.framing,
-        scope: mission.scope,
-        constraint_rule: mission.constraintRule,
-        completion: mission.completion,
-        timebox: mission.timebox,
-        generated_by: mission.generatedBy,
-        constraint_id: mission.constraintId,
-        archetype: mission.archetype,
-        work_type: mission.workType,
-        work_description: workDescription,
-      });
-
-    if (insertError) {
-      console.error('[MissionAction] Failed to save mission to database:', insertError);
-      return { success: false, error: 'Mission generated but could not be saved. Please try again.' };
-    }
-
-    console.log('[MissionAction] Mission persisted to database:', mission.missionId);
-
+    // Return the generated mission without saving to database yet.
+    // Mission will be saved when user explicitly accepts it in acceptMissionAction.
     return { success: true, mission };
   } catch (error) {
     console.error('Error generating mission:', error);
@@ -119,31 +93,52 @@ export async function generateMissionAction(
 }
 
 /**
- * Marks a pending mission as accepted and records the acceptance time.
+ * Accepts a mission by persisting it to the database with status 'accepted'.
+ * Mission data is provided by the client to ensure the full mission object is saved.
  */
 export async function acceptMissionAction(
   missionId: string,
-  acceptedAt: string
+  mission: Mission,
+  acceptedAt: string,
+  workDescription: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
     const cookieStore = await cookies();
     const userId = cookieStore.get('user_id')?.value;
     if (!userId) return { success: false, error: 'User not authenticated.' };
 
-    const { error } = await supabaseAdmin
+    // Insert the mission to database with status 'accepted' when user accepts it
+    const { error: insertError } = await supabaseAdmin
       .from('missions')
-      .update({ status: 'accepted', accepted_at: acceptedAt })
-      .eq('id', missionId)
-      .eq('user_id', userId);
+      .insert({
+        id: mission.missionId,
+        user_id: mission.userId,
+        status: 'accepted',
+        mode: mission.mode,
+        pattern: mission.pattern,
+        framing: mission.framing,
+        scope: mission.scope,
+        constraint_rule: mission.constraintRule,
+        completion: mission.completion,
+        timebox: mission.timebox,
+        generated_by: mission.generatedBy,
+        constraint_id: mission.constraintId,
+        archetype: mission.archetype,
+        work_type: mission.workType,
+        work_description: workDescription,
+        accepted_at: acceptedAt,
+      });
 
-    if (error) {
-      console.error('[MissionAction] Failed to accept mission:', error);
-      return { success: false, error: 'Failed to accept mission.' };
+    if (insertError) {
+      console.error('[MissionAction] Failed to accept and save mission:', insertError);
+      return { success: false, error: 'Failed to accept mission. Please try again.' };
     }
 
+    console.log('[MissionAction] Mission accepted and persisted:', missionId);
     return { success: true };
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+    console.error('[MissionAction] Error accepting mission:', errorMessage);
     return { success: false, error: errorMessage };
   }
 }

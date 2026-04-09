@@ -1,9 +1,10 @@
 'use server';
 
 import { supabaseAdmin } from '@/lib/supabase-admin';
+import { createClient } from '@/lib/supabase-server';
 import type { ArchetypeProfile, ArchetypeSlug } from './assessment';
 import { ARCHETYPE_METADATA } from '@/lib/config/archetypes';
-import { cookies } from 'next/headers';
+
 
 /**
  * Saves the assessment results to the user's profile after authentication.
@@ -78,7 +79,7 @@ export async function saveAssessmentToProfile(
 
     console.log('Profile saved successfully with dimensions:', profile.dimensions);
 
-    // Upsert the quiz answers into a separate table for analytics
+    // Insert the quiz answers into a separate table for analytics
     const { error: answersError } = await supabaseAdmin
       .from('assessments')
       .insert(
@@ -100,12 +101,6 @@ export async function saveAssessmentToProfile(
       return { success: false, error: 'Failed to save quiz answers' };
     }
 
-    
-
-    // Set the user_id cookie so server components can identify the user
-    const cookieStore = await cookies();
-    cookieStore.set('user_id', userId, { httpOnly: true, path: '/', sameSite: 'lax' });
-
     return { success: true };
   } catch (err) {
     console.error('Unexpected error saving assessment:', err);
@@ -121,13 +116,22 @@ export async function saveAssessmentToProfile(
  */
 export async function getUserArchetypeProfile(): Promise<ArchetypeProfile | null> {
   try {
-    const cookieStore = await cookies();
-    const userId = cookieStore.get('user_id')?.value;
+    const supabase = await createClient();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
 
-    if (!userId) {
-      console.log('No user_id cookie found');
+    console.log('[getUserArchetypeProfile] auth.getUser():', {
+      hasUser: !!user,
+      userId: user?.id,
+      email: user?.email,
+      authError: authError?.message,
+    });
+
+    if (!user) {
+      console.log('[getUserArchetypeProfile] No authenticated user found');
       return null;
     }
+
+    const userId = user.id;
 
     // Fetch the user's profile with assessment data
     const { data, error } = await supabaseAdmin
@@ -145,13 +149,19 @@ export async function getUserArchetypeProfile(): Promise<ArchetypeProfile | null
       .eq('id', userId)
       .single();
 
+    console.log('[getUserArchetypeProfile] DB query result:', {
+      hasData: !!data,
+      archetypeSlug: data?.archetype_slug,
+      dbError: error?.message,
+    });
+
     if (error) {
-      console.error('Error fetching profile:', error);
+      console.error('[getUserArchetypeProfile] Error fetching profile:', error);
       return null;
     }
 
     if (!data || !data.archetype_slug) {
-      console.log('No profile or archetype data found');
+      console.log('[getUserArchetypeProfile] No profile or archetype data found');
       return null;
     }
 
@@ -216,12 +226,14 @@ export async function getUserArchetypeInfo(): Promise<{
   name: string;
 } | null> {
   try {
-    const cookieStore = await cookies();
-    const userId = cookieStore.get('user_id')?.value;
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
 
-    if (!userId) {
+    if (!user) {
       return null;
     }
+
+    const userId = user.id;
 
     const { data, error } = await supabaseAdmin
       .from('profiles')
