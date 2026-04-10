@@ -31,7 +31,7 @@ export default function ArchetypeTease({ profile }: ArchetypeTeaseProps) {
 
     const { error } = await supabase.auth.signInWithOtp({
       email,
-      options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
+      options: { emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback` },
     });
 
     if (!error) {
