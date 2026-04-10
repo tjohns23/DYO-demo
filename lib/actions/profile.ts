@@ -42,6 +42,15 @@ export async function saveAssessmentToProfile(
       return { success: false, error: 'Dimensions data is missing from assessment' };
     }
 
+    // Check if email is pre-approved for beta access
+    const { data: preApprovedData } = await supabaseAdmin
+      .from('pre_approved_emails')
+      .select('email')
+      .eq('email', email.toLowerCase())
+      .single();
+
+    const isBetaApproved = preApprovedData !== null;
+
     // Upsert the user profile with archetype slug and assessment data
     const { error: profileError } = await supabaseAdmin
       .from('profiles')
@@ -56,6 +65,7 @@ export async function saveAssessmentToProfile(
           calibration_answers: calibrationAnswers,
           archetype_scores: profile.scores as unknown as Record<string, number>,
           dimension_scores: profile.dimensions as unknown as Record<string, number>,
+          beta_approved: isBetaApproved,
           assessment_completed_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         },

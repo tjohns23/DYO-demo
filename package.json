@@ -8,7 +8,7 @@
     "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint",
-    "db:sync": "npx supabase db push && npx supabase gen types typescript --project-id vuavtgrjqspyxnrdqqmu > lib/database.types.ts",
+    "db:sync": "npx supabase db push -p $env:SUPABASE_DB_PASSWORD && npx supabase gen types typescript --project-id vuavtgrjqspyxnrdqqmu > lib/database.types.ts",
     "format": "prettier --write \"**/*.{ts,tsx}\"",
     "typecheck": "tsc --noEmit"
   },
