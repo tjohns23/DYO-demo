@@ -24,16 +24,11 @@ export default async function DashboardPage() {
   // Gate on beta approval — redirect unapproved users to waitlist
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (user) {
-    const { data: profileData } = await supabaseAdmin
-      .from('profiles')
-      .select('beta_approved')
-      .eq('id', user.id)
-      .single();
-    if (!profileData?.beta_approved) {
-      redirect('/waitlist');
-    }
-  }
+  const { data: profileData } = user
+    ? await supabaseAdmin.from('profiles').select('beta_approved, is_exec').eq('id', user.id).single()
+    : { data: null };
+  if (!profileData?.beta_approved) redirect('/waitlist');
+  const isExec = profileData?.is_exec ?? false;
 
   const stats = statsResult.stats;
   const missions = historyResult.missions ?? [];
@@ -42,7 +37,7 @@ export default async function DashboardPage() {
   return (
     <div className="min-h-screen bg-background" style={{ backgroundImage: 'radial-gradient(ellipse 60% 40% at 50% 0%, rgba(120,20,50,0.25) 0%, transparent 70%), radial-gradient(ellipse 40% 60% at 80% 100%, rgba(80,10,30,0.2) 0%, transparent 60%)' }}>
 
-      <NavHeader activePage="dashboard" archetypeName={archetypeInfo?.name ?? 'Unknown'} />
+      <NavHeader activePage="dashboard" archetypeName={archetypeInfo?.name ?? 'Unknown'} isExec={isExec} />
 
       {/* Three-column layout */}
       <div className="max-w-[1400px] mx-auto grid grid-cols-[1fr_2fr_1fr] gap-4 p-4 pb-10 items-start">

@@ -2,12 +2,13 @@ import Link from 'next/link';
 import React from 'react';
 
 interface NavHeaderProps {
-  activePage: 'mission' | 'dashboard';
+  activePage: 'mission' | 'dashboard' | 'exec';
   archetypeName?: string;
   rightSlot?: React.ReactNode;
+  isExec?: boolean;
 }
 
-export default function NavHeader({ activePage, archetypeName, rightSlot }: NavHeaderProps) {
+export default function NavHeader({ activePage, archetypeName, rightSlot, isExec }: NavHeaderProps) {
   const activeClass = 'font-mono text-xs px-4 py-1.5 rounded-full text-[var(--glass-accent)] border border-[var(--glass-border)] bg-[var(--glass-accent-dim)]';
   const inactiveClass = 'font-mono text-xs px-4 py-1.5 rounded-full text-[var(--glass-text-muted)] border border-transparent hover:border-[var(--glass-border)] hover:text-[var(--glass-text-primary)] transition-all';
 
@@ -21,6 +22,11 @@ export default function NavHeader({ activePage, archetypeName, rightSlot }: NavH
         <Link href="/dashboard" className={activePage === 'dashboard' ? activeClass : inactiveClass}>
           Dashboard
         </Link>
+        {isExec && (
+          <Link href="/exec" className={activePage === 'exec' ? activeClass : inactiveClass}>
+            Panel
+          </Link>
+        )}
       </div>
       <div>
         {rightSlot ?? (

@@ -10,9 +10,10 @@ import ArtifactUploadModal from './ArtifactUploadModal';
 interface MissionStep3Props {
   mission: GeneratedMission;
   archetypeName?: string;
+  isExec?: boolean;
 }
 
-export default function MissionStep3({ mission, archetypeName }: MissionStep3Props) {
+export default function MissionStep3({ mission, archetypeName, isExec }: MissionStep3Props) {
   const router = useRouter();
   const total = mission.timebox * 60;
   const [totalSeconds, setTotalSeconds] = useState(() => {
@@ -27,13 +28,19 @@ export default function MissionStep3({ mission, archetypeName }: MissionStep3Pro
   const thoughtsDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [showArtifactModal, setShowArtifactModal] = useState(false);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  const [completionError, setCompletionError] = useState<string | null>(null);
+  const [thoughtsSaveError, setThoughtsSaveError] = useState<string | null>(null);
 
   const handleThoughtsChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value;
     setThoughts(value);
+    setThoughtsSaveError(null);
     if (thoughtsDebounceRef.current) clearTimeout(thoughtsDebounceRef.current);
-    thoughtsDebounceRef.current = setTimeout(() => {
-      saveThoughtParkingAction(mission.missionId, value);
+    thoughtsDebounceRef.current = setTimeout(async () => {
+      const result = await saveThoughtParkingAction(mission.missionId, value);
+      if (!result.success) {
+        setThoughtsSaveError(result.error || 'Failed to save thoughts');
+      }
     }, 2000);
   };
 
@@ -68,12 +75,12 @@ export default function MissionStep3({ mission, archetypeName }: MissionStep3Pro
     finalizedRef.current = true;
     setTotalSeconds(0);
     setShowArtifactModal(false);
+    setCompletionError(null);
     const result = await completeMissionAction(mission.missionId, elapsedSeconds);
     
     if (!result.success) {
-      console.error('[MissionStep3] Failed to complete mission:', result.error);
       finalizedRef.current = false;
-      alert(`Failed to mark mission as complete: ${result.error}`);
+      setCompletionError(result.error || 'Failed to mark mission as complete');
     } else {
       router.push('/dashboard');
     }
@@ -90,6 +97,7 @@ export default function MissionStep3({ mission, archetypeName }: MissionStep3Pro
     <>
       <NavHeader
         activePage="mission"
+        isExec={isExec}
         rightSlot={
           isFinished ? (
             <div className="font-mono text-xs px-3.5 py-1.5 rounded-full border border-[var(--glass-border)] text-[var(--glass-text-muted)]">
@@ -201,6 +209,13 @@ export default function MissionStep3({ mission, archetypeName }: MissionStep3Pro
 
         {/* RIGHT SIDEBAR */}
         <div className="flex flex-col gap-3 border-l border-[rgba(180,40,70,0.2)] pl-10">
+          {completionError && (
+            <div className="bg-[rgba(230,67,76,0.08)] border border-[rgba(230,67,76,0.3)] rounded-2xl p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
+              <div className="font-mono text-xs text-[#e6434c] font-semibold leading-relaxed">
+                ❌ {completionError}
+              </div>
+            </div>
+          )}
           <div className="bg-[var(--glass-surface)] border border-[var(--glass-border)] rounded-2xl backdrop-blur-3xl p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.04),0_4px_24px_rgba(0,0,0,0.3),inset_0_0_40px_rgba(160,30,60,0.08)]">
             <div className="font-mono text-xs font-semibold text-[var(--glass-text-muted)] uppercase tracking-[0.15em] mb-2.5">
               Thought Parking
@@ -211,9 +226,16 @@ export default function MissionStep3({ mission, archetypeName }: MissionStep3Pro
               placeholder="Jot down distractions here — ideas, worries, edits you want to make — so your brain can let them go and stay focused."
               className="w-full min-h-55 bg-[rgba(255,255,255,0.02)] border border-[var(--glass-border-light)] rounded-xl outline-none resize-none font-sans text-xs text-[var(--glass-text-primary)] leading-relaxed placeholder:text-[var(--glass-text-dimmer)] placeholder:italic p-3 focus:border-[rgba(224,48,96,0.5)] transition-colors"
             />
-            <div className="text-xs text-[var(--glass-text-dimmer)] mt-2 leading-relaxed italic">
-              These won&apos;t affect your mission. They&apos;ll be here after you ship.
-            </div>
+            {thoughtsSaveError && (
+              <div className="text-xs text-[#e6434c] mt-2 leading-relaxed font-mono">
+                ⚠️ Failed to save: {thoughtsSaveError}
+              </div>
+            )}
+            {!thoughtsSaveError && (
+              <div className="text-xs text-[var(--glass-text-dimmer)] mt-2 leading-relaxed italic">
+                These won&apos;t affect your mission. They&apos;ll be here after you ship.
+              </div>
+            )}
           </div>
         </div>
       </div>

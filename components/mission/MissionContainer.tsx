@@ -27,9 +27,10 @@ interface MissionContainerProps {
   archetypeName?: string;
   archetypeSlug?: ArchetypeSlug;
   initialMission?: GeneratedMission | null;
+  isExec?: boolean;
 }
 
-export default function MissionContainer({ archetypeName = 'Your Archetype', initialMission }: MissionContainerProps) {
+export default function MissionContainer({ archetypeName = 'Your Archetype', initialMission, isExec }: MissionContainerProps) {
   const [step, setStep] = useState<MissionFlow>(initialMission ? 'active' : 'input');
   const [mission, setMission] = useState<GeneratedMission | null>(initialMission ?? null);
   const [fullMission, setFullMission] = useState<Mission | null>(null);
@@ -57,11 +58,11 @@ export default function MissionContainer({ archetypeName = 'Your Archetype', ini
 
   return (
     <div className="min-h-screen bg-background">
-      {step === 'input' && <MissionStep1 onMissionGenerated={handleMissionGenerated} archetypeName={archetypeName} />}
+      {step === 'input' && <MissionStep1 onMissionGenerated={handleMissionGenerated} archetypeName={archetypeName} isExec={isExec} />}
       {step === 'brief' && mission && (
-        <MissionStep2 mission={mission} onAccept={handleAcceptMission} onRegenerate={() => handleGoToStep('input')} archetypeName={archetypeName} />
+        <MissionStep2 mission={mission} onAccept={handleAcceptMission} onRegenerate={() => handleGoToStep('input')} archetypeName={archetypeName} isExec={isExec} />
       )}
-      {step === 'active' && mission && <MissionStep3 mission={mission} archetypeName={archetypeName} />}
+      {step === 'active' && mission && <MissionStep3 mission={mission} archetypeName={archetypeName} isExec={isExec} />}
     </div>
   );
 }

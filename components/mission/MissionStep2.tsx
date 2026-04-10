@@ -9,12 +9,13 @@ interface MissionStep2Props {
   onAccept: () => void;
   onRegenerate: () => void;
   archetypeName?: string;
+  isExec?: boolean;
 }
 
-export default function MissionStep2({ mission, onAccept, onRegenerate, archetypeName = 'Your Archetype' }: MissionStep2Props) {
+export default function MissionStep2({ mission, onAccept, onRegenerate, archetypeName = 'Your Archetype', isExec }: MissionStep2Props) {
   return (
     <>
-      <NavHeader activePage="mission" archetypeName={archetypeName} />
+      <NavHeader activePage="mission" archetypeName={archetypeName} isExec={isExec} />
 
       <div className="max-w-xl mx-auto px-5 py-10">
         <div className="border border-[rgba(224,48,96,0.25)] rounded-3xl bg-[rgba(224,48,96,0.06)] px-5.5 py-5 mb-4.5 shadow-[inset_0_0_30px_rgba(224,48,96,0.05)]">

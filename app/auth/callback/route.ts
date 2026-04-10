@@ -9,14 +9,15 @@ export async function GET(request: NextRequest) {
   const code = searchParams.get('code');
 
   if (!code) {
-    console.error('[auth/callback] No code param in URL');
     return NextResponse.redirect(`${origin}/?error=${encodeURIComponent('No authentication code provided')}`);
   }
 
   const cookieStore = await cookies();
 
-  // Success redirect — auth cookies will be set on this response (let, not const — reassigned after beta check)
-  let response = NextResponse.redirect(`${origin}/dashboard`);
+  // Collect auth cookies from Supabase to apply on the final response.
+  // We defer creating the response until we know the redirect path, so we
+  // buffer cookies here instead of writing them to an intermediate response.
+  const supabaseCookies: Array<{ name: string; value: string; options: Record<string, unknown> }> = [];
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -27,21 +28,13 @@ export async function GET(request: NextRequest) {
           return cookieStore.getAll();
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) => {
-            response.cookies.set(name, value, options);
-          });
+          supabaseCookies.push(...cookiesToSet);
         },
       },
     }
   );
 
   const { data, error } = await supabase.auth.exchangeCodeForSession(code);
-
-  console.log('[auth/callback] exchangeCodeForSession:', {
-    hasUser: !!data?.user,
-    userId: data?.user?.id,
-    error: error?.message,
-  });
 
   if (error || !data?.user) {
     return NextResponse.redirect(
@@ -53,7 +46,6 @@ export async function GET(request: NextRequest) {
   const pendingRaw = cookieStore.get('pending_assessment')?.value;
 
   if (!pendingRaw) {
-    console.error('[auth/callback] No pending_assessment cookie found');
     return NextResponse.redirect(
       `${origin}/?error=${encodeURIComponent('Assessment data not found. Please try again.')}`
     );
@@ -69,10 +61,6 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Clear the pending assessment cookie and set user_id for server actions
-    response.cookies.delete('pending_assessment');
-    response.cookies.set('user_id', data.user.id, { httpOnly: true, path: '/', sameSite: 'lax' });
-
     // Check if user is beta approved
     const { data: profileData } = await supabase
       .from('profiles')
@@ -82,11 +70,21 @@ export async function GET(request: NextRequest) {
 
     const isBetaApproved = profileData?.beta_approved === true;
     const redirectPath = isBetaApproved ? '/dashboard' : '/waitlist';
-    response = NextResponse.redirect(`${origin}${redirectPath}`);
+
+    // Create the single final response — all cookies are applied to this one object
+    const response = NextResponse.redirect(`${origin}${redirectPath}`);
+
+    // Apply all buffered Supabase auth session cookies
+    supabaseCookies.forEach(({ name, value, options }) => {
+      response.cookies.set(name, value, options as Parameters<typeof response.cookies.set>[2]);
+    });
+
+    // Clear the pending assessment cookie and set user_id for server actions
+    response.cookies.delete('pending_assessment');
+    response.cookies.set('user_id', data.user.id, { httpOnly: true, path: '/', sameSite: 'lax' });
 
     return response;
   } catch (err) {
-    console.error('[auth/callback] Error processing assessment:', err);
     return NextResponse.redirect(
       `${origin}/?error=${encodeURIComponent('An error occurred while processing your assessment.')}`
     );

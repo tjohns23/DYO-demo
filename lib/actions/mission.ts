@@ -24,11 +24,6 @@ export async function generateMissionAction(
   error?: string;
 }> {
   try {
-    console.log('[MissionAction] Starting mission generation for description:', {
-      descriptionLength: workDescription.length,
-      descriptionPreview: workDescription.slice(0, 50),
-    });
-
     // Get authenticated user from cookies
     const cookieStore = await cookies();
     const userId = cookieStore.get('user_id')?.value;
@@ -36,8 +31,6 @@ export async function generateMissionAction(
     if (!userId) {
       return { success: false, error: 'User not authenticated. Please log in first.' };
     }
-
-    console.log('[MissionAction] User authenticated:', userId);
 
     // Fetch user's archetype profile from database
     const { data: profileData, error: profileError } = await supabaseAdmin
@@ -52,7 +45,6 @@ export async function generateMissionAction(
     }
 
     const primaryArchetype = profileData.archetype_slug as ArchetypeSlug;
-    console.log('[MissionAction] User archetype:', primaryArchetype);
 
     if (!primaryArchetype) {
       return { success: false, error: 'User archetype not set. Please complete the assessment.' };
@@ -65,29 +57,14 @@ export async function generateMissionAction(
       workDescription,
     };
 
-    console.log('[MissionAction] Calling generateMission with userProfile');
-
     // Generate mission using the mission engine
     const mission = await generateMission(userProfile);
-
-    console.log('[MissionAction] Mission generated successfully:', {
-      missionId: mission.missionId,
-      pattern: mission.pattern,
-      timebox: mission.timebox,
-      constraintId: mission.constraintId,
-      workType: mission.workType,
-    });
 
     // Return the generated mission without saving to database yet.
     // Mission will be saved when user explicitly accepts it in acceptMissionAction.
     return { success: true, mission };
   } catch (error) {
-    console.error('Error generating mission:', error);
     const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
-    console.error('[MissionAction] Error details:', {
-      errorMessage,
-      errorType: error instanceof Error ? error.constructor.name : typeof error,
-    });
     return { success: false, error: errorMessage };
   }
 }
@@ -130,11 +107,9 @@ export async function acceptMissionAction(
       });
 
     if (insertError) {
-      console.error('[MissionAction] Failed to accept and save mission:', insertError);
       return { success: false, error: 'Failed to accept mission. Please try again.' };
     }
 
-    console.log('[MissionAction] Mission accepted and persisted:', missionId);
     return { success: true };
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
@@ -217,7 +192,6 @@ export async function saveThoughtParkingAction(
       .eq('user_id', userId);
 
     if (error) {
-      console.error('[MissionAction] Failed to save thought parking:', error);
       return { success: false, error: 'Failed to save thoughts.' };
     }
 
@@ -240,13 +214,6 @@ export async function completeMissionAction(
     const userId = cookieStore.get('user_id')?.value;
     if (!userId) return { success: false, error: 'User not authenticated.' };
 
-    console.log('[MissionAction] Attempting to complete mission:', {
-      missionId,
-      userId,
-      secondsElapsed,
-      completedAt: new Date().toISOString(),
-    });
-
     const { error, data, status } = await supabaseAdmin
       .from('missions')
       .update({
@@ -258,18 +225,9 @@ export async function completeMissionAction(
       .eq('user_id', userId);
 
     if (error) {
-      console.error('[MissionAction] Failed to complete mission:', {
-        error,
-        errorMessage: error?.message,
-        errorDetails: error?.details,
-        missionId,
-        userId,
-        status,
-      });
       return { success: false, error: error?.message || 'Failed to complete mission.' };
     }
 
-    console.log('[MissionAction] Mission completed successfully:', { missionId, data });
     return { success: true };
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
@@ -426,7 +384,6 @@ export async function getMissionHistoryAction(page = 0): Promise<{
       .range(page * 10, page * 10 + 9);
 
     if (error) {
-      console.error('[MissionAction] Failed to fetch mission history:', error);
       return { success: false, error: 'Failed to fetch mission history.' };
     }
 
@@ -448,12 +405,6 @@ export async function expireMissionAction(
     const userId = cookieStore.get('user_id')?.value;
     if (!userId) return { success: false, error: 'User not authenticated.' };
 
-    console.log('[MissionAction] Attempting to expire mission:', {
-      missionId,
-      userId,
-      expiredAt: new Date().toISOString(),
-    });
-
     const { error } = await supabaseAdmin
       .from('missions')
       .update({ status: 'expired', expired_at: new Date().toISOString() })
@@ -461,15 +412,9 @@ export async function expireMissionAction(
       .eq('user_id', userId);
 
     if (error) {
-      console.error('[MissionAction] Failed to expire mission:', {
-        error,
-        errorMessage: error?.message,
-        missionId,
-      });
       return { success: false, error: error?.message || 'Failed to expire mission.' };
     }
 
-    console.log('[MissionAction] Mission expired successfully:', { missionId });
     return { success: true };
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
@@ -493,14 +438,6 @@ export async function uploadArtifactAction(
     const userId = cookieStore.get('user_id')?.value;
     if (!userId) return { success: false, error: 'User not authenticated.' };
 
-    console.log('[MissionAction] Starting artifact upload:', {
-      missionId,
-      userId,
-      fileName: file.name,
-      fileSize: file.size,
-      fileType: file.type,
-    });
-
     // Validate mission ownership
     const { data: mission, error: missionError } = await supabaseAdmin
       .from('missions')
@@ -510,7 +447,6 @@ export async function uploadArtifactAction(
       .single();
 
     if (missionError || !mission) {
-      console.error('[MissionAction] Mission not found or unauthorized:', missionError);
       return { success: false, error: 'Mission not found or unauthorized.' };
     }
 
@@ -521,8 +457,6 @@ export async function uploadArtifactAction(
     const filePath = `${userId}/${missionId}/${timestamp}_${randomSuffix}_${sanitizedFileName}`;
 
     // Upload to Supabase Storage
-    console.log('[MissionAction] Uploading file to Storage:', filePath);
-
     const { data: uploadData, error: uploadError } = await supabaseAdmin.storage
       .from('mission-artifacts')
       .upload(filePath, file, {
@@ -531,12 +465,10 @@ export async function uploadArtifactAction(
       });
 
     if (uploadError) {
-      console.error('[MissionAction] Upload to Storage failed:', uploadError);
       return { success: false, error: `Upload failed: ${uploadError.message}` };
     }
 
     if (!uploadData) {
-      console.error('[MissionAction] Upload returned no data');
       return { success: false, error: 'Upload failed: No response from storage.' };
     }
 
@@ -547,14 +479,7 @@ export async function uploadArtifactAction(
 
     const fileUrl = publicUrlData.publicUrl;
 
-    console.log('[MissionAction] File uploaded successfully:', {
-      filePath,
-      fileUrl,
-    });
-
     // Insert artifact metadata into database
-    console.log('[MissionAction] Inserting artifact metadata...');
-
     const { data: artifact, error: insertError } = await supabaseAdmin
       .from('artifacts')
       .insert({
@@ -570,20 +495,12 @@ export async function uploadArtifactAction(
       .single();
 
     if (insertError) {
-      console.error('[MissionAction] Failed to insert artifact metadata:', insertError);
       return { success: false, error: 'Failed to save artifact metadata.' };
     }
-
-    console.log('[MissionAction] Artifact uploaded successfully:', {
-      artifactId: artifact.id,
-      missionId,
-      fileName: file.name,
-    });
 
     return { success: true, artifactId: artifact.id };
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
-    console.error('[MissionAction] Artifact upload error:', errorMessage);
     return { success: false, error: errorMessage };
   }
 }

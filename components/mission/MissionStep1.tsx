@@ -9,9 +9,10 @@ import NavHeader from '@/components/NavHeader';
 interface MissionStep1Props {
   onMissionGenerated: (mission: GeneratedMission, fullMission: Mission, workDescription: string) => void;
   archetypeName?: string;
+  isExec?: boolean;
 }
 
-export default function MissionStep1({ onMissionGenerated, archetypeName = 'Your Archetype' }: MissionStep1Props) {
+export default function MissionStep1({ onMissionGenerated, archetypeName = 'Your Archetype', isExec }: MissionStep1Props) {
   const [description, setDescription] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -65,7 +66,7 @@ export default function MissionStep1({ onMissionGenerated, archetypeName = 'Your
 
   return (
     <>
-      <NavHeader activePage="mission" archetypeName={archetypeName} />
+      <NavHeader activePage="mission" archetypeName={archetypeName} isExec={isExec} />
 
       <div className="max-w-xl mx-auto px-5 py-10">
         <div className="bg-[var(--glass-surface)] border border-[var(--glass-border)] rounded-2xl backdrop-blur-3xl p-8 shadow-[inset_0_1px_0_rgba(255,255,255,0.04),0_4px_24px_rgba(0,0,0,0.3),inset_0_0_40px_rgba(160,30,60,0.08)]">

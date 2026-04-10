@@ -27,15 +27,6 @@ export async function saveAssessmentToProfile(
   profile: ArchetypeProfile
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    // DEBUG: Log what we're about to save
-    console.log('saveAssessmentToProfile called with:', {
-      userId,
-      email,
-      slug: profile.slug,
-      hasDimensions: !!profile.dimensions,
-      dimensions: profile.dimensions,
-    });
-
     // Convert core responses to an ordered array sorted by question ID
     const quizAnswers = [...(profile.responses ?? [])]
       .sort((a, b) => a.questionId - b.questionId)
@@ -48,7 +39,6 @@ export async function saveAssessmentToProfile(
 
     // CRITICAL: Ensure dimensions exist before saving
     if (!profile.dimensions) {
-      console.warn('WARNING: profile.dimensions is undefined! Cannot save dimension scores.');
       return { success: false, error: 'Dimensions data is missing from assessment' };
     }
 
@@ -73,11 +63,8 @@ export async function saveAssessmentToProfile(
       );
 
     if (profileError) {
-      console.error('Error saving profile:', profileError);
       return { success: false, error: 'Failed to save profile' };
     }
-
-    console.log('Profile saved successfully with dimensions:', profile.dimensions);
 
     // Insert the quiz answers into a separate table for analytics
     const { error: answersError } = await supabaseAdmin
@@ -97,13 +84,11 @@ export async function saveAssessmentToProfile(
       );
 
     if (answersError) {
-      console.error('Error saving quiz answers:', answersError);
       return { success: false, error: 'Failed to save quiz answers' };
     }
 
     return { success: true };
   } catch (err) {
-    console.error('Unexpected error saving assessment:', err);
     return { success: false, error: 'An unexpected error occurred' };
   }
 }
@@ -119,15 +104,7 @@ export async function getUserArchetypeProfile(): Promise<ArchetypeProfile | null
     const supabase = await createClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
 
-    console.log('[getUserArchetypeProfile] auth.getUser():', {
-      hasUser: !!user,
-      userId: user?.id,
-      email: user?.email,
-      authError: authError?.message,
-    });
-
     if (!user) {
-      console.log('[getUserArchetypeProfile] No authenticated user found');
       return null;
     }
 
@@ -149,19 +126,11 @@ export async function getUserArchetypeProfile(): Promise<ArchetypeProfile | null
       .eq('id', userId)
       .single();
 
-    console.log('[getUserArchetypeProfile] DB query result:', {
-      hasData: !!data,
-      archetypeSlug: data?.archetype_slug,
-      dbError: error?.message,
-    });
-
     if (error) {
-      console.error('[getUserArchetypeProfile] Error fetching profile:', error);
       return null;
     }
 
     if (!data || !data.archetype_slug) {
-      console.log('[getUserArchetypeProfile] No profile or archetype data found');
       return null;
     }
 
@@ -170,7 +139,6 @@ export async function getUserArchetypeProfile(): Promise<ArchetypeProfile | null
     const metadata = ARCHETYPE_METADATA[archetypeSlug];
 
     if (!metadata) {
-      console.error('No metadata for archetype:', archetypeSlug);
       return null;
     }
 
