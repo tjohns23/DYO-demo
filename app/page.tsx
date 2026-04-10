@@ -5,6 +5,9 @@ import SearchParamsHandler from './search-params-handler';
 import { createClient } from '@/lib/supabase-server';
 import { getUserArchetypeProfile } from '@/lib/actions/profile';
 
+// Force dynamic rendering to ensure fresh auth on every request
+export const dynamic = 'force-dynamic';
+
 export default async function Home() {
   // Create server-side Supabase client (reads auth from cookies)
   const supabase = await createClient();
