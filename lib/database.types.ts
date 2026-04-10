@@ -1,4 +1,4 @@
-export type Json =
+﻿export type Json =
   | string
   | number
   | boolean
@@ -265,6 +265,27 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      pre_approved_emails: {
+        Row: {
+          added_at: string
+          added_by: string | null
+          email: string
+          notes: string | null
+        }
+        Insert: {
+          added_at?: string
+          added_by?: string | null
+          email: string
+          notes?: string | null
+        }
+        Update: {
+          added_at?: string
+          added_by?: string | null
+          email?: string
+          notes?: string | null
+        }
+        Relationships: []
       }
     }
     Views: {
