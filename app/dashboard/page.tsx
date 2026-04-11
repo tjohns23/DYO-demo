@@ -181,9 +181,11 @@ export default async function DashboardPage() {
                         }}
                       />
                       <div className="text-xs text-[var(--glass-text-secondary)] truncate">{m.scope}</div>
-                      <div className="font-mono text-[10px] bg-[rgba(255,255,255,0.04)] px-2 py-0.5 rounded text-[var(--glass-text-dimmer)]">
-                        {m.pattern}
-                      </div>
+                      {m.pattern && (
+                        <div className="font-mono text-[10px] bg-[rgba(255,255,255,0.04)] px-2 py-0.5 rounded text-[var(--glass-text-dimmer)]">
+                          {m.pattern}
+                        </div>
+                      )}
                       <div className="flex items-center gap-2">
                         <span className="font-mono text-[10px] text-[var(--glass-text-muted)]">{timeAgo}</span>
                         <span
