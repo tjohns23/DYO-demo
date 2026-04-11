@@ -15,6 +15,8 @@ export interface GeneratedMission {
   missionId: string;
   description: string;
   pattern: string;
+  patternDetected: boolean;
+  framing: string;
   timebox: number;
   scope: string;
   completion: string;

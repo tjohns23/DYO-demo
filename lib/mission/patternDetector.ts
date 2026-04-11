@@ -22,7 +22,7 @@ export interface DetectionResult {
 }
 
 
-const PATTERN_LIBRARY: Pattern[] = [
+export const PATTERN_LIBRARY: Pattern[] = [
   // OPTIMIZER PATTERNS
   {
     id: "perfectionism_loop",
@@ -38,7 +38,7 @@ const PATTERN_LIBRARY: Pattern[] = [
       "can't stop", "cannot stop", "keep going back"
     ],
     associatedArchetypes: ["optimizer", "visionary", "advocate"],
-    description: "You're stuck in endless refinement. Each pass feels productive, but somewhere along the way, 'making it better' became a way to avoid calling it done. This is common for your archetype.[cite: 1]"
+    description: "You're stuck in endless refinement. Each pass feels productive, but somewhere along the way, 'making it better' became a way to avoid calling it done. This is common for your archetype."
   },
   {
     id: "ship_anxiety",
@@ -51,7 +51,7 @@ const PATTERN_LIBRARY: Pattern[] = [
       "fear of", "terrified", "dreading"
     ],
     associatedArchetypes: ["optimizer", "empath", "stabilizer"],
-    description: "You're afraid of the vulnerability that comes with shipping. The work might be ready, but you're not ready to be seen. This keeps you in the safety of 'almost done.'[cite: 1]"
+    description: "You're afraid of the vulnerability that comes with shipping. The work might be ready, but you're not ready to be seen. This keeps you in the safety of 'almost done.'"
   },
   {
     id: "over_polishing",
@@ -64,7 +64,7 @@ const PATTERN_LIBRARY: Pattern[] = [
       "almost perfect", "finishing touches"
     ],
     associatedArchetypes: ["optimizer", "builder"],
-    description: "The work is functionally complete, but you're in polish mode. Each small improvement feels necessary, but it's delaying delivery without adding real value.[cite: 1]"
+    description: "The work is functionally complete, but you're in polish mode. Each small improvement feels necessary, but it's delaying delivery without adding real value."
   },
 
   // STRATEGIST PATTERNS
@@ -79,7 +79,7 @@ const PATTERN_LIBRARY: Pattern[] = [
       "don't know which", "uncertain about", "unclear which path"
     ],
     associatedArchetypes: ["strategist", "stabilizer", "advocate"],
-    description: "You're stuck analyzing options instead of choosing one. More information won't make the decision easier—it'll just give you more variables to optimize.[cite: 1]"
+    description: "You're stuck analyzing options instead of choosing one. More information won't make the decision easier—it'll just give you more variables to optimize."
   },
   {
     id: "research_rabbit_hole",
@@ -92,7 +92,7 @@ const PATTERN_LIBRARY: Pattern[] = [
       "need to know more", "researching", "deep dive"
     ],
     associatedArchetypes: ["strategist", "optimizer"],
-    description: "Research feels productive, but you've crossed the line from learning to avoiding. You have enough information to start—more research won't change that.[cite: 1]"
+    description: "Research feels productive, but you've crossed the line from learning to avoiding. You have enough information to start—more research won't change that."
   },
   {
     id: "optimization_before_action",
@@ -105,7 +105,7 @@ const PATTERN_LIBRARY: Pattern[] = [
       "optimizing before", "perfecting the plan"
     ],
     associatedArchetypes: ["strategist", "builder"],
-    description: "You're designing the perfect system instead of building an imperfect one. The plan will never be as good as the execution will teach you to make it.[cite: 1]"
+    description: "You're designing the perfect system instead of building an imperfect one. The plan will never be as good as the execution will teach you to make it."
   },
 
   // VISIONARY PATTERNS
@@ -120,7 +120,7 @@ const PATTERN_LIBRARY: Pattern[] = [
       "keep adding", "including more", "extending it to"
     ],
     associatedArchetypes: ["visionary", "advocate"],
-    description: "Your vision keeps expanding. What started as one thing is now three things. Each addition feels essential, but the growing scope is preventing you from shipping anything.[cite: 1]"
+    description: "Your vision keeps expanding. What started as one thing is now three things. Each addition feels essential, but the growing scope is preventing you from shipping anything."
   },
   {
     id: "idea_proliferation",
@@ -133,7 +133,7 @@ const PATTERN_LIBRARY: Pattern[] = [
       "switching to", "changing direction", "new direction"
     ],
     associatedArchetypes: ["visionary", "strategist"],
-    description: "You generate ideas faster than you execute them. Each new idea feels better than the last, but this pattern means you finish nothing while starting everything.[cite: 1]"
+    description: "You generate ideas faster than you execute them. Each new idea feels better than the last, but this pattern means you finish nothing while starting everything."
   },
   {
     id: "context_switching",
@@ -145,7 +145,7 @@ const PATTERN_LIBRARY: Pattern[] = [
       "different projects", "moving between", "bouncing around"
     ],
     associatedArchetypes: ["visionary", "politician"],
-    description: "You're working on multiple things simultaneously. Each switch feels productive, but you're making slow progress on everything instead of fast progress on one thing.[cite: 1]"
+    description: "You're working on multiple things simultaneously. Each switch feels productive, but you're making slow progress on everything instead of fast progress on one thing."
   },
 
   // ADVOCATE PATTERNS
@@ -160,7 +160,7 @@ const PATTERN_LIBRARY: Pattern[] = [
       "feels extractive", "doesn't matter", "pointless"
     ],
     associatedArchetypes: ["advocate", "empath"],
-    description: "The work feels misaligned with what you care about. Your body is rejecting it because it doesn't serve something meaningful. You can't force execution when purpose is missing.[cite: 1]"
+    description: "The work feels misaligned with what you care about. Your body is rejecting it because it doesn't serve something meaningful. You can't force execution when purpose is missing."
   },
   {
     id: "values_conflict_avoidance",
@@ -173,7 +173,7 @@ const PATTERN_LIBRARY: Pattern[] = [
       "betrays", "contradicts what I"
     ],
     associatedArchetypes: ["advocate"],
-    description: "You physically can't execute because it feels like a violation of your principles. This isn't procrastination—it's integrity. But you're stuck between 'do it wrong' and 'do nothing.'[cite: 1]"
+    description: "You physically can't execute because it feels like a violation of your principles. This isn't procrastination—it's integrity. But you're stuck between 'do it wrong' and 'do nothing.'"
   },
   {
     id: "impact_uncertainty",
@@ -186,7 +186,7 @@ const PATTERN_LIBRARY: Pattern[] = [
       "does this serve", "is this worth"
     ],
     associatedArchetypes: ["advocate", "empath"],
-    description: "You're stalling because you can't see the impact clearly. Without knowing you're helping someone, the work feels hollow. You need to see the 'why' to access the 'how.'[cite: 1]"
+    description: "You're stalling because you can't see the impact clearly. Without knowing you're helping someone, the work feels hollow. You need to see the 'why' to access the 'how.'"
   },
 
   // POLITICIAN PATTERNS
@@ -201,7 +201,7 @@ const PATTERN_LIBRARY: Pattern[] = [
       "doing this alone", "just me"
     ],
     associatedArchetypes: ["politician", "advocate"],
-    description: "You're losing momentum because you're working in isolation. You execute through connection, not solitude. Working alone drains your energy instead of generating it.[cite: 1]"
+    description: "You're losing momentum because you're working in isolation. You execute through connection, not solitude. Working alone drains your energy instead of generating it."
   },
   {
     id: "low_visibility_disengagement",
@@ -213,7 +213,7 @@ const PATTERN_LIBRARY: Pattern[] = [
       "not sharing", "keeping it private", "under the radar"
     ],
     associatedArchetypes: ["politician", "optimizer"],
-    description: "You're avoiding work that won't be seen. Without visibility or feedback, you can't access the social energy that fuels your execution.[cite: 1]"
+    description: "You're avoiding work that won't be seen. Without visibility or feedback, you can't access the social energy that fuels your execution."
   },
 
   // EMPATH PATTERNS
@@ -228,7 +228,7 @@ const PATTERN_LIBRARY: Pattern[] = [
       "what will people think", "terrified", "anxious about"
     ],
     associatedArchetypes: ["empath", "optimizer", "stabilizer"],
-    description: "Shipping means being seen, and being seen feels dangerous. The work is ready, but you're protecting yourself from the vulnerability of exposure.[cite: 1]"
+    description: "Shipping means being seen, and being seen feels dangerous. The work is ready, but you're protecting yourself from the vulnerability of exposure."
   },
   {
     id: "criticism_paralysis",
@@ -241,7 +241,7 @@ const PATTERN_LIBRARY: Pattern[] = [
       "afraid it'll happen again", "scared of more"
     ],
     associatedArchetypes: ["empath", "advocate"],
-    description: "Previous harsh feedback is still affecting you. You're protecting yourself from experiencing that pain again by not shipping anything new.[cite: 1]"
+    description: "Previous harsh feedback is still affecting you. You're protecting yourself from experiencing that pain again by not shipping anything new."
   },
 
   // BUILDER PATTERNS
@@ -256,7 +256,7 @@ const PATTERN_LIBRARY: Pattern[] = [
       "chaotic", "disorganized", "no method"
     ],
     associatedArchetypes: ["builder", "strategist"],
-    description: "You thrive on executing within clear systems, but the system doesn't exist yet. You're frozen because you can't execute in chaos—you need rails to run on.[cite: 1]"
+    description: "You thrive on executing within clear systems, but the system doesn't exist yet. You're frozen because you can't execute in chaos—you need rails to run on."
   },
   {
     id: "undefined_input_freeze",
@@ -269,7 +269,7 @@ const PATTERN_LIBRARY: Pattern[] = [
       "missing information", "incomplete brief"
     ],
     associatedArchetypes: ["builder", "stabilizer"],
-    description: "You're frozen because the inputs are fuzzy. You execute flawlessly with clarity, but you can't start without knowing exactly what you're working with.[cite: 1]"
+    description: "You're frozen because the inputs are fuzzy. You execute flawlessly with clarity, but you can't start without knowing exactly what you're working with."
   },
 
   // STABILIZER PATTERNS
@@ -284,7 +284,7 @@ const PATTERN_LIBRARY: Pattern[] = [
       "how will I know", "what should I", "worried I'll do it wrong"
     ],
     associatedArchetypes: ["stabilizer", "builder", "empath"],
-    description: "The lack of clarity is creating genuine anxiety. You need to know what 'right' looks like before you can start. Ambiguity feels like a test you can't study for.[cite: 1]"
+    description: "The lack of clarity is creating genuine anxiety. You need to know what 'right' looks like before you can start. Ambiguity feels like a test you can't study for."
   },
   {
     id: "initiation_avoidance",
@@ -297,7 +297,7 @@ const PATTERN_LIBRARY: Pattern[] = [
       "can't get started", "starting is the hardest part"
     ],
     associatedArchetypes: ["stabilizer", "empath", "builder"],
-    description: "The first step feels impossible because you don't know if it's the 'right' first step. You're waiting for certainty that will never come. Starting requires tolerance for not-knowing.[cite: 1]"
+    description: "The first step feels impossible because you don't know if it's the 'right' first step. You're waiting for certainty that will never come. Starting requires tolerance for not-knowing."
   },
 
   // GENERIC FALLBACK PATTERN

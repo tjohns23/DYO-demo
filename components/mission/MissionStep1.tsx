@@ -45,6 +45,8 @@ export default function MissionStep1({ onMissionGenerated, archetypeName = 'Your
         missionId: result.mission.missionId,
         description: description,
         pattern: result.mission.pattern,
+        patternDetected: result.mission.patternDetected,
+        framing: result.mission.framing,
         timebox: result.mission.timebox,
         scope: result.mission.scope,
         completion: result.mission.completion,
@@ -82,14 +84,14 @@ export default function MissionStep1({ onMissionGenerated, archetypeName = 'Your
             Give us a brain dump — describe the work, where you&apos;re stuck, or what you&apos;re trying to finish. Don&apos;t overthink it.
           </p>
 
-          <div className="flex gap-2.5 bg-[var(--glass-accent-faint)] border border-[var(--glass-accent-border-faint)] rounded-2xl p-3.5 mb-5">
+          {/* <div className="flex gap-2.5 bg-[var(--glass-accent-faint)] border border-[var(--glass-accent-border-faint)] rounded-2xl p-3.5 mb-5">
             <div className="w-4.5 h-4.5 rounded-full border border-[var(--glass-accent-border)] text-[var(--glass-accent)] text-xs flex items-center justify-center shrink-0 mt-0.5 font-mono">
               i
             </div>
             <div className="text-sm text-[#c08090] leading-relaxed">
               As <strong className="text-[var(--glass-accent)] font-semibold">{archetypeName}</strong>, your mission will include a hard ship constraint. Be honest about where you&apos;re really stuck — the more specific, the better the mission.
             </div>
-          </div>
+          </div> */}
 
           {error && (
             <div className="flex gap-2.5 bg-[rgba(220,100,100,0.12)] border border-[rgba(220,100,100,0.2)] rounded-2xl p-3.5 mb-5">

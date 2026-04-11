@@ -18,17 +18,19 @@ export default function MissionStep2({ mission, onAccept, onRegenerate, archetyp
       <NavHeader activePage="mission" archetypeName={archetypeName} isExec={isExec} />
 
       <div className="max-w-xl mx-auto px-5 py-10">
-        <div className="border border-[rgba(224,48,96,0.25)] rounded-3xl bg-[rgba(224,48,96,0.06)] px-5.5 py-5 mb-4.5 shadow-[inset_0_0_30px_rgba(224,48,96,0.05)]">
-          <div className="font-mono text-xs font-semibold text-[var(--glass-accent)] uppercase tracking-[0.15em] mb-2">
-            Pattern Detected
+        {mission.patternDetected && (
+          <div className="border border-[rgba(224,48,96,0.25)] rounded-3xl bg-[rgba(224,48,96,0.06)] px-5.5 py-5 mb-4.5 shadow-[inset_0_0_30px_rgba(224,48,96,0.05)]">
+            <div className="font-mono text-xs font-semibold text-[var(--glass-accent)] uppercase tracking-[0.15em] mb-2">
+              Pattern Detected
+            </div>
+            <div className="text-lg font-semibold text-[var(--glass-text-primary)] mb-2">
+              {mission.pattern}
+            </div>
+            <div className="text-sm text-[#9a7080] leading-relaxed">
+              {mission.framing}
+            </div>
           </div>
-          <div className="text-lg font-semibold text-[var(--glass-text-primary)] mb-2">
-            {mission.pattern}
-          </div>
-          <div className="text-sm text-[#9a7080] leading-relaxed">
-            You described rewriting and tweaking rather than finishing. This is your most common stall trigger. The mission below is designed to break it.
-          </div>
-        </div>
+        )}
 
         <div className="text-sm italic text-[var(--glass-text-muted)] px-1 mb-4.5 leading-relaxed">
           &quot;{mission.description.length > 80 ? mission.description.slice(0, 80) + '…' : mission.description}&quot;
