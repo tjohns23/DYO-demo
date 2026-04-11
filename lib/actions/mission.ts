@@ -319,6 +319,7 @@ export async function getMissionStatsAction(): Promise<{
     // Common patterns: group by pattern, compute per-pattern completion rate
     const patternMap = new Map<string, { total: number; completed: number }>();
     for (const row of (patternResult.data ?? [])) {
+      if (!row.pattern) continue;
       const entry = patternMap.get(row.pattern) ?? { total: 0, completed: 0 };
       entry.total++;
       if (row.status === 'completed') entry.completed++;
