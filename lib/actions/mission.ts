@@ -1,8 +1,8 @@
 'use server';
 
-import { cookies } from 'next/headers';
 import { generateMission, type Mission, type UserProfile } from '@/lib/mission/missionEngine';
 import { supabaseAdmin } from '@/lib/supabase-admin';
+import { createClient } from '@/lib/supabase-server';
 import type { ArchetypeSlug } from './assessment';
 
 /**
@@ -24,13 +24,10 @@ export async function generateMissionAction(
   error?: string;
 }> {
   try {
-    // Get authenticated user from cookies
-    const cookieStore = await cookies();
-    const userId = cookieStore.get('user_id')?.value;
-
-    if (!userId) {
-      return { success: false, error: 'User not authenticated. Please log in first.' };
-    }
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return { success: false, error: 'User not authenticated. Please log in first.' };
+    const userId = user.id;
 
     // Fetch user's archetype profile from database
     const { data: profileData, error: profileError } = await supabaseAdmin
@@ -80,16 +77,17 @@ export async function acceptMissionAction(
   workDescription: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const cookieStore = await cookies();
-    const userId = cookieStore.get('user_id')?.value;
-    if (!userId) return { success: false, error: 'User not authenticated.' };
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return { success: false, error: 'User not authenticated.' };
+    const userId = user.id;
 
     // Insert the mission to database with status 'accepted' when user accepts it
     const { error: insertError } = await supabaseAdmin
       .from('missions')
       .insert({
         id: mission.missionId,
-        user_id: mission.userId,
+        user_id: userId,
         status: 'accepted',
         mode: mission.mode,
         pattern: mission.pattern,
@@ -140,9 +138,10 @@ export async function getActiveMissionAction(): Promise<{
   error?: string;
 }> {
   try {
-    const cookieStore = await cookies();
-    const userId = cookieStore.get('user_id')?.value;
-    if (!userId) return { success: false, error: 'User not authenticated.' };
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return { success: false, error: 'User not authenticated.' };
+    const userId = user.id;
 
     const { data, error } = await supabaseAdmin
       .from('missions')
@@ -185,9 +184,10 @@ export async function saveThoughtParkingAction(
   thoughts: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const cookieStore = await cookies();
-    const userId = cookieStore.get('user_id')?.value;
-    if (!userId) return { success: false, error: 'User not authenticated.' };
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return { success: false, error: 'User not authenticated.' };
+    const userId = user.id;
 
     const { error } = await supabaseAdmin
       .from('missions')
@@ -214,9 +214,10 @@ export async function completeMissionAction(
   secondsElapsed: number
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const cookieStore = await cookies();
-    const userId = cookieStore.get('user_id')?.value;
-    if (!userId) return { success: false, error: 'User not authenticated.' };
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return { success: false, error: 'User not authenticated.' };
+    const userId = user.id;
 
     const { error, data, status } = await supabaseAdmin
       .from('missions')
@@ -269,9 +270,10 @@ export async function getMissionStatsAction(): Promise<{
   error?: string;
 }> {
   try {
-    const cookieStore = await cookies();
-    const userId = cookieStore.get('user_id')?.value;
-    if (!userId) return { success: false, error: 'User not authenticated.' };
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return { success: false, error: 'User not authenticated.' };
+    const userId = user.id;
 
     const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
 
@@ -376,9 +378,10 @@ export async function getMissionHistoryAction(page = 0): Promise<{
   error?: string;
 }> {
   try {
-    const cookieStore = await cookies();
-    const userId = cookieStore.get('user_id')?.value;
-    if (!userId) return { success: false, error: 'User not authenticated.' };
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return { success: false, error: 'User not authenticated.' };
+    const userId = user.id;
 
     const { data, error } = await supabaseAdmin
       .from('missions')
@@ -405,9 +408,10 @@ export async function expireMissionAction(
   missionId: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const cookieStore = await cookies();
-    const userId = cookieStore.get('user_id')?.value;
-    if (!userId) return { success: false, error: 'User not authenticated.' };
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return { success: false, error: 'User not authenticated.' };
+    const userId = user.id;
 
     const { error } = await supabaseAdmin
       .from('missions')
@@ -438,9 +442,10 @@ export async function uploadArtifactAction(
   file: File
 ): Promise<{ success: boolean; artifactId?: string; error?: string }> {
   try {
-    const cookieStore = await cookies();
-    const userId = cookieStore.get('user_id')?.value;
-    if (!userId) return { success: false, error: 'User not authenticated.' };
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return { success: false, error: 'User not authenticated.' };
+    const userId = user.id;
 
     // Validate mission ownership
     const { data: mission, error: missionError } = await supabaseAdmin

@@ -79,9 +79,8 @@ export async function GET(request: NextRequest) {
       response.cookies.set(name, value, options as Parameters<typeof response.cookies.set>[2]);
     });
 
-    // Clear the pending assessment cookie and set user_id for server actions
+    // Clear the pending assessment cookie
     response.cookies.delete('pending_assessment');
-    response.cookies.set('user_id', data.user.id, { httpOnly: true, path: '/', sameSite: 'lax' });
 
     return response;
   } catch (err) {
