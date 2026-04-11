@@ -128,6 +128,8 @@ export async function getActiveMissionAction(): Promise<{
     missionId: string;
     description: string;
     pattern: string;
+    patternDetected: boolean;
+    framing: string;
     timebox: number;
     scope: string;
     completion: string;
@@ -144,7 +146,7 @@ export async function getActiveMissionAction(): Promise<{
 
     const { data, error } = await supabaseAdmin
       .from('missions')
-      .select('id, work_description, pattern, timebox, scope, completion, constraint_rule, accepted_at, thought_parking')
+      .select('id, work_description, pattern, framing, timebox, scope, completion, constraint_rule, accepted_at, thought_parking')
       .eq('user_id', userId)
       .eq('status', 'accepted')
       .order('accepted_at', { ascending: false })
@@ -159,6 +161,8 @@ export async function getActiveMissionAction(): Promise<{
         missionId: data.id,
         description: data.work_description,
         pattern: data.pattern,
+        patternDetected: !!data.framing,
+        framing: data.framing ?? '',
         timebox: data.timebox,
         scope: data.scope,
         completion: data.completion,
