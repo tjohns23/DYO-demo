@@ -437,7 +437,7 @@ Return ONLY valid JSON, no markdown or extra text.`;
     const geminiDetectedPattern = !!result.patternName;
 
     return {
-      patternName: result.patternName ?? pattern.name,
+      patternName: result.patternName ?? '',
       constraintName: result.constraintName,
       scope: result.scope,
       completion: result.completion,
