@@ -8,6 +8,7 @@ const nextConfig = {
   },
   experimental: {
     cssOptimization: true,
+    serverActionsBodySizeLimit: '100mb',
   },
 }
 

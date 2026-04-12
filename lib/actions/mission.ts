@@ -86,7 +86,7 @@ export async function acceptMissionAction(
     const { error: insertError } = await supabaseAdmin
       .from('missions')
       .insert({
-        id: mission.missionId,
+        id: missionId,
         user_id: userId,
         status: 'accepted',
         mode: mission.mode,
@@ -219,7 +219,7 @@ export async function completeMissionAction(
     if (!user) return { success: false, error: 'User not authenticated.' };
     const userId = user.id;
 
-    const { error, data, status } = await supabaseAdmin
+    const { error } = await supabaseAdmin
       .from('missions')
       .update({
         status: 'completed',
@@ -505,7 +505,7 @@ export async function uploadArtifactAction(
       .single();
 
     if (insertError) {
-      return { success: false, error: 'Failed to save artifact metadata.' };
+      return { success: false, error: `Failed to save artifact metadata: ${insertError.message}` };
     }
 
     return { success: true, artifactId: artifact.id };
