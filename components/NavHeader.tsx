@@ -24,7 +24,7 @@ export default function NavHeader({ activePage, archetypeName, rightSlot, isExec
         </Link>
         {isExec && (
           <Link href="/exec" className={activePage === 'exec' ? activeClass : inactiveClass}>
-            Panel
+            Executive Suite
           </Link>
         )}
       </div>
