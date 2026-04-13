@@ -446,6 +446,7 @@ Return ONLY valid JSON, no markdown or extra text.`;
       timebox: result.timebox,
     };
   } catch (error) {
+    console.error('[Gemini] generation failed:', error);
     return createGenericFallback(constraint, libraryExamples, workType, pattern.name);
   }
 }
