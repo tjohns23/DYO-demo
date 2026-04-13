@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import type { GeneratedMission } from './MissionContainer';
 import type { Mission } from '@/lib/mission/missionEngine';
 import { generateMissionAction } from '@/lib/actions/mission';
@@ -12,18 +12,13 @@ interface MissionStep1Props {
   onMissionGenerated: (mission: GeneratedMission, fullMission: Mission, workDescription: string) => void;
   archetypeName?: string;
   isExec?: boolean;
+  initialDescription?: string;
 }
 
-export default function MissionStep1({ onMissionGenerated, archetypeName = 'Your Archetype', isExec }: MissionStep1Props) {
-  const [description, setDescription] = useState('');
-
-  useEffect(() => {
-    // Load description from sessionStorage on mount
-    const savedDescription = sessionStorage.getItem(STORAGE_KEY);
-    if (savedDescription) {
-      setDescription(savedDescription);
-    }
-  }, []);
+export default function MissionStep1({ onMissionGenerated, archetypeName = 'Your Archetype', isExec, initialDescription }: MissionStep1Props) {
+  const [description, setDescription] = useState(
+    () => initialDescription || sessionStorage.getItem(STORAGE_KEY) || ''
+  );
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 

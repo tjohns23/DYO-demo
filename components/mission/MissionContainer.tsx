@@ -62,7 +62,7 @@ export default function MissionContainer({ archetypeName = 'Your Archetype', ini
 
   return (
     <div className="min-h-screen bg-background">
-      {step === 'input' && <MissionStep1 onMissionGenerated={handleMissionGenerated} archetypeName={archetypeName} isExec={isExec} />}
+      {step === 'input' && <MissionStep1 onMissionGenerated={handleMissionGenerated} archetypeName={archetypeName} isExec={isExec} initialDescription={workDescription} />}
       {step === 'brief' && mission && (
         <MissionStep2 mission={mission} onAccept={handleAcceptMission} onRegenerate={() => handleGoToStep('input')} archetypeName={archetypeName} isExec={isExec} />
       )}
