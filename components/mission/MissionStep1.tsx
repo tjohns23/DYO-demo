@@ -1,10 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import type { GeneratedMission } from './MissionContainer';
 import type { Mission } from '@/lib/mission/missionEngine';
 import { generateMissionAction } from '@/lib/actions/mission';
 import NavHeader from '@/components/NavHeader';
+
+const STORAGE_KEY = 'mission_description';
 
 interface MissionStep1Props {
   onMissionGenerated: (mission: GeneratedMission, fullMission: Mission, workDescription: string) => void;
@@ -14,6 +16,14 @@ interface MissionStep1Props {
 
 export default function MissionStep1({ onMissionGenerated, archetypeName = 'Your Archetype', isExec }: MissionStep1Props) {
   const [description, setDescription] = useState('');
+
+  useEffect(() => {
+    // Load description from sessionStorage on mount
+    const savedDescription = sessionStorage.getItem(STORAGE_KEY);
+    if (savedDescription) {
+      setDescription(savedDescription);
+    }
+  }, []);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -52,6 +62,9 @@ export default function MissionStep1({ onMissionGenerated, archetypeName = 'Your
         completion: result.mission.completion,
         constraint: result.mission.constraintRule,
       };
+
+      // Clear sessionStorage after successful mission generation
+      sessionStorage.removeItem(STORAGE_KEY);
 
       onMissionGenerated(generatedMission, result.mission, description);
     } catch (err) {
@@ -107,7 +120,11 @@ export default function MissionStep1({ onMissionGenerated, archetypeName = 'Your
           <div className="border border-[var(--glass-border)] rounded-2xl bg-[rgba(255,255,255,0.025)] overflow-hidden transition-all focus-within:border-[rgba(224,48,96,0.35)] focus-within:shadow-[0_0_0_3px_rgba(224,48,96,0.06)]">
             <textarea
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              onChange={(e) => {
+                setDescription(e.target.value);
+                // Save to sessionStorage on each change
+                sessionStorage.setItem(STORAGE_KEY, e.target.value);
+              }}
               placeholder="e.g. I keep rewriting my intro slides and can&apos;t stop tweaking them. The deck is basically done but I can&apos;t bring myself to send it…"
               maxLength={500}
               className="w-full min-h-35 bg-transparent border-none outline-none resize-none p-4.5 font-sans text-sm text-[var(--glass-text-primary)] leading-relaxed placeholder:text-[var(--glass-text-dimmer)] placeholder:italic"

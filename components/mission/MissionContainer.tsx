@@ -54,6 +54,8 @@ export default function MissionContainer({ archetypeName = 'Your Archetype', ini
     if (!mission || !fullMission) return;
     const acceptedAt = new Date().toISOString();
     await acceptMissionAction(mission.missionId, fullMission, acceptedAt, workDescription);
+    // Clear sessionStorage when mission is accepted
+    sessionStorage.removeItem('mission_description');
     setMission({ ...mission, acceptedAt });
     handleGoToStep('active');
   };
