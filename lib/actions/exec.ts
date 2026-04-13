@@ -215,11 +215,11 @@ export async function toggleMissionComplete(
 ): Promise<{ success: boolean; error?: string }> {
   try {
     const updates: {
-      status: 'completed' | 'accepted';
+      status: 'completed' | 'expired';
       completed_at: string | null;
       time_to_completion: number | null;
     } = {
-      status: isComplete ? 'completed' : 'accepted',
+      status: isComplete ? 'completed' : 'expired',
       completed_at: isComplete ? new Date().toISOString() : null,
       time_to_completion: isComplete ? 0 : null,
     };

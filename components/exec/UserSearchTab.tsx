@@ -36,7 +36,7 @@ export default function UserSearchTab() {
         m.id === missionId
           ? {
               ...m,
-              status: isCurrentlyComplete ? 'accepted' : 'completed',
+              status: isCurrentlyComplete ? 'expired' : 'completed',
               completed_at: isCurrentlyComplete ? null : new Date().toISOString(),
               time_to_completion: isCurrentlyComplete ? null : 0,
             }
