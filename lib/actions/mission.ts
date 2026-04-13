@@ -83,6 +83,9 @@ export async function acceptMissionAction(
     const userId = user.id;
 
     // Insert the mission to database with status 'accepted' when user accepts it
+    // Don't store "Work in Progress" fallback pattern — use empty string instead
+    const patternToStore = mission.pattern === 'Work in Progress' ? '' : mission.pattern;
+    
     const { error: insertError } = await supabaseAdmin
       .from('missions')
       .insert({
@@ -90,7 +93,7 @@ export async function acceptMissionAction(
         user_id: userId,
         status: 'accepted',
         mode: mission.mode,
-        pattern: mission.pattern,
+        pattern: patternToStore,
         framing: mission.framing,
         scope: mission.scope,
         constraint_rule: mission.constraintRule,
