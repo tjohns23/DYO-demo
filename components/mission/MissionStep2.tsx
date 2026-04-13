@@ -32,8 +32,8 @@ export default function MissionStep2({ mission, onAccept, onRegenerate, archetyp
           </div>
         )}
 
-        <div className="text-sm italic text-[var(--glass-text-muted)] px-1 mb-4.5 leading-relaxed">
-          &quot;{mission.description.length > 80 ? mission.description.slice(0, 80) + '…' : mission.description}&quot;
+        <div className="text-sm italic text-[var(--glass-text-muted)] px-1 mb-4.5 leading-relaxed max-h-24 overflow-y-auto">
+          &quot;{mission.description}&quot;
         </div>
 
         <div className="bg-[var(--glass-surface)] border border-[var(--glass-border)] rounded-2xl backdrop-blur-3xl p-6.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04),0_4px_24px_rgba(0,0,0,0.3),inset_0_0_40px_rgba(160,30,60,0.08)] mb-4">
