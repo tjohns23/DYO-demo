@@ -113,7 +113,7 @@ export default async function DashboardPage() {
             </div>
             <div className="bg-[var(--glass-surface)] px-4 py-[18px]">
               <div className="font-mono text-xl font-medium text-[var(--glass-text-primary)] mb-1">{stats?.currentStreak ?? 0}</div>
-              <div className="text-xs text-[var(--glass-text-muted)]">🔥 Current streak</div>
+              <div className="text-xs text-[var(--glass-text-muted)]">{stats?.currentStreak ? '🔥 ' : ''}Current streak</div>
             </div>
           </div>
 
