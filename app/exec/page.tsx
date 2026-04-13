@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase-server';
 import { supabaseAdmin } from '@/lib/supabase-admin';
+import { getUserArchetypeInfo } from '@/lib/actions/profile';
 import NavHeader from '@/components/NavHeader';
 import ExecClientPage from '@/components/exec/ExecClientPage';
 import WaitlistTab from '@/components/exec/WaitlistTab';
@@ -11,11 +12,10 @@ export default async function ExecPage() {
 
   if (!user) redirect('/');
 
-  const { data: profile } = await supabaseAdmin
-    .from('profiles')
-    .select('is_exec')
-    .eq('id', user.id)
-    .single();
+  const [{ data: profile }, archetypeInfo] = await Promise.all([
+    supabaseAdmin.from('profiles').select('is_exec').eq('id', user.id).single(),
+    getUserArchetypeInfo(),
+  ]);
 
   if (!profile?.is_exec) redirect('/dashboard');
 
@@ -24,7 +24,7 @@ export default async function ExecPage() {
       className="min-h-screen bg-background"
       style={{ backgroundImage: 'radial-gradient(ellipse 60% 40% at 50% 0%, rgba(120,20,50,0.25) 0%, transparent 70%), radial-gradient(ellipse 40% 60% at 80% 100%, rgba(80,10,30,0.2) 0%, transparent 60%)' }}
     >
-      <NavHeader activePage="exec" isExec={true} />
+      <NavHeader activePage="exec" archetypeName={archetypeInfo?.name ?? 'Unknown'} isExec={true} />
 
       <div className="max-w-2xl mx-auto px-6 py-10">
         <ExecClientPage waitlistTab={<WaitlistTab />} />
