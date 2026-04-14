@@ -312,12 +312,11 @@ export async function getMissionStatsAction(): Promise<{
       : null;
 
     // Streak: consecutive completed missions from most recent
-    const streak = (streakResult.data ?? []).reduce((count, row) => {
-      if (count === -1) return -1; // already broken
-      if (row.status === 'completed') return count + 1;
-      return -1; // expired breaks streak, use sentinel
-    }, 0);
-    const currentStreak = streak === -1 ? 0 : streak;
+    let currentStreak = 0;
+    for (const row of (streakResult.data ?? [])) {
+      if (row.status !== 'completed') break;
+      currentStreak++;
+    }
 
     // Common patterns: group by pattern, compute per-pattern completion rate
     const patternMap = new Map<string, { total: number; completed: number }>();
