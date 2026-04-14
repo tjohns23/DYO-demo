@@ -122,7 +122,7 @@ export default async function DashboardPage() {
             <MissionCharts
               completed={stats.totalCompleted}
               expired={stats.totalExpired}
-              weeklyBreakdown={stats.weeklyBreakdown}
+              weeklyRaw={stats.weeklyRaw}
             />
           )}
 

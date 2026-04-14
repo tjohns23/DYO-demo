@@ -251,7 +251,7 @@ export type MissionStats = {
   averageCompletionTimeMinutes: number | null;
   currentStreak: number;
   commonPatterns: { name: string; total: number; completionRate: number }[];
-  weeklyBreakdown: { date: string; completed: number; expired: number }[];
+  weeklyRaw: { created_at: string; status: string }[];
 };
 
 export type MissionHistoryItem = {
@@ -337,22 +337,7 @@ export async function getMissionStatsAction(): Promise<{
         completionRate: total > 0 ? Math.round((completed / total) * 100) : 0,
       }));
 
-    // Weekly breakdown: last 7 days, one entry per day
-    const dayMap = new Map<string, { completed: number; expired: number }>();
-    for (let i = 6; i >= 0; i--) {
-      const d = new Date(Date.now() - i * 24 * 60 * 60 * 1000);
-      const key = d.toLocaleDateString('en-US', { weekday: 'short' });
-      dayMap.set(key, { completed: 0, expired: 0 });
-    }
-    for (const row of (weeklyResult.data ?? [])) {
-      const key = new Date(row.created_at).toLocaleDateString('en-US', { weekday: 'short' });
-      const entry = dayMap.get(key);
-      if (entry) {
-        if (row.status === 'completed') entry.completed++;
-        else if (row.status === 'expired') entry.expired++;
-      }
-    }
-    const weeklyBreakdown = [...dayMap.entries()].map(([date, counts]) => ({ date, ...counts }));
+    const weeklyRaw = (weeklyResult.data ?? []).map(r => ({ created_at: r.created_at as string, status: r.status as string }));
 
     return {
       success: true,
@@ -364,7 +349,7 @@ export async function getMissionStatsAction(): Promise<{
         averageCompletionTimeMinutes,
         currentStreak,
         commonPatterns,
-        weeklyBreakdown,
+        weeklyRaw,
       },
     };
   } catch (error) {

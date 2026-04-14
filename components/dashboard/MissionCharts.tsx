@@ -1,5 +1,6 @@
 'use client';
 
+import { useMemo, useState } from 'react';
 import { useTheme } from 'next-themes';
 import { Doughnut, Bar } from 'react-chartjs-2';
 import {
@@ -16,11 +17,32 @@ Chart.register(ArcElement, Tooltip, CategoryScale, LinearScale, BarElement);
 interface MissionChartsProps {
   completed: number;
   expired: number;
-  weeklyBreakdown: { date: string; completed: number; expired: number }[];
+  weeklyRaw: { created_at: string; status: string }[];
 }
 
-export default function MissionCharts({ completed, expired, weeklyBreakdown }: MissionChartsProps) {
+export default function MissionCharts({ completed, expired, weeklyRaw }: MissionChartsProps) {
   const { theme } = useTheme();
+  const [now] = useState(() => Date.now());
+
+  // Group by local weekday so the chart reflects the user's timezone, not the server's UTC
+  const weeklyBreakdown = useMemo(() => {
+    const dayMap = new Map<string, { completed: number; expired: number }>();
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(now - i * 24 * 60 * 60 * 1000);
+      const key = d.toLocaleDateString('en-US', { weekday: 'short' });
+      dayMap.set(key, { completed: 0, expired: 0 });
+    }
+    for (const row of weeklyRaw) {
+      const key = new Date(row.created_at).toLocaleDateString('en-US', { weekday: 'short' });
+      const entry = dayMap.get(key);
+      if (entry) {
+        if (row.status === 'completed') entry.completed++;
+        else if (row.status === 'expired') entry.expired++;
+      }
+    }
+    return [...dayMap.entries()].map(([date, counts]) => ({ date, ...counts }));
+  }, [weeklyRaw, now]);
+
   const donutData = {
     labels: ['Completed', 'Expired'],
     datasets: [
