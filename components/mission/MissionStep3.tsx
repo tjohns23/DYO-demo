@@ -7,6 +7,8 @@ import { completeMissionAction, expireMissionAction, saveThoughtParkingAction } 
 import NavHeader from '@/components/NavHeader';
 import ArtifactUploadModal from './ArtifactUploadModal';
 
+const GRACE_PERIOD = 60;
+
 interface MissionStep3Props {
   mission: GeneratedMission;
   archetypeName?: string;
@@ -16,6 +18,7 @@ interface MissionStep3Props {
 export default function MissionStep3({ mission, archetypeName, isExec }: MissionStep3Props) {
   const router = useRouter();
   const total = mission.timebox * 60;
+
   const [totalSeconds, setTotalSeconds] = useState(() => {
     if (mission.acceptedAt) {
       const elapsed = Math.floor((Date.now() - new Date(mission.acceptedAt).getTime()) / 1000);
@@ -23,7 +26,22 @@ export default function MissionStep3({ mission, archetypeName, isExec }: Mission
     }
     return total;
   });
+
+  const [graceSecondsLeft, setGraceSecondsLeft] = useState(() => {
+    if (mission.acceptedAt) {
+      const elapsed = Math.floor((Date.now() - new Date(mission.acceptedAt).getTime()) / 1000);
+      const remaining = Math.max(0, total - elapsed);
+      return remaining <= 0 ? GRACE_PERIOD : 0;
+    }
+    return 0;
+  });
+
   const finalizedRef = useRef(false);
+  const totalSecondsRef = useRef(totalSeconds);
+  const graceSecondsRef = useRef(graceSecondsLeft);
+  const uploadInProgressRef = useRef(false);
+  const graceExpiredRef = useRef(false);
+
   const [thoughts, setThoughts] = useState(mission.thoughtParking ?? '');
   const thoughtsDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [showArtifactModal, setShowArtifactModal] = useState(false);
@@ -46,38 +64,73 @@ export default function MissionStep3({ mission, archetypeName, isExec }: Mission
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setTotalSeconds((prev) => {
-        if (prev <= 1) {
-          if (!finalizedRef.current) {
+      if (totalSecondsRef.current > 0) {
+        totalSecondsRef.current -= 1;
+        setTotalSeconds(totalSecondsRef.current);
+        if (totalSecondsRef.current === 0) {
+          graceSecondsRef.current = GRACE_PERIOD;
+          setGraceSecondsLeft(GRACE_PERIOD);
+        }
+      } else if (graceSecondsRef.current > 0) {
+        graceSecondsRef.current -= 1;
+        setGraceSecondsLeft(graceSecondsRef.current);
+        if (graceSecondsRef.current === 0) {
+          if (!finalizedRef.current && !uploadInProgressRef.current) {
             finalizedRef.current = true;
             expireMissionAction(mission.missionId);
+          } else if (!finalizedRef.current) {
+            // Upload is in progress — defer expiry until it resolves
+            graceExpiredRef.current = true;
           }
-          return 0;
         }
-        return prev - 1;
-      });
+      }
     }, 1000);
 
     return () => clearInterval(interval);
   }, [mission.missionId]);
 
-  const isFinished = totalSeconds <= 0;
+  const isGrace = totalSeconds <= 0 && graceSecondsLeft > 0;
+  const isExpired = totalSeconds <= 0 && graceSecondsLeft <= 0;
 
-  const handleMarkDone = async () => {
-    if (finalizedRef.current) return;
-    const elapsed = total - totalSeconds;
-    setElapsedSeconds(elapsed);
+  const displaySeconds = isGrace ? graceSecondsLeft : totalSeconds;
+  const displayTotal = isGrace ? GRACE_PERIOD : total;
+  const progress = Math.max(0, displaySeconds / displayTotal);
+  const minutes = Math.floor(displaySeconds / 60);
+  const seconds = displaySeconds % 60;
+
+  const ringColor = isGrace ? '#f59e0b' : '#e03060';
+  const ringGlow = isGrace
+    ? 'drop-shadow(0 0 6px rgba(245,158,11,0.6))'
+    : 'drop-shadow(0 0 6px rgba(224,48,96,0.6))';
+  const timerGlow = isGrace
+    ? '0 0 30px rgba(245,158,11,0.3)'
+    : '0 0 30px rgba(224,48,96,0.3)';
+
+  const circumference = 628;
+  const offset = circumference * (1 - progress);
+
+  const handleMarkDone = () => {
+    if (finalizedRef.current || isGrace || isExpired) return;
+    setElapsedSeconds(total - totalSeconds);
+    setShowArtifactModal(true);
+  };
+
+  const handleOpenGraceSubmit = () => {
+    setElapsedSeconds(total);
     setShowArtifactModal(true);
   };
 
   const handleArtifactUploadSuccess = async () => {
     if (finalizedRef.current) return;
     finalizedRef.current = true;
+    totalSecondsRef.current = 0;
+    graceSecondsRef.current = 0;
     setTotalSeconds(0);
+    setGraceSecondsLeft(0);
     setShowArtifactModal(false);
     setCompletionError(null);
     const result = await completeMissionAction(mission.missionId, elapsedSeconds);
-    
+
     if (!result.success) {
       finalizedRef.current = false;
       setCompletionError(result.error || 'Failed to mark mission as complete');
@@ -86,12 +139,15 @@ export default function MissionStep3({ mission, archetypeName, isExec }: Mission
     }
   };
 
-  const progress = Math.max(0, totalSeconds / total);
-
-  const minutes = Math.floor(totalSeconds / 60);
-  const seconds = totalSeconds % 60;
-  const circumference = 628; // 2π * 100
-  const offset = circumference * (1 - progress);
+  const handleArtifactCancel = () => {
+    setShowArtifactModal(false);
+    uploadInProgressRef.current = false;
+    // If grace already expired while upload was in progress, expire now
+    if (graceExpiredRef.current && !finalizedRef.current) {
+      finalizedRef.current = true;
+      expireMissionAction(mission.missionId);
+    }
+  };
 
   return (
     <>
@@ -99,9 +155,14 @@ export default function MissionStep3({ mission, archetypeName, isExec }: Mission
         activePage="mission"
         isExec={isExec}
         rightSlot={
-          isFinished ? (
+          isExpired ? (
             <div className="font-mono text-xs px-3.5 py-1.5 rounded-full border border-[var(--glass-border)] text-[var(--glass-text-muted)]">
               Mission ended
+            </div>
+          ) : isGrace ? (
+            <div className="font-mono text-xs px-3.5 py-1.5 rounded-full border border-[rgba(245,158,11,0.4)] text-[#f59e0b] flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#f59e0b] shadow-[0_0_7px_#f59e0b] animate-pulse" />
+              Time&apos;s up — submit now
             </div>
           ) : (
             <div className="font-mono text-xs px-3.5 py-1.5 rounded-full border border-[var(--glass-success-border)] text-[var(--glass-success)] flex items-center gap-1.5">
@@ -131,7 +192,7 @@ export default function MissionStep3({ mission, archetypeName, isExec }: Mission
                   cy="110"
                   r="100"
                   fill="none"
-                  stroke="#e03060"
+                  stroke={ringColor}
                   strokeWidth="8"
                   strokeLinecap="round"
                   strokeDasharray={circumference}
@@ -139,33 +200,40 @@ export default function MissionStep3({ mission, archetypeName, isExec }: Mission
                   style={{
                     transform: 'rotate(-90deg)',
                     transformOrigin: 'center',
-                    filter: 'drop-shadow(0 0 6px rgba(224,48,96,0.6))',
-                    transition: 'stroke-dashoffset 1s linear',
+                    filter: ringGlow,
+                    transition: 'stroke-dashoffset 1s linear, stroke 0.5s ease',
                   }}
                 />
               </svg>
               <div className="flex flex-col items-center">
                 <div
-                  className="font-mono text-5xl font-medium text-[var(--glass-text-primary)] tracking-[-0.02em] leading-none text-shadow-[0_0_30px_rgba(224,48,96,0.3)]"
-                  style={{
-                    textShadow: '0 0 30px rgba(224,48,96,0.3)',
-                  }}
+                  className="font-mono text-5xl font-medium text-[var(--glass-text-primary)] tracking-[-0.02em] leading-none"
+                  style={{ textShadow: timerGlow }}
                 >
                   {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
                 </div>
                 <div className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--glass-text-muted)] mt-1.5">
-                  Remaining
+                  {isGrace ? 'To Submit' : 'Remaining'}
                 </div>
               </div>
             </div>
           </div>
 
-          {!isFinished && (
+          {!isExpired && !isGrace && (
             <button
               onClick={handleMarkDone}
               className="w-full mb-4 px-3.5 py-3 rounded-2xl bg-transparent border border-[var(--glass-success-border)] text-[var(--glass-success)] font-mono text-xs font-semibold uppercase tracking-[0.12em] cursor-pointer transition-all hover:bg-[rgba(61,224,138,0.06)] hover:border-[rgba(61,224,138,0.5)]"
             >
               I shipped it — mark as done
+            </button>
+          )}
+
+          {isGrace && (
+            <button
+              onClick={handleOpenGraceSubmit}
+              className="w-full mb-4 px-3.5 py-3 rounded-2xl bg-transparent border border-[rgba(245,158,11,0.4)] text-[#f59e0b] font-mono text-xs font-semibold uppercase tracking-[0.12em] cursor-pointer transition-all hover:bg-[rgba(245,158,11,0.06)] hover:border-[rgba(245,158,11,0.6)]"
+            >
+              Submit artifact now
             </button>
           )}
 
@@ -248,7 +316,8 @@ export default function MissionStep3({ mission, archetypeName, isExec }: Mission
         <ArtifactUploadModal
           missionId={mission.missionId}
           onUploadSuccess={handleArtifactUploadSuccess}
-          onCancel={() => setShowArtifactModal(false)}
+          onCancel={handleArtifactCancel}
+          onUploadStart={() => { uploadInProgressRef.current = true; }}
         />
       )}
     </>

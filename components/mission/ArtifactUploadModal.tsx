@@ -7,6 +7,7 @@ interface ArtifactUploadModalProps {
   missionId: string;
   onUploadSuccess: () => void;
   onCancel: () => void;
+  onUploadStart?: () => void;
 }
 
 const ALLOWED_TYPES = [
@@ -35,7 +36,7 @@ const ALLOWED_TYPES = [
 
 const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB
 
-export default function ArtifactUploadModal({ missionId, onUploadSuccess, onCancel }: ArtifactUploadModalProps) {
+export default function ArtifactUploadModal({ missionId, onUploadSuccess, onCancel, onUploadStart }: ArtifactUploadModalProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -73,6 +74,7 @@ export default function ArtifactUploadModal({ missionId, onUploadSuccess, onCanc
     setError(null);
     setIsUploading(true);
     setUploadProgress(0);
+    onUploadStart?.();
 
     try {
       // Simulate progress
