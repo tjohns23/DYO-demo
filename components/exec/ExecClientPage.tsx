@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import UserSearchTab from './UserSearchTab';
 
-type TabType = 'waitlist' | 'search';
+type TabType = 'waitlist' | 'search' | 'preapproved';
 
 function TabButton({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
   return (
@@ -20,7 +20,7 @@ function TabButton({ active, onClick, children }: { active: boolean; onClick: ()
   );
 }
 
-export default function ExecClientPage({ waitlistTab }: { waitlistTab: React.ReactNode }) {
+export default function ExecClientPage({ waitlistTab, preApprovalTab }: { waitlistTab: React.ReactNode; preApprovalTab: React.ReactNode }) {
   const [activeTab, setActiveTab] = useState<TabType>('waitlist');
 
   return (
@@ -34,6 +34,12 @@ export default function ExecClientPage({ waitlistTab }: { waitlistTab: React.Rea
           Waitlist
         </TabButton>
         <TabButton
+          active={activeTab === 'preapproved'}
+          onClick={() => setActiveTab('preapproved')}
+        >
+          Pre-Approval
+        </TabButton>
+        <TabButton
           active={activeTab === 'search'}
           onClick={() => setActiveTab('search')}
         >
@@ -43,6 +49,7 @@ export default function ExecClientPage({ waitlistTab }: { waitlistTab: React.Rea
 
       {/* Tab Content */}
       {activeTab === 'waitlist' && waitlistTab}
+      {activeTab === 'preapproved' && preApprovalTab}
       {activeTab === 'search' && <UserSearchTab />}
     </>
   );

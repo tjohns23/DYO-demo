@@ -5,6 +5,7 @@ import { getUserArchetypeInfo } from '@/lib/actions/profile';
 import NavHeader from '@/components/NavHeader';
 import ExecClientPage from '@/components/exec/ExecClientPage';
 import WaitlistTab from '@/components/exec/WaitlistTab';
+import PreApprovalTab from '@/components/exec/PreApprovalTab';
 
 export default async function ExecPage() {
   const supabase = await createClient();
@@ -27,7 +28,7 @@ export default async function ExecPage() {
       <NavHeader activePage="exec" archetypeName={archetypeInfo?.name ?? 'Unknown'} isExec={true} />
 
       <div className="max-w-2xl mx-auto px-6 py-10">
-        <ExecClientPage waitlistTab={<WaitlistTab />} />
+        <ExecClientPage waitlistTab={<WaitlistTab />} preApprovalTab={<PreApprovalTab />} />
       </div>
     </div>
   );
