@@ -30,8 +30,9 @@ export default function MissionStep3({ mission, archetypeName, isExec }: Mission
   const [graceSecondsLeft, setGraceSecondsLeft] = useState(() => {
     if (mission.acceptedAt) {
       const elapsed = Math.floor((Date.now() - new Date(mission.acceptedAt).getTime()) / 1000);
-      const remaining = Math.max(0, total - elapsed);
-      return remaining <= 0 ? GRACE_PERIOD : 0;
+      if (elapsed >= total && elapsed < total + GRACE_PERIOD) {
+        return total + GRACE_PERIOD - elapsed;
+      }
     }
     return 0;
   });
@@ -63,31 +64,57 @@ export default function MissionStep3({ mission, archetypeName, isExec }: Mission
   };
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      if (totalSecondsRef.current > 0) {
-        totalSecondsRef.current -= 1;
-        setTotalSeconds(totalSecondsRef.current);
-        if (totalSecondsRef.current === 0) {
-          graceSecondsRef.current = GRACE_PERIOD;
-          setGraceSecondsLeft(GRACE_PERIOD);
+    if (!mission.acceptedAt) return;
+    const acceptedAtMs = new Date(mission.acceptedAt).getTime();
+
+    const tick = () => {
+      const elapsed = Math.floor((Date.now() - acceptedAtMs) / 1000);
+
+      if (elapsed < total) {
+        const newTotal = total - elapsed;
+        totalSecondsRef.current = newTotal;
+        setTotalSeconds(newTotal);
+      } else if (elapsed < total + GRACE_PERIOD) {
+        const newGrace = total + GRACE_PERIOD - elapsed;
+        if (totalSecondsRef.current > 0) {
+          totalSecondsRef.current = 0;
+          setTotalSeconds(0);
         }
-      } else if (graceSecondsRef.current > 0) {
-        graceSecondsRef.current -= 1;
-        setGraceSecondsLeft(graceSecondsRef.current);
-        if (graceSecondsRef.current === 0) {
-          if (!finalizedRef.current && !uploadInProgressRef.current) {
-            finalizedRef.current = true;
-            expireMissionAction(mission.missionId);
-          } else if (!finalizedRef.current) {
-            // Upload is in progress — defer expiry until it resolves
-            graceExpiredRef.current = true;
-          }
+        graceSecondsRef.current = newGrace;
+        setGraceSecondsLeft(newGrace);
+      } else {
+        if (totalSecondsRef.current > 0) { totalSecondsRef.current = 0; setTotalSeconds(0); }
+        if (graceSecondsRef.current > 0) { graceSecondsRef.current = 0; setGraceSecondsLeft(0); }
+        if (!finalizedRef.current && !uploadInProgressRef.current) {
+          finalizedRef.current = true;
+          expireMissionAction(mission.missionId);
+        } else if (!finalizedRef.current) {
+          // Upload is in progress — defer expiry until it resolves
+          graceExpiredRef.current = true;
         }
       }
-    }, 1000);
+    };
 
+    const interval = setInterval(tick, 1000);
     return () => clearInterval(interval);
-  }, [mission.missionId]);
+  }, [mission.missionId, mission.acceptedAt, total]);
+
+  useEffect(() => {
+    if (!mission.acceptedAt) return;
+    const acceptedAtMs = new Date(mission.acceptedAt).getTime();
+
+    const onVisible = () => {
+      if (document.visibilityState !== 'visible') return;
+      const elapsed = Math.floor((Date.now() - acceptedAtMs) / 1000);
+      setTotalSeconds(Math.max(0, total - elapsed));
+      if (elapsed >= total) {
+        setGraceSecondsLeft(Math.max(0, total + GRACE_PERIOD - elapsed));
+      }
+    };
+
+    document.addEventListener('visibilitychange', onVisible);
+    return () => document.removeEventListener('visibilitychange', onVisible);
+  }, [mission.acceptedAt, total]);
 
   const isGrace = totalSeconds <= 0 && graceSecondsLeft > 0;
   const isExpired = totalSeconds <= 0 && graceSecondsLeft <= 0;
