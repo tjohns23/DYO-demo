@@ -37,7 +37,7 @@ export interface DatabaseMission {
   // Generation tracking
   constraint_id: string;
   archetype: string;
-  generated_by: 'gemini' | 'library';
+  generated_by: 'gemini' | 'claude' | 'library';
   
   // Reference (for audit/context)
   work_description: string;

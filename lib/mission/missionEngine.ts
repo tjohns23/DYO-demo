@@ -12,6 +12,7 @@
  */
 
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import Anthropic from '@anthropic-ai/sdk';
 import type { ArchetypeSlug } from '@/lib/actions/assessment';
 import { detectMode, type Mode } from './modeDetector';
 import { detectWorkType, type WorkType } from './workTypeDetector';
@@ -116,7 +117,7 @@ export interface Mission {
   timebox: number;
   
   // Tracking
-  generatedBy: 'gemini' | 'library';
+  generatedBy: 'gemini' | 'claude' | 'library';
   constraintId: string;
   archetype: ArchetypeSlug;
   workType: WorkType;
@@ -336,20 +337,18 @@ function withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {
 export async function generateMissionWithGemini(
   constraint: Constraint,
   userProfile: UserProfile,
-  libraryExamples: LibraryExamples,
   pattern: Pattern,
   workType: WorkType
 ): Promise<GeneratedContent> {
   const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
 
   if (!apiKey) {
-    return createGenericFallback(constraint, libraryExamples, workType, pattern.name);
+    throw new Error('[Gemini] GOOGLE_GENERATIVE_AI_API_KEY is not configured');
   }
 
-  try {
-    const modelName = process.env.GEMINI_MODEL || 'gemini-2.0-flash';
+  const modelName = process.env.GEMINI_MODEL || 'gemini-2.0-flash';
 
-    const client = new GoogleGenerativeAI(apiKey);
+  const client = new GoogleGenerativeAI(apiKey);
     const model = client.getGenerativeModel({ model: modelName });
 
     // Get representative examples to show Gemini format/length only
@@ -417,7 +416,7 @@ Return ONLY valid JSON, no markdown or extra text.`;
     // Parse JSON from response
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
-      return createGenericFallback(constraint, libraryExamples, workType, pattern.name);
+      throw new Error('[Gemini] Response did not contain valid JSON');
     }
 
     const result = JSON.parse(jsonMatch[0]) as {
@@ -431,7 +430,7 @@ Return ONLY valid JSON, no markdown or extra text.`;
 
     // patternName may be null — that's valid. Other fields are required.
     if (!result.constraintName || !result.scope || !result.completion || !result.timebox) {
-      return createGenericFallback(constraint, libraryExamples, workType, pattern.name);
+      throw new Error('[Gemini] Response missing required fields');
     }
 
     const geminiDetectedPattern = !!result.patternName;
@@ -445,10 +444,132 @@ Return ONLY valid JSON, no markdown or extra text.`;
       framing: geminiDetectedPattern ? (result.framing ?? '') : '',
       timebox: result.timebox,
     };
-  } catch (error) {
-    console.error('[Gemini] generation failed:', error);
-    return createGenericFallback(constraint, libraryExamples, workType, pattern.name);
+}
+
+/**
+ * Generates mission content with Claude using library examples as context
+ */
+export async function generateMissionWithClaude(
+  constraint: Constraint,
+  userProfile: UserProfile,
+  pattern: Pattern,
+  workType: WorkType
+): Promise<GeneratedContent> {
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+
+  if (!apiKey) {
+    throw new Error('[Claude] ANTHROPIC_API_KEY is not configured');
   }
+
+  const modelName = process.env.CLAUDE_MODEL || 'claude-3-5-sonnet-20241022';
+
+    const client = new Anthropic({ apiKey });
+
+    // Get representative examples to show Claude format/length only
+    const examples = getRepresentativeExamples(constraint.constraintId);
+
+    const formatHint = examples.length > 0
+      ? `FORMAT REFERENCE (style and tone only — do not copy this content, generate from the user's description):
+${examples.map((ex, i) => {
+  const lines = [
+    `Example ${i + 1} (${ex.workType}):`,
+    `  constraintName: "${ex.workType === examples[0].workType ? 'e.g. "Blitzkrieg Sprint" or "Worst Idea First" — a short punchy name for the constraint applied' : ''}"`,
+    `  framing: "${ex.framing ?? '2-3 sentences explaining why this constraint helps this archetype break their pattern'}"`,
+    `  scope: "${ex.scope}"`,
+    `  completion: "${ex.completion}"`,
+  ];
+  return lines.join('\n');
+}).join('\n\n')}`
+      : `FORMAT REFERENCE: constraintName is a short punchy name (2-4 words), framing is 2-3 sentences, scope is 1-2 sentences, completion is 1 concise sentence.`;
+
+    const prompt = `You are a mission-generation AI for DYO, a productivity app designed for creative people who stall. DYO identifies the specific pattern keeping a user stuck — whether that's analysis paralysis, scope creep, perfectionism, or fear of shipping — and assigns them a time-locked mission with a concrete constraint to break through it. The goal is to move people out of their heads and get their work from ideation through creation and into execution.
+
+PRIMARY SOURCE — base all output on this:
+"${userProfile.workDescription}"
+
+USER CONTEXT:
+- Archetype: ${userProfile.primaryArchetype}
+- Detected Stall Pattern: ${pattern.name}
+- Work Type: ${workType}
+
+CONSTRAINT INSPIRATION (do not copy this name — use it as a creative direction to invent your own):
+- Category: ${constraint.category}
+- Example name from library: "${constraint.constraintName}" (rename this to something specific to the user's work)
+- Suggested timebox range: around ${constraint.defaultTimebox} minutes, adjusted to fit the actual work
+
+STALL PATTERN OPTIONS — only assign one if the description clearly indicates that specific stall (do not use "Work in Progress"):
+${PATTERN_NAMES.map(name => `- ${name}`).join('\n')}
+
+${formatHint}
+
+TASK: Generate a mission grounded in the user's specific work description above.
+
+Rules:
+- The scope and completion must reference what the user actually described — no generic placeholders
+- Do not reuse or paraphrase template language; derive everything from their description
+- The framing explains why this constraint breaks their specific stall pattern (omit framing if no pattern is assigned)
+- Timebox should fit the actual work described, not just the default
+- Only assign a patternName if the description contains clear evidence of that stall — vague or simple descriptions (e.g. "I need to finish X") should return null
+
+Return a JSON object with exactly these fields:
+{
+  "patternName": "A pattern from the list above, or null if the description is too generic to clearly identify one",
+  "constraintName": "Short, punchy name for the constraint you're applying (2-4 words, e.g. 'Blitzkrieg Sprint', 'Worst Idea First')",
+  "framing": "2-3 sentences: why this constraint helps a ${userProfile.primaryArchetype} stuck in their pattern",
+  "scope": "Specific, actionable task derived from the user's description (1-2 sentences)",
+  "completion": "Clear, concrete done-state for their specific work (1 sentence)",
+  "timebox": "Number of minutes that fits the user's work and helps them break their pattern (not just the default)"
+}
+
+Return ONLY valid JSON, no markdown or extra text.`;
+
+    const message = await withTimeout(
+      client.messages.create({
+        model: modelName,
+        max_tokens: 1024,
+        messages: [{ role: 'user', content: prompt }],
+      }),
+      30000
+    ); // 30 second timeout
+
+    const responseContent = message.content[0];
+    if (!responseContent || responseContent.type !== 'text') {
+      throw new Error('[Claude] Unexpected response format');
+    }
+
+    const text = responseContent.text;
+
+    // Parse JSON from response
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      throw new Error('[Claude] Response did not contain valid JSON');
+    }
+
+    const result = JSON.parse(jsonMatch[0]) as {
+      patternName?: string | null;
+      constraintName?: string;
+      scope?: string;
+      completion?: string;
+      framing?: string;
+      timebox?: number;
+    };
+
+    // patternName may be null — that's valid. Other fields are required.
+    if (!result.constraintName || !result.scope || !result.completion || !result.timebox) {
+      throw new Error('[Claude] Response missing required fields');
+    }
+
+    const claudeDetectedPattern = !!result.patternName;
+
+    return {
+      patternName: result.patternName ?? '',
+      constraintName: result.constraintName,
+      scope: result.scope,
+      completion: result.completion,
+      // Only include framing if a pattern was identified
+      framing: claudeDetectedPattern ? (result.framing ?? '') : '',
+      timebox: result.timebox,
+    };
 }
 
 /**
@@ -535,7 +656,7 @@ export function assembleMission(
   constraint: Constraint,
   userProfile: UserProfile,
   workType: WorkType,
-  generatedBy: 'gemini' | 'library' = 'library',
+  generatedBy: 'gemini' | 'claude' | 'library' = 'library',
   patternDetected: boolean = true
 ): Mission {
   return {
@@ -569,6 +690,7 @@ export function assembleMission(
 /**
  * Main mission generation function
  * Orchestrates the complete pipeline with error handling and fallbacks
+ * Supports dual LLM configuration: primary LLM with fallback to secondary
  */
 export async function generateMission(
   userProfile: UserProfile
@@ -594,19 +716,62 @@ export async function generateMission(
       workType
     );
 
-    // STEP 6: Generate full mission content with Gemini
-    const generated = await generateMissionWithGemini(
-      constraint,
-      userProfile,
-      libraryExamples,
-      pattern,
-      workType
-    );
+    // STEP 6: Generate full mission content with primary LLM and fallback
+    const primaryLlm = (process.env.PRIMARY_LLM || 'gemini') as 'gemini' | 'claude';
+    const fallbackLlm = (process.env.FALLBACK_LLM || 'claude') as 'gemini' | 'claude';
+
+    let generated: GeneratedContent;
+    let usedLlm: 'gemini' | 'claude' | 'library' = primaryLlm;
+
+    try {
+      if (primaryLlm === 'claude') {
+        generated = await generateMissionWithClaude(
+          constraint,
+          userProfile,
+          pattern,
+          workType
+        );
+      } else {
+        generated = await generateMissionWithGemini(
+          constraint,
+          userProfile,
+          pattern,
+          workType
+        );
+      }
+    } catch (primaryError) {
+      console.warn(`[${primaryLlm}] generation failed, falling back to ${fallbackLlm}:`, primaryError);
+      usedLlm = fallbackLlm;
+
+      try {
+        if (fallbackLlm === 'claude') {
+          generated = await generateMissionWithClaude(
+            constraint,
+            userProfile,
+            pattern,
+            workType
+          );
+        } else {
+          generated = await generateMissionWithGemini(
+            constraint,
+            userProfile,
+            pattern,
+            workType
+          );
+        }
+      } catch (fallbackError) {
+        console.error(`[${fallbackLlm}] fallback also failed:`, fallbackError);
+        // Fall through to library fallback below
+        generated = createGenericFallback(constraint, libraryExamples, workType, pattern.name);
+        usedLlm = 'library';
+      }
+    }
 
     // STEP 7: Validate output
     const validation = validateGeneration(generated, constraint);
 
     if (!validation.valid) {
+      console.warn('[Validation] Generated content invalid, using library fallback:', validation.issues);
       const fallback = createGenericFallback(constraint, libraryExamples, workType, pattern.name);
       return assembleMission(
         fallback,
@@ -619,18 +784,24 @@ export async function generateMission(
     }
 
     // STEP 8: Assemble final mission
+    // For LLM output: framing is empty-string when no pattern was detected
+    // For library fallback: createGenericFallback always returns a non-empty framing,
+    // so we must derive patternDetected from the detection result directly
+    const patternDetected = usedLlm === 'library'
+      ? detectionResult.matchCount > 0 && pattern.id !== 'generic_stall'
+      : !!generated.framing;
+
     const mission = assembleMission(
       generated,
       constraint,
       userProfile,
       workType,
-      'gemini',
-      !!generated.framing  // Gemini only sets framing when it found a real pattern
+      usedLlm,
+      patternDetected
     );
 
     return mission;
-  } catch (error) {
-
+  } catch {
     // Re-throw — selectConstraint and detectPattern no longer throw on coverage gaps,
     // so if we're here something genuinely unexpected happened.
     throw new Error('Mission generation failed completely');
