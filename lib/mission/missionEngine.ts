@@ -461,7 +461,7 @@ export async function generateMissionWithClaude(
     throw new Error('[Claude] ANTHROPIC_API_KEY is not configured');
   }
 
-  const modelName = process.env.CLAUDE_MODEL || 'claude-3-5-sonnet-20241022';
+  const modelName = process.env.CLAUDE_MODEL || 'claude-sonnet-4-6';
 
     const client = new Anthropic({ apiKey });
 
