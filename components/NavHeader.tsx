@@ -6,9 +6,10 @@ interface NavHeaderProps {
   archetypeName?: string;
   rightSlot?: React.ReactNode;
   isExec?: boolean;
+  isBetaApproved?: boolean;
 }
 
-export default function NavHeader({ activePage, archetypeName, rightSlot, isExec }: NavHeaderProps) {
+export default function NavHeader({ activePage, archetypeName, rightSlot, isExec, isBetaApproved }: NavHeaderProps) {
   const activeClass = 'font-mono text-xs px-4 py-1.5 rounded-full text-[var(--glass-accent)] border border-[var(--glass-border)] bg-[var(--glass-accent-dim)]';
   const inactiveClass = 'font-mono text-xs px-4 py-1.5 rounded-full text-[var(--glass-text-muted)] border border-transparent hover:border-[var(--glass-border)] hover:text-[var(--glass-text-primary)] transition-all';
 
@@ -33,13 +34,22 @@ export default function NavHeader({ activePage, archetypeName, rightSlot, isExec
       </div>
       <div>
         {rightSlot ?? (
-          archetypeName ? (
-            <div className="font-mono text-xs px-3.5 py-1.5 rounded-full border border-[var(--glass-border)] text-[var(--glass-accent)]">
-              {archetypeName}
-            </div>
-          ) : (
-            <div style={{ width: '1px' }} />
-          )
+          <div className="flex items-center gap-2">
+            {isExec ? (
+              <div className="font-mono text-xs px-3.5 py-1.5 rounded-full border border-[#D97706] text-[#D97706] bg-[rgba(217,119,6,0.1)]">
+                Executive
+              </div>
+            ) : isBetaApproved ? (
+              <div className="font-mono text-xs px-3.5 py-1.5 rounded-full border border-[#D97706] text-[#D97706] bg-[rgba(217,119,6,0.1)]">
+                Beta User
+              </div>
+            ) : null}
+            {archetypeName && (
+              <div className="font-mono text-xs px-3.5 py-1.5 rounded-full border border-[var(--glass-border)] text-[var(--glass-accent)]">
+                {archetypeName}
+              </div>
+            )}
+          </div>
         )}
       </div>
     </header>

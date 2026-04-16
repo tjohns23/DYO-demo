@@ -32,7 +32,7 @@ export default async function HomePage() {
 
   return (
     <div className="min-h-screen bg-background" style={{ backgroundImage: 'radial-gradient(ellipse 60% 40% at 30% 0%, rgba(120,20,50,0.2) 0%, transparent 70%)' }}>
-      <NavHeader activePage="home" archetypeName={archetypeInfo?.name ?? 'Unknown'} isExec={isExec} />
+      <NavHeader activePage="home" archetypeName={archetypeInfo?.name ?? 'Unknown'} isExec={isExec} isBetaApproved={true} />
       <div className="max-w-280 mx-auto grid grid-cols-[1fr_400px] gap-8 px-6 py-4 pb-10 items-start">
         <HomePageClient />
         <HomeRightPanel />
