@@ -69,7 +69,7 @@ export async function GET(request: NextRequest) {
       .single();
 
     const isBetaApproved = profileData?.beta_approved === true;
-    const redirectPath = isBetaApproved ? '/dashboard' : '/waitlist';
+    const redirectPath = isBetaApproved ? '/home' : '/waitlist';
 
     // Create the single final response — all cookies are applied to this one object
     const response = NextResponse.redirect(`${origin}${redirectPath}`);

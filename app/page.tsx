@@ -20,8 +20,8 @@ export default async function Home() {
     const profile = await getUserArchetypeProfile();
     
     if (profile) {
-      // Both authenticated AND has assessment → go to dashboard
-      redirect('/dashboard');
+      // Both authenticated AND has assessment → go to home
+      redirect('/home');
     }
     // If no profile but authenticated, fall through to show quiz (edge case recovery)
   }

@@ -2,7 +2,7 @@ import Link from 'next/link';
 import React from 'react';
 
 interface NavHeaderProps {
-  activePage: 'mission' | 'dashboard' | 'exec';
+  activePage: 'home' | 'mission' | 'dashboard' | 'exec';
   archetypeName?: string;
   rightSlot?: React.ReactNode;
   isExec?: boolean;
@@ -16,6 +16,9 @@ export default function NavHeader({ activePage, archetypeName, rightSlot, isExec
     <header className="sticky top-0 z-50 flex items-center justify-between px-6 py-4 bg-[var(--glass-surface)] backdrop-blur-[20px] border-b border-[var(--glass-border)]">
       <div className="font-mono text-sm font-medium text-[var(--glass-accent)] tracking-[0.2em]">DYO</div>
       <div className="flex gap-1">
+        <Link href="/home" className={activePage === 'home' ? activeClass : inactiveClass}>
+          Home
+        </Link>
         <Link href="/mission" className={activePage === 'mission' ? activeClass : inactiveClass}>
           Mission
         </Link>
