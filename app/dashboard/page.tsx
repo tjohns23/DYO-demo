@@ -5,6 +5,8 @@ import NavHeader from '@/components/NavHeader';
 import { getMissionStatsAction, getMissionHistoryAction, getActiveMissionAction } from '@/lib/actions/mission';
 import ActiveMissionBanner from '@/components/dashboard/ActiveMissionBanner';
 import MissionCharts from '@/components/dashboard/MissionCharts';
+import PersonalRecordsPanel from '@/components/dashboard/PersonalRecordsPanel';
+import CoachInsightsPanel from '@/components/dashboard/CoachInsightsPanel';
 import { createClient } from '@/lib/supabase-server';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 
@@ -40,22 +42,19 @@ export default async function DashboardPage() {
       <NavHeader activePage="dashboard" archetypeName={archetypeInfo?.name ?? 'Unknown'} isExec={isExec} isBetaApproved={true} />
 
       {/* Three-column layout */}
-      <div className="max-w-[1400px] mx-auto grid grid-cols-[1fr_2fr_1fr] gap-4 p-4 pb-10 items-start">
+      <div className="max-w-[1400px] mx-auto grid grid-cols-[1fr_2.4fr_1fr] gap-4 p-4 pb-10 items-start">
 
-        {/* LEFT — Friends (coming soon) */}
-        <div className="bg-[var(--glass-surface)] border border-[var(--glass-border)] rounded-2xl p-5 flex flex-col gap-3">
-          <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-[var(--glass-text-muted)] pb-2.5 border-b border-[rgba(255,255,255,0.05)]">
-            Friends Active
-          </div>
-          <div className="flex flex-col items-center justify-center py-10 gap-3">
-            <div className="w-10 h-10 rounded-full bg-[var(--glass-surface)] border border-[var(--glass-border)] flex items-center justify-center text-[var(--glass-text-dimmer)] text-lg">
-              ◌
-            </div>
-            <div className="text-xs text-[var(--glass-text-dimmer)] text-center font-mono uppercase tracking-[0.1em]">
-              Coming soon
-            </div>
-          </div>
-        </div>
+        {/* LEFT — Personal Records */}
+        {stats && (
+          <PersonalRecordsPanel
+            totalCompleted={stats.totalCompleted}
+            currentStreak={stats.currentStreak}
+            longestStreak={stats.longestStreak}
+            totalTimeInvestedMinutes={stats.totalTimeInvestedMinutes}
+            fastestMissionMinutes={stats.fastestMissionMinutes}
+            bestDayOfWeek={stats.bestDayOfWeek}
+          />
+        )}
 
         {/* CENTER */}
         <div className="bg-[var(--glass-surface)] border border-[var(--glass-border)] rounded-2xl p-6 flex flex-col gap-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.04),0_8px_40px_rgba(0,0,0,0.3)]">
@@ -122,7 +121,8 @@ export default async function DashboardPage() {
             <MissionCharts
               completed={stats.totalCompleted}
               expired={stats.totalExpired}
-              weeklyRaw={stats.weeklyRaw}
+              biweeklyRaw={stats.biweeklyRaw}
+              commonPatterns={stats.commonPatterns}
             />
           )}
 
@@ -134,22 +134,37 @@ export default async function DashboardPage() {
 
             {stats && stats.commonPatterns.length > 0 && (
               <>
-                <div className="font-mono text-[9px] uppercase tracking-[0.15em] text-[var(--glass-text-dimmer)] mb-3">Top Stall Patterns</div>
-                <div className="flex flex-col gap-2.5">
-                  {stats.commonPatterns.map((p) => (
-                    <div key={p.name} className="flex flex-col gap-1">
-                      <div className="flex justify-between items-center">
-                        <span className="text-xs text-[var(--glass-text-muted)]">{p.name}</span>
-                        <span className="font-mono text-[10px] text-[var(--glass-text-muted)]">{p.completionRate}%</span>
+                <div className="mb-3">
+                  <div className="font-mono text-[9px] uppercase tracking-[0.15em] text-[var(--glass-text-dimmer)]">Pattern Success Rates</div>
+                  <div className="text-[10px] text-[#9a7080] mt-0.5">How often you finish each type of mission</div>
+                </div>
+                <div className="flex flex-col gap-3">
+                  {stats.commonPatterns.map((p) => {
+                    const barColor = p.completionRate >= 70
+                      ? '#3de08a'
+                      : p.completionRate >= 40
+                      ? '#e0a030'
+                      : '#e05030';
+                    return (
+                      <div key={p.name} className="flex flex-col gap-1">
+                        <div className="flex justify-between items-center">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <span className="text-xs text-[var(--glass-text-muted)] truncate">{p.name}</span>
+                            <span className="font-mono text-[9px] text-[var(--glass-text-dimmer)] shrink-0">({p.total})</span>
+                          </div>
+                          <span className="font-mono text-[10px] font-medium shrink-0 ml-2" style={{ color: barColor }}>
+                            {p.completionRate}% completed
+                          </span>
+                        </div>
+                        <div className="h-1 bg-[rgba(255,255,255,0.05)] rounded-full overflow-hidden">
+                          <div
+                            className="h-full rounded-full transition-all"
+                            style={{ width: `${p.completionRate}%`, background: barColor }}
+                          />
+                        </div>
                       </div>
-                      <div className="h-1 bg-[rgba(255,255,255,0.05)] rounded-full overflow-hidden">
-                        <div
-                          className="h-full rounded-full"
-                          style={{ width: `${p.completionRate}%`, background: 'linear-gradient(90deg, #8a3050, #e03060)' }}
-                        />
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </>
             )}
@@ -207,20 +222,16 @@ export default async function DashboardPage() {
           </div>
         </div>
 
-        {/* RIGHT — Recommendations (coming soon) */}
-        <div className="bg-[var(--glass-surface)] border border-[var(--glass-border)] rounded-2xl p-5 flex flex-col gap-3">
-          <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-[var(--glass-text-muted)] pb-2.5 border-b border-[rgba(255,255,255,0.05)]">
-            Mission Recommendations
-          </div>
-          <div className="flex flex-col items-center justify-center py-10 gap-3">
-            <div className="w-10 h-10 rounded-full bg-[var(--glass-surface)] border border-[var(--glass-border)] flex items-center justify-center text-[var(--glass-text-dimmer)] text-lg">
-              ◌
-            </div>
-            <div className="text-xs text-[var(--glass-text-dimmer)] text-center font-mono uppercase tracking-[0.1em]">
-              Coming soon
-            </div>
-          </div>
-        </div>
+        {/* RIGHT — Coach Insights */}
+        {stats && (
+          <CoachInsightsPanel
+            totalCompleted={stats.totalCompleted}
+            completionRate={stats.completionRate}
+            currentStreak={stats.currentStreak}
+            commonPatterns={stats.commonPatterns}
+            timeboxEfficiencyPct={stats.timeboxEfficiencyPct}
+          />
+        )}
 
       </div>
     </div>

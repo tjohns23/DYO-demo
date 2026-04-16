@@ -250,8 +250,13 @@ export type MissionStats = {
   completionRate: number;
   averageCompletionTimeMinutes: number | null;
   currentStreak: number;
+  longestStreak: number;
+  totalTimeInvestedMinutes: number;
+  fastestMissionMinutes: number | null;
+  bestDayOfWeek: string | null;
+  timeboxEfficiencyPct: number | null;
   commonPatterns: { name: string; total: number; completionRate: number }[];
-  weeklyRaw: { created_at: string; status: string }[];
+  biweeklyRaw: { created_at: string; status: string }[];
 };
 
 export type MissionHistoryItem = {
@@ -278,7 +283,7 @@ export async function getMissionStatsAction(): Promise<{
     if (!user) return { success: false, error: 'User not authenticated.' };
     const userId = user.id;
 
-    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+    const fourteenDaysAgo = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString();
 
     const [
       totalResult,
@@ -287,15 +292,15 @@ export async function getMissionStatsAction(): Promise<{
       timesResult,
       streakResult,
       patternResult,
-      weeklyResult,
+      biweeklyResult,
     ] = await Promise.all([
       supabaseAdmin.from('missions').select('*', { count: 'exact', head: true }).eq('user_id', userId),
       supabaseAdmin.from('missions').select('*', { count: 'exact', head: true }).eq('user_id', userId).eq('status', 'completed'),
       supabaseAdmin.from('missions').select('*', { count: 'exact', head: true }).eq('user_id', userId).eq('status', 'expired'),
-      supabaseAdmin.from('missions').select('time_to_completion').eq('user_id', userId).eq('status', 'completed').not('time_to_completion', 'is', null),
-      supabaseAdmin.from('missions').select('status').eq('user_id', userId).in('status', ['completed', 'expired']).order('created_at', { ascending: false }).limit(30),
+      supabaseAdmin.from('missions').select('time_to_completion, timebox, created_at').eq('user_id', userId).eq('status', 'completed').not('time_to_completion', 'is', null),
+      supabaseAdmin.from('missions').select('status').eq('user_id', userId).in('status', ['completed', 'expired']).order('created_at', { ascending: false }).limit(500),
       supabaseAdmin.from('missions').select('pattern, status').eq('user_id', userId),
-      supabaseAdmin.from('missions').select('created_at, status').eq('user_id', userId).gte('created_at', sevenDaysAgo).in('status', ['completed', 'expired']),
+      supabaseAdmin.from('missions').select('created_at, status').eq('user_id', userId).gte('created_at', fourteenDaysAgo).in('status', ['completed', 'expired']),
     ]);
 
     const totalGenerated = totalResult.count ?? 0;
@@ -305,17 +310,55 @@ export async function getMissionStatsAction(): Promise<{
       ? Math.round((totalCompleted / (totalCompleted + totalExpired)) * 100)
       : 0;
 
-    // Average completion time in minutes
-    const times = (timesResult.data ?? []).map(r => r.time_to_completion as number);
-    const averageCompletionTimeMinutes = times.length > 0
-      ? Math.round(times.reduce((a, b) => a + b, 0) / times.length / 60)
+    // Completion time stats
+    const completedMissions = (timesResult.data ?? []).map(r => ({
+      seconds: r.time_to_completion as number,
+      timebox: r.timebox as number,
+      createdAt: r.created_at as string,
+    }));
+    const secondsList = completedMissions.map(r => r.seconds);
+    const averageCompletionTimeMinutes = secondsList.length > 0
+      ? Math.round(secondsList.reduce((a, b) => a + b, 0) / secondsList.length / 60)
+      : null;
+    const totalTimeInvestedMinutes = Math.round(secondsList.reduce((a, b) => a + b, 0) / 60);
+    const fastestMissionMinutes = secondsList.length > 0
+      ? Math.round(Math.min(...secondsList) / 60)
       : null;
 
-    // Streak: consecutive completed missions from most recent
+    // Best day of week (by completed mission count)
+    const dayCount = new Map<string, number>();
+    for (const r of completedMissions) {
+      const day = new Date(r.createdAt).toLocaleDateString('en-US', { weekday: 'long' });
+      dayCount.set(day, (dayCount.get(day) ?? 0) + 1);
+    }
+    const bestDayOfWeek = dayCount.size > 0
+      ? [...dayCount.entries()].sort((a, b) => b[1] - a[1])[0][0]
+      : null;
+
+    // Timebox efficiency: avg (time_to_completion / timebox) as percentage
+    const efficiencies = completedMissions
+      .filter(r => r.timebox > 0)
+      .map(r => (r.seconds / (r.timebox * 60)) * 100);
+    const timeboxEfficiencyPct = efficiencies.length > 0
+      ? Math.round(efficiencies.reduce((a, b) => a + b, 0) / efficiencies.length)
+      : null;
+
+    // Current streak and longest streak in one pass (desc order)
     let currentStreak = 0;
+    let longestStreak = 0;
+    let currentRun = 0;
+    let currentStreakDone = false;
     for (const row of (streakResult.data ?? [])) {
-      if (row.status !== 'completed') break;
-      currentStreak++;
+      if (!currentStreakDone) {
+        if (row.status === 'completed') currentStreak++;
+        else currentStreakDone = true;
+      }
+      if (row.status === 'completed') {
+        currentRun++;
+        if (currentRun > longestStreak) longestStreak = currentRun;
+      } else {
+        currentRun = 0;
+      }
     }
 
     // Common patterns: group by pattern, compute per-pattern completion rate
@@ -336,7 +379,7 @@ export async function getMissionStatsAction(): Promise<{
         completionRate: total > 0 ? Math.round((completed / total) * 100) : 0,
       }));
 
-    const weeklyRaw = (weeklyResult.data ?? []).map(r => ({ created_at: r.created_at as string, status: r.status as string }));
+    const biweeklyRaw = (biweeklyResult.data ?? []).map(r => ({ created_at: r.created_at as string, status: r.status as string }));
 
     return {
       success: true,
@@ -347,8 +390,13 @@ export async function getMissionStatsAction(): Promise<{
         completionRate,
         averageCompletionTimeMinutes,
         currentStreak,
+        longestStreak,
+        totalTimeInvestedMinutes,
+        fastestMissionMinutes,
+        bestDayOfWeek,
+        timeboxEfficiencyPct,
         commonPatterns,
-        weeklyRaw,
+        biweeklyRaw,
       },
     };
   } catch (error) {
